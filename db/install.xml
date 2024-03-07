@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/edusign/db" VERSION="20240221" COMMENT="XMLDB file for Moodle mod/edusign"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="edusign" COMMENT="Edusign module table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="id of the table, please edit me"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="This is maximum grade for instance"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The time the settings for this edusign instance were last modified."/>
+        <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="This field is a requirement for activity modules."/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="This field is a requirement for activity modules."/>
+        <FIELD NAME="subnet" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Default subnet used when creating sessions."/>
+        <FIELD NAME="sessiondetailspos" TYPE="char" LENGTH="5" NOTNULL="true" DEFAULT="left" SEQUENCE="false" COMMENT="Position for the session detail columns related to summary columns."/>
+        <FIELD NAME="showsessiondetails" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Define if session details should be shown in reports."/>
+        <FIELD NAME="showextrauserdetails" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Define if extra user details should be shown in reports."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for edusign"/>
+        <KEY NAME="fk_edusign_course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="edusign_sessions" COMMENT="Edusign session table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT="id of remote edusign api id"/>
+        <FIELD NAME="edusign_api_id" TYPE="char" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="id of remote edusign api id"/>
+        <FIELD NAME="activity_module_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of 'edusign' table instance"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Title of attendance sheet/session"/>
+        <FIELD NAME="date_start" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="start time of attendance sheet/session"/>
+        <FIELD NAME="date_end" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="end time of attendance sheet/session"/>
+        <FIELD NAME="archived" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Define if the session is archived or not"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for edusign_sessions"/>
+        <KEY NAME="fk_edusign_sessions_activity_module_id" TYPE="foreign" FIELDS="activity_module_id" REFTABLE="edusign" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="course_edusign_api" COMMENT="Edusign session table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of course id of moodle"/>
+        <FIELD NAME="edusign_api_id" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="id of remote edusign api id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for course_edusign_api"/>
+        <KEY NAME="fk_course_edusign_api_course_id" TYPE="foreign" FIELDS="course_id" REFTABLE="course" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="unq_course_id" UNIQUE="true" FIELDS="course_id"/>
+        <INDEX NAME="unq_edusign_api_id" UNIQUE="true" FIELDS="edusign_api_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="users_edusign_api" COMMENT="Edusign session table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of user of moodle"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="role of user"/>
+        <FIELD NAME="edusign_api_id" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="id of remote edusign api id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for users_edusign_api"/>
+        <KEY NAME="fk_user_edusign_api_course_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="users_edusign_api" UNIQUE="true" FIELDS="user_id,role,edusign_api_id"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

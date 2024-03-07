@@ -1,0 +1,82 @@
+<main>
+  <div class="d-flex justify-content-between mb-1">
+    <h2>{{#str}}session, mod_edusign{{/str}}</h2>
+    <div class="d-flex">
+      <a href="#" id="refresh-button" class="action-icon d-flex align-items-center ml-2" style="text-decoration: none;"
+        data-toggle="tooltip" data-placement="top" title="{{#str}}refresh_help, mod_edusign{{/str}}">
+        <i class="icon fa-solid fa-arrows-rotate" role="img" title="{{#str}}refresh, mod_edusign{{/str}}"
+          aria-label="{{#str}}refresh, mod_edusign{{/str}}"></i>
+      </a>
+      <button disabled id="sign-selected-btn" class="btn btn-primary" type="button" data-toggle="tooltip"
+        data-placement="top" title="{{#str}}signSelected_help, mod_edusign{{/str}}">
+        {{#str}}sendSignatureMailSelected, mod_edusign{{/str}}
+      </button>
+    </div>
+  </div>
+  <table class="students-table table table-striped" data-instance-id="{{instance.id}}" data-session-id="{{session.id}}">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 37px;"><input type="checkbox" id="main-checkbox" /></th>
+        <th scope="col">{{#str}}studentName, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 500px">{{#str}}status, mod_edusign{{/str}}</th>
+        <th scope="col" style="text-align: right; width: 500px;">{{#str}}action, mod_edusign{{/str}}</th>
+      </tr>
+    </thead>
+    <tbody id="studentListTbody">
+      <tr scope="row">
+        <th colspan="4">
+          <h4 class="text-center">{{#str}}loading, mod_edusign{{/str}}</h4>
+        </th>
+      </tr>
+    </tbody>
+  </table>
+  <div id="teachersList" class="d-flex flex-row-reverse"></div>
+  <button
+    class="btn btn-danger float-right mt-5"
+    id="archive-session-btn"
+    data-toggle="tooltip"
+    data-placement="top"
+    title="{{#str}}archiveSession_help, mod_edusign{{/str}}"
+  >
+    {{#str}}archiveSession, mod_edusign{{/str}}
+  </button>
+</main>
+
+<template id="studentRow">
+  <tr>
+    <th scope="row"><input type="checkbox" class="user-checkbox" /></th>
+    <td class="fullname"></td>
+    <td class="presential-state"></td>
+    <td class="actions" style="text-align: right;">
+      <div class="btn-group">
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+          aria-expanded="false">
+          {{#str}}changePresenceStatus, mod_edusign{{/str}}
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item manual-sign-btn" href="#">{{#str}}manualSignature, mod_edusign{{/str}}</a>
+          <a class="dropdown-item justified-abscence-btn" href="#">{{#str}}absence, mod_edusign{{/str}}</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item late-btn" href="#">{{#str}}delay, mod_edusign{{/str}}</a>
+          <a class="dropdown-item early-departure-btn" href="#">{{#str}}earlyDeparture, mod_edusign{{/str}}</a>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary send-sign-email-btn" data-toggle="tooltip" data-placement="top"
+        title="{{#str}}sendSignatureMail, mod_edusign{{/str}}">
+        <i class="fa fa-envelope" aria-hidden="true"></i>
+      </button>
+    </td>
+  </tr>
+</template>
+
+<template id="teachers">
+  <div class="teacher d-flex flex-column ml-5 text-center">
+    <span class="teacher--label text-muted">{{#str}}teacherSignature, mod_edusign{{/str}}</span>
+    <span class="teacher--name"><strong>Teacher name</strong></span>
+    <div class="teacher--actions d-flex flex-column text-center mt-3">
+      <button type="button" class="btn btn-secondary manual-sign-btn--teacher">{{#str}}manualSignature,
+        mod_edusign{{/str}}</button>
+    </div>
+    <img class="teacher--signature-img signature" src="https://via.placeholder.com/150" alt="Teacher signature" />
+  </div>
+</template>

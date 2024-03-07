@@ -1,0 +1,89 @@
+<main>
+  <a href="sessions.php?cmId={{cmId}}" class="btn btn-primary mb-5">{{#str}}add_session, mod_edusign{{/str}}</a>
+  
+  <h2>Session en cours</h2>
+  <table class="table table-striped unarchived-sessions mb-6">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 200px;text-align: right;">{{#str}}date, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}hourStart, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}hourEnd, mod_edusign{{/str}}</th>
+        <th scope="col">{{#str}}title, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 110px;">{{#str}}action, mod_edusign{{/str}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#unarchivedSessions}}
+        <tr scope="row" data-session-id="{{id}}">
+          <td style="text-align: right;">
+            {{#userdate}} {{date}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}}
+          </td>
+          <td>{{time_start}}</td>
+          <td>{{time_end}}</td>
+          <td>{{{title}}}</td>
+          <td>
+            <div>
+              <a href="take.php?sessionId={{id}}" class="action-icon" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}takeAttendance, mod_edusign{{/str}}">
+                <i class="icon fa-solid fa-play" role="img" title="{{#str}}takeAttendance, mod_edusign{{/str}}" aria-label="{{#str}}takeAttendance, mod_edusign{{/str}}"></i>
+              </a>
+              <a href="sessions.php?cmId={{cmId}}&sessionId={{id}}" class="action-icon" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}editAttendance, mod_edusign{{/str}}">
+                <i class="icon fa fa-gear" role="img" title="{{#str}}editAttendance, mod_edusign{{/str}}" aria-label="{{#str}}editAttendance, mod_edusign{{/str}}"></i>
+              </a>
+              <a href="#" class="action-icon archive-session" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}archiveSession, mod_edusign{{/str}}">
+                <i class="icon fa fa-box-archive" role="img" title="{{#str}}archiveSession, mod_edusign{{/str}}" aria-label="{{#str}}archiveSession, mod_edusign{{/str}}"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      {{/unarchivedSessions}}
+      {{^unarchivedSessions}}
+        <tr>
+          <td colspan="5" style="text-align: center;">{{#str}}noUnarchivedSession, mod_edusign{{/str}}</td>
+        </tr>
+      {{/unarchivedSessions}}
+    </tbody>
+  </table>
+  
+  <h2>Session archivées</h2>
+  <table class="table table-striped archived-sessions">
+    <thead>
+      <tr>
+        <th scope="col" style="width: 200px;text-align: right;">{{#str}}date, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}hourStart, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}hourEnd, mod_edusign{{/str}}</th>
+        <th scope="col">{{#str}}title, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 110px;">{{#str}}action, mod_edusign{{/str}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#archivedSessions}}
+        <tr scope="row" data-session-id="{{id}}">
+          <td style="text-align: right;">
+            {{#userdate}} {{date}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}}
+          </td>
+          <td>{{time_start}}</td>
+          <td>{{time_end}}</td>
+          <td>{{{title}}}</td>
+          <td>
+            <div>
+              <a href="https://edusign.app/school/attendance-lists/{{edusign_api_id}}" target="_blank" class="action-icon" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}showOnEdusignWebsite, mod_edusign{{/str}}">
+                <i class="icon fa fa-arrow-up-right-from-square" role="img" title="{{#str}}showOnEdusignWebsite, mod_edusign{{/str}}" aria-label="{{#str}}showOnEdusignWebsite, mod_edusign{{/str}}"></i>
+              </a>
+              <a href="#" class="action-icon unarchive-session" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}unarchiveSession, mod_edusign{{/str}}">
+                <i class="icon fa fa-arrow-up" role="img" title="{{#str}}unarchiveSession, mod_edusign{{/str}}" aria-label="{{#str}}unarchiveSession, mod_edusign{{/str}}"></i>
+              </a>
+              <a href="#" class="action-icon remove-session" style="text-decoration: none;" data-toggle="tooltip" data-placement="top" title="{{#str}}deleteAttendance, mod_edusign{{/str}}">
+                <i class="icon fa fa-trash-can" role="img" title="{{#str}}deleteAttendance, mod_edusign{{/str}}" aria-label="{{#str}}deleteAttendance, mod_edusign{{/str}}"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      {{/archivedSessions}}
+      {{^archivedSessions}}
+        <tr>
+          <td colspan="5" style="text-align: center;">{{#str}}noArchivedSession, mod_edusign{{/str}}</td>
+        </tr>
+      {{/archivedSessions}}
+    </tbody>
+  </table>
+</main>

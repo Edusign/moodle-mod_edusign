@@ -1,0 +1,101 @@
+<?php
+/**
+ * Strings for component 'mod_edusign', language 'en'
+ *
+ * @package   mod_edusign
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+$string['modulename'] = 'Edusign';
+$string['modulename_help'] = 'The edusign activity module enables a teacher to take attendance during class and students to view their own attendance record.';
+$string['loading'] = 'Loading ...';
+/*************
+ * Settings Page
+ *************/
+
+/** Settings Tab */
+$string['settings'] = 'Settings';
+$string['settings_section_config'] = 'Plugin configuration';
+$string['apiurl_text'] = 'API URL';
+$string['apiurl_text_help'] = 'API URL to contact edusign services';
+$string['apikey_text'] = 'API Key';
+$string['apikey_text_help'] = 'API Key for synchronizing users and courses with Edusign';
+
+/** Settings Plugin Health Tab */
+
+$string['plugin_health'] = 'Plugin Health';
+$string['test_api_error'] = 'An error occurred while connecting to the API : {$a}';
+$string['test_api_success'] = 'API connection test successful';
+$string['testapiconnection'] = 'Test API connection';
+
+/** Attendance */
+$string['attendance'] = 'Attendance';
+$string['add_session'] = 'Add a session';
+$string['date'] = 'Date';
+$string['hourStart'] = 'Start time';
+$string['hourEnd'] = 'End time';
+$string['title'] = 'Title';
+$string['action'] = 'Action';
+$string['takeAttendance'] = 'Take attendance';
+$string['editAttendance'] = 'Edit attendance';
+$string['deleteAttendance'] = 'Delete attendance';
+$string['removeSession'] = 'Remove session';
+$string['removeSessionQuestions'] = 'You are about to delete a session. Are you sure you want to continue ?';
+$string['removeSessionAndSheet'] = 'Also delete the attendance sheet on Edusign ( Warning, irreversible action )';
+$string['archiveSessionQuestion'] = 'You are about to archive a session. Are you sure you want to continue?';
+$string['unarchiveSessionQuestion'] = 'You are about to unarchive a session. Are you sure you want to continue?';
+
+/** Add Session */
+$string['addsession'] = 'Add a session';
+$string['editSession'] = 'Edit a session';
+$string['sessiondate'] = 'Session date';
+$string['from'] = 'From';
+$string['to'] = 'to';
+$string['time'] = 'Time';
+$string['savechanges'] = 'Save changes';
+$string['errorsessiondateinpast'] = 'Session date cannot be in the past';
+$string['errorstartdatebeforeenddate'] = 'Start date cannot be after end date';
+
+/** Session */
+$string['session'] = 'Session';
+$string['status'] = 'Status';
+$string['studentName'] = 'Name';
+$string['refresh'] = 'refresh';
+$string['refresh_help'] = 'Refresh the attendance sheet';
+$string['changePresenceStatus'] = 'Presence';
+$string['manualSignature'] = 'Manual signature';
+$string['absence'] = 'Absence';
+$string['delay'] = 'Delay';
+$string['earlyDeparture'] = 'Early departure';
+$string['sendSignatureMail'] = 'Send signature mail';
+$string['sendSignatureMailSelected'] = 'Grouped signatures mailings';
+$string['signSelected_help'] = 'To send emails to several people, please select users from the table';
+$string['teacherSignature'] = 'Teacher’s signature';
+$string['present'] = 'Present';
+$string['noData'] = 'No data';
+$string['waitingSignature'] = 'Waiting for signature';
+$string['minLate'] = 'min late';
+$string['departureAt'] = 'Early departure at';
+$string['archive'] = 'Archive';
+$string['archiveSession_help'] = 'Archive the session';
+$string['archiveSession'] = 'Archive the session';
+$string['unarchiveSession'] = 'Disarchive the session';
+$string['sessionArchivedCannotTake'] = 'This session is archived, you cannot take attendance.';
+$string['showOnEdusignWebsite'] = 'Show on edusign app';
+$string['noArchivedSession'] = 'No archived session';
+$string['noUnarchivedSession'] = 'No current session ';
+
+/** ---- Ajax messages */
+
+$string['send_sign_email_error'] = 'An error occurred while send sign email to student : {$a}';
+$string['send_sign_email_success'] = 'Sign email successfully sent to student';
+$string['set_student_absent_error'] = 'An error occurred while setting student absent : {$a}';
+$string['set_student_absent_success'] = 'Student successfully set as absent';
+$string['set_student_delay_error'] = 'An error occurred while setting student delay : {$a}';
+$string['set_student_delay_success'] = 'Student successfully set as late';
+$string['set_student_early_departure_success'] = 'Student successfully set as leaving early';
+$string['set_student_early_departure_error'] = 'An error occurred while setting student early departure : {$a}';
+$string['refresh_error'] = 'An error occurred while refreshing the attendance sheet : {$a}';
+$string['archive_session_success'] = 'The session has been successfully archived';
+$string['archive_session_error'] = 'An error occurred during archiving';
+$string['archive_session_sync_error'] = 'An error occurred during synchronization with Edusign : {$a}';

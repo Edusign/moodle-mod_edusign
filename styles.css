@@ -1,0 +1,44 @@
+.text-small {
+    font-size: 0.8em;
+}
+
+.signature-modal .modal-body {
+    padding: 0;
+}
+
+.signature-modal iframe {
+    width: 100%;
+    min-height: 750px;
+    border: 0;
+}
+
+.signature {
+    background-color: #ededed;
+    margin: 1em;
+    border: 1px solid #dedede;
+    /* stylelint-disable-next-line*/
+    aspect-ratio: 2;
+}
+
+.presential-state .state-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: row;
+}
+
+.presential-state .left-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+.presential-state .right-container {
+    width: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
