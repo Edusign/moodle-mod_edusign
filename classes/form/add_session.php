@@ -25,6 +25,7 @@ class AddSessionForm extends moodleform
         $mform->addElement('header', 'general', get_string('addsession', 'edusign'));
         $mform->addElement('text', 'title', get_string('title', 'edusign'), [ 'value' => 'Ma feuille de présence']);
         edusign_form_sessiondate_selector($mform);
+        $mform->addElement('checkbox', 'forcesync', get_string('forcesync', 'edusign'), false);
         $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
     }
 

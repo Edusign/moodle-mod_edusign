@@ -55,6 +55,11 @@ class EdusignApi extends ApiCaller{
         return $result;
     }
     
+    public static function getTraining(string $trainingId, array $baseEvent = []) : stdClass | null {
+        $cr = self::tryRequestWithEvent('GET', '/v1/trainings/' . $trainingId, [], [], $baseEvent);
+        return !empty($cr->result) ? $cr->result : null;
+    }
+    
     public static function createTraining(array $trainingData, array $baseEvent = []) : string | null {
         $cr = self::tryRequestWithEvent('POST', '/v1/trainings', [], $trainingData, $baseEvent);
         return !empty($cr->result) ? $cr->result : null;

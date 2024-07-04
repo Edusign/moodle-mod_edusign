@@ -55,6 +55,8 @@ $string['time'] = 'Time';
 $string['savechanges'] = 'Save changes';
 $string['errorsessiondateinpast'] = 'Session date cannot be in the past';
 $string['errorstartdatebeforeenddate'] = 'Start date cannot be after end date';
+$string['forcesync'] = 'Force synchronization with Edusign (may take some seconds)';
+
 
 /** Session */
 $string['session'] = 'Session';

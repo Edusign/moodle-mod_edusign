@@ -82,7 +82,7 @@ if ($fromForm = $mform->get_data()) {
                 'title' => $fromForm->title,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-            ]);
+            ], !!$fromForm->forcesync);
             if ($cr) {
                 \core\notification::success('Session successfully updated');
             }
@@ -95,7 +95,7 @@ if ($fromForm = $mform->get_data()) {
                 'title' => $fromForm->title,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-            ]);
+            ], !!$fromForm->forcesync);
             if ($cr) {
                 \core\notification::success('Session successfully created');
                 redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));

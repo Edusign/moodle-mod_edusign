@@ -39,17 +39,31 @@ function edusign_form_sessiondate_selector(MoodleQuickForm $mform)
     $mform->addGroup($sesendtime, 'sestime', get_string('time', 'edusign'), array(' '), true);
 }
 
+function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
+{
+    try {
+        $training = EdusignApi::getTraining($trainingId, $baseEvent);
+        if ($training) {
+            return true;
+        }
+    }
+    catch(\Exception $e){
+        return false;
+    }
+    return false;
+}
+
 function createTrainingFromCourse($courseId, $context, array $baseEvent = [])
 {
     global $DB;
 
     $course = get_course($courseId);
-    $courseEdusignApi = $DB->get_record('course_edusign_api', array('course_id' => $courseId));
+    // $courseEdusignApi = $DB->get_record('course_edusign_api', array('course_id' => $courseId));
     // Try to create course on edusign api
-    if ($courseEdusignApi->edusign_api_id) {
-        $course->edusign_api_id = $courseEdusignApi->edusign_api_id;
-        return $course;
-    }
+    // if ($courseEdusignApi->edusign_api_id) {
+    //     $course->edusign_api_id = $courseEdusignApi->edusign_api_id;
+    //     return $course;
+    // }
     $students = getStudentsFromContext($context);
     // $teachers = getTeachersFromContext($context);
 
@@ -73,14 +87,18 @@ function createTrainingFromCourse($courseId, $context, array $baseEvent = [])
         }
 
         $edusignAPIID = EdusignApi::createTraining($trainingData, $baseEvent);
+        
         if ($edusignAPIID) {
+            $DB->delete_records('course_edusign_api', [
+                'course_id' => $courseId,
+            ]);
             $DB->insert_record('course_edusign_api', [
                 'course_id' => $courseId,
                 'edusign_api_id' => $edusignAPIID,
             ]);
         }
         \core\notification::success('Course successfully linked on edusign API');
-        $course->edusign_api_id = $courseEdusignApi->edusign_api_id;
+        $course->edusign_api_id = $edusignAPIID;
         return $course;
     } catch (Exception $e) {
         // Error is journalized
@@ -98,7 +116,7 @@ function updateTrainingFromCourse($courseId, array $baseEvent = [])
     if (!$courseEdusignApi->edusign_api_id) {
         throw new Error('Missing api edusign id on course for updating');
     }
-    
+
     try {
         $trainingData = [
             'NAME' => $course->fullname,
@@ -212,25 +230,48 @@ function getTeachersFromContext($context)
 }
 
 
-function syncStudentsToApi($students, $context)
+function syncStudentsToApi($students, $context, $withVerification = false)
 {
     global $DB;
-    // Filtrer tous les étudiants avec des ids edusign pour la synchronisation
-    $studentsToSync = array_filter($students, function ($student) {
-        return $student->edusign_api_id === null;
-    });
+    if (!$withVerification) {
+        // Filtrer tous les étudiants avec des ids edusign pour la synchronisation
+        $students = array_filter($students, function ($student) {
+            return $student->edusign_api_id === null;
+        });
+    }
+    
     // Vérification si les étudiants sont inscrits sur edusign
-    foreach ($studentsToSync as $student) {
+    foreach ($students as $student) {
         $studentAPIID = null;
-        try {
-            $studentAPI = EdusignApi::getStudentByEmail($student->email, [
-                'objectid' => $student->id,
-                'context' => $context,
-            ]);
-            $studentAPIID = $studentAPI->ID;
-        } catch (\Exception $e) {
-            // Student not exists on edusign
+        if ($student->edusign_api_id && $withVerification) {
+            try {
+                $studentAPI = EdusignApi::getStudentById($student->edusign_api_id, [
+                    'objectid' => $student->id,
+                    'context' => $context,
+                ]);
+                $studentAPIID = $studentAPI->ID;
+            } catch (\Exception $e) {
+                // Student does not exists anymore on edusign so remove sync
+                $DB->delete_records('users_edusign_api', [
+                    'role' => 'student',
+                    'edusign_api_id' => $student->edusign_api_id,
+                ]);
+            }
         }
+        // If student not found with verification, trying to find with email
+        if (!$studentAPIID) {
+            try {
+                $studentAPI = EdusignApi::getStudentByEmail($student->email, [
+                    'objectid' => $student->id,
+                    'context' => $context,
+                ]);
+                $studentAPIID = $studentAPI->ID;
+            } catch (\Exception $e) {
+                // Student not exists on edusign
+            }
+        }
+        
+        // If student not found with email, create it
         if (!$studentAPIID) {
             $studentAPIID = EdusignApi::createStudent([
                 "FIRSTNAME" => $student->firstname,
@@ -244,34 +285,69 @@ function syncStudentsToApi($students, $context)
             ]);
         }
 
-        $DB->insert_record('users_edusign_api', [
+        // If student cannot be founded or created, throw exception
+        if (!$studentAPIID) {
+            throw new Exception('Error while creating student ' . $student->firstname . ' ' . $student->lastname . ' on edusign');
+        }
+
+        $studentToInsert = $DB->get_record('users_edusign_api', [
             'user_id' => $student->id,
             'role' => 'student',
             'edusign_api_id' => $studentAPIID,
         ]);
+        
+        if(!$studentToInsert){
+            $DB->insert_record('users_edusign_api', [
+                'user_id' => $student->id,
+                'role' => 'student',
+                'edusign_api_id' => $studentAPIID,
+            ]);
+        }
     }
     return $students;
 }
 
-function syncTeachersToApi(array $teachers, $context)
+function syncTeachersToApi(array $teachers, $context, $withVerification = false)
 {
     global $DB;
-    // Filtrer tous les étudiants avec des ids edusign pour la synchronisation
-    $teachersToSync = array_filter($teachers, function ($teacher) {
-        return $teacher->edusign_api_id === null;
-    });
+    if (!$withVerification) {
+        // Filtrer tous les étudiants avec des ids edusign pour la synchronisation
+        $teachers = array_filter($teachers, function ($teacher) {
+            return $teacher->edusign_api_id === null;
+        });
+    }
+    
     // Vérification si les étudiants sont inscrits sur edusign
-    foreach ($teachersToSync as $teacher) {
+    foreach ($teachers as $teacher) {
         $teacherAPIID = null;
+        if ($teacher->edusign_api_id && $withVerification) {
+            try {
+                $teacherAPI = EdusignApi::getProfessorById($teacher->edusign_api_id, [
+                    'objectid' => $teacher->id,
+                    'context' => $context,
+                ]);
+                
+                $teacherAPIID = $teacherAPI->ID;
+            } catch (\Exception $e) {
+                // Teacher does not exists anymore on edusign so remove sync
+                $DB->delete_records('users_edusign_api', [
+                    'role' => 'teacher',
+                    'edusign_api_id' => $teacher->edusign_api_id,
+                ]);
+            }
+        }
         try {
             $teacherAPI = EdusignApi::getProfessorByEmail($teacher->email, [
                 'objectid' => $teacher->id,
                 'context' => $context,
-            ]);
+            ]);  
+                      
             $teacherAPIID = $teacherAPI->ID;
         } catch (\Exception $e) {
             // Teacher not exists on edusign
         }
+        
+        // If teacher not found with email, create it
         if (!$teacherAPIID) {
             $teacherAPIID = EdusignApi::createProfessor([
                 "FIRSTNAME" => $teacher->firstname,
@@ -285,28 +361,41 @@ function syncTeachersToApi(array $teachers, $context)
             ]);
         }
 
-        $DB->insert_record('users_edusign_api', [
+        // If teacher cannot be founded or created, throw exception
+        if (!$teacherAPIID) {
+            throw new Exception('Error while creating teacher ' . $teacher->firstname . ' ' . $teacher->lastname . ' on edusign');
+        }
+
+        $teacherToInsert = $DB->get_record('users_edusign_api', [
             'user_id' => $teacher->id,
             'role' => 'teacher',
             'edusign_api_id' => $teacherAPIID,
         ]);
+        
+        if(!$teacherToInsert){
+            $DB->insert_record('users_edusign_api', [
+                'user_id' => $teacher->id,
+                'role' => 'teacher',
+                'edusign_api_id' => $teacherAPIID,
+            ]);
+        }
     }
     return $teachers;
 }
 
-function syncStudentsToApiFromContext($context)
+function syncStudentsToApiFromContext($context, $withVerification = false)
 {
     // Récupération des étudiants à synchroniser sur edusign
     $students = getStudentsFromContext($context);
-    syncStudentsToApi($students, $context);
+    syncStudentsToApi($students, $context, $withVerification);
     return getStudentsFromContext($context);
 }
 
-function syncTeachersToApiFromContext($context)
+function syncTeachersToApiFromContext($context, $withVerification = false)
 {
     // Récupération des étudiants à synchroniser sur edusign
     $teachers = getTeachersFromContext($context);
-    syncTeachersToApi($teachers, $context);
+    syncTeachersToApi($teachers, $context, $withVerification);
     return getTeachersFromContext($context);
 }
 
@@ -413,12 +502,13 @@ function getTeachersWithPresentialStates($context, $edusignApiCourse = null)
     return $teachers;
 }
 
-function create_session($context, stdClass $cm, array $data)
+function create_session($context, stdClass $cm, array $data, $forceSync = false)
 {
     global $DB;
     // Synchronisation et récupération des étudiants liés au module d'activité
-    $students = syncStudentsToApiFromContext($context);
-    $teachers = syncTeachersToApiFromContext($context);
+    $students = syncStudentsToApiFromContext($context, $forceSync);
+    $teachers = syncTeachersToApiFromContext($context, $forceSync);
+    
     // Create course to edusign api with students edusign api ids
     $courseData = [
         'NAME' => $data['title'],
@@ -436,11 +526,16 @@ function create_session($context, stdClass $cm, array $data)
     if ($courseEdusignApi->edusign_api_id) {
         $courseData['TRAINING_ID'] = $courseEdusignApi->edusign_api_id;
     }
+    
+    if (!isTrainingExistsOnEdusign($courseData['TRAINING_ID'])) {
+        $updatedCourse = createTrainingFromCourse($cm->course, $context);
+    }
 
     foreach (array_values($teachers) as $index => $teacher) {
         $key = $index > 0 ? ('PROFESSOR_' . $index + 1) : 'PROFESSOR';
         $courseData[$key] = $teacher->edusign_api_id;
     }
+
     $edusignCourseID = EdusignApi::createCourse($courseData);
 
     // Create session in moodle BDD
@@ -454,7 +549,7 @@ function create_session($context, stdClass $cm, array $data)
     return $DB->get_record('edusign_sessions', ['id' => $cr]);
 }
 
-function update_session($session, array $data)
+function update_session($session, array $data, )
 {
     global $DB;
     // Create course to edusign api with students edusign api ids
