@@ -84,7 +84,7 @@ class EdusignApi extends ApiCaller{
 
     public static function createStudent($studentInfos, array $baseEvent = []) : string | null {
         $cr = self::tryRequestWithEvent('POST', '/v1/student', [], ["student" => $studentInfos], $baseEvent);
-        return !empty($cr->result->id) ? $cr->result->ID : null;
+        return !empty($cr->result->ID) ? $cr->result->ID : null;
     }
     
     public static function getStudentByEmail($email, array $baseEvent = []) : stdClass | null {
@@ -99,7 +99,7 @@ class EdusignApi extends ApiCaller{
     
     public static function createProfessor($professorInfos, array $baseEvent = []) : string | null {
         $cr = self::tryRequestWithEvent('POST', '/v1/professor', [], ["professor" => $professorInfos], $baseEvent);
-        return !empty($cr->result->id) ? $cr->result->ID : null;
+        return !empty($cr->result->ID) ? $cr->result->ID : null;
     }
     
     public static function getProfessorByEmail($email, array $baseEvent = []) : stdClass | null {

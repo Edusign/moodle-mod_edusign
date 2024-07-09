@@ -25,7 +25,7 @@ if ($ADMIN->fulltree) { // needs this condition for know if user has admin right
         'mod_edusign/apiurl',
         get_string('apiurl_text', 'mod_edusign'),
         get_string('apiurl_text_help', 'mod_edusign'),
-        'https://api.edusign.fr',
+        'https://ext.edusign.fr',
         PARAM_URL
     ));
     
