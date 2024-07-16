@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable no-async-promise-executor */
 /* eslint-disable promise/no-nesting */
 import Ajax from 'core/ajax';
@@ -5,6 +6,7 @@ import * as Str from 'core/str';
 import notification from 'core/notification';
 import ModalDeleteCancel from 'core/modal_delete_cancel';
 import ModalSaveCancel from 'core/modal_save_cancel';
+import Modal from 'core/modal';
 import ModalEvents from 'core/modal_events';
 
 const removeSession = function(sessionId, removeOnEdusign = true) {
@@ -94,6 +96,47 @@ const askUnarchiveSession = function(sessionId) {
     });
 };
 
+const openModalImportSession = async function() {
+    return Modal.create({
+        title: 'Import session',
+        body: document.querySelector('#import-csv-modal').innerHTML,
+        show: true,
+        removeOnClose: true,
+    }).then((modalInstance) => {
+        modalInstance.getRoot().querySelector('#import-session-form').addEventListener('submit', async(event) => {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const file = formData.get('import-session-file');
+            const response = await Ajax.call([{
+                methodname: 'mod_edusign_import_session',
+                args: {
+                    file,
+                }
+            }])[0];
+            if (response.success) {
+                notification.addNotification({
+                    message: await Str.get_string('session_imported', 'mod_edusign'),
+                    type: 'success'
+                });
+                modalInstance.hide();
+                return window.location.reload();
+            } else {
+                notification.addNotification({
+                    message: await Str.get_string(
+                        'session_imported_error',
+                        'mod_edusign',
+                        response.error || 'An unknowed error has occured'
+                    ),
+                    type: 'error'
+                });
+            }
+        });
+        return modalInstance;
+    });
+};
+
+
 export const init = async() => {
     // Handles remove session
     const removeButtons = document.querySelectorAll('.remove-session');
@@ -164,4 +207,11 @@ export const init = async() => {
         });
     });
 
+
+    // Handles import session button
+    const importSessionButton = document.querySelector('#import-sessions');
+    importSessionButton.addEventListener('click', async(event) => {
+        event.preventDefault();
+        openModalImportSession();
+    });
 };

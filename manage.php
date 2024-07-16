@@ -46,6 +46,7 @@ $archivedSessions = array_filter($sessions, function($session) {
     return !!$session->archived;
 });
 
+
 $output = $OUTPUT->render_from_template('mod_edusign/manage', [
     'title' => $title,
     'instance' => $cm,
@@ -53,6 +54,9 @@ $output = $OUTPUT->render_from_template('mod_edusign/manage', [
     'course' => $course,
     'url' => $url,
     'context' => $context,
+    'modals' => [
+        'import-csv' => $OUTPUT->render_from_template('mod_edusign/modals/import-csv', new stdClass()),
+    ],
     'unarchivedSessions' => array_values($unarchivedSessions),
     'archivedSessions' => array_values($archivedSessions),
     'PAGE' => $PAGE,

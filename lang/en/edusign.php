@@ -31,6 +31,7 @@ $string['testapiconnection'] = 'Test API connection';
 /** Attendance */
 $string['attendance'] = 'Attendance';
 $string['add_session'] = 'Add a session';
+$string['import_sessions'] = 'Importer sessions';
 $string['date'] = 'Date';
 $string['hourStart'] = 'Start time';
 $string['hourEnd'] = 'End time';

@@ -62,7 +62,7 @@ $PAGE->requires->js_call_amd('mod_edusign/pages/student/take', 'init', [
     'session' => $session,
 ]);
 
-$output = $OUTPUT->render_from_template('mod_edusign/student-take', [
+$output = $OUTPUT->render_from_template('mod_edusign/student/take', [
     'title' => $title,
     'instance' => $cm,
     'id' => $id,

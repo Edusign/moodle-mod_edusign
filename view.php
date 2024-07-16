@@ -75,7 +75,7 @@ $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [
   'sessions' => $sessions,
 ]);
 
-$output = $OUTPUT->render_from_template('mod_edusign/student-view-list', [
+$output = $OUTPUT->render_from_template('mod_edusign/student/view-list', [
   'title' => $title,
   'instance' => $cm,
   'id' => $id,

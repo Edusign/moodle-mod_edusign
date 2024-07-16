@@ -1,5 +1,6 @@
 <main>
   <a href="sessions.php?cmId={{cmId}}" class="btn btn-primary mb-5">{{#str}}add_session, mod_edusign{{/str}}</a>
+  <a id="import-sessions" class="btn btn-primary mb-5">{{#str}}import_sessions, mod_edusign{{/str}}</a>
   
   <h2>Session en cours</h2>
   <table class="table table-striped unarchived-sessions mb-6">
@@ -87,3 +88,6 @@
     </tbody>
   </table>
 </main>
+
+{{! Modal d'import des fichier CSV }}
+{{> mod_edusign/modals/import-csv }}
