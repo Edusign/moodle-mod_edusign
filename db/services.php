@@ -78,6 +78,24 @@ $functions = array(
         'ajax'         => true,
         'loginrequired'=> true,
     ),
+    'mod_edusign_parse_csv' => array(
+        'classname'    => 'mod_edusign_external',
+        'methodname'   => 'parse_csv',
+        'classpath'    => 'mod/edusign/externallib.php',
+        'description'  => 'Parse a CSV',
+        'type'         => 'read',
+        'ajax'         => true,
+        'loginrequired'=> true,
+    ),
+    'mod_edusign_import_sessions' => array(
+        'classname'    => 'mod_edusign_external',
+        'methodname'   => 'import_sessions',
+        'classpath'    => 'mod/edusign/externallib.php',
+        'description'  => 'Import multiple sessions',
+        'type'         => 'write',
+        'ajax'         => true,
+        'loginrequired'=> true,
+    ),
 );
 
 

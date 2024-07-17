@@ -31,7 +31,6 @@ $string['testapiconnection'] = 'Tester la connexion avec l\'api';
 /** Attendance */
 $string['attendance'] = 'Présence';
 $string['add_session'] = 'Ajouter une session';
-$string['import_sessions'] = 'Importer des sessions';
 $string['date'] = 'Date';
 $string['hourStart'] = 'Horaire de début';
 $string['hourEnd'] = 'Horaire de fin';
@@ -101,3 +100,18 @@ $string['refresh_error'] = 'Une erreur s\'est produite lors du rafraîchissement
 $string['archive_session_success'] = 'La session a bien été archivée';
 $string['archive_session_error'] = 'Une erreur est survenue durant l’archivage';
 $string['archive_session_sync_error'] = 'Une erreur est survenue durant la synchronisation avec Edusign : {$a}';
+
+
+/** ---- Import CSV */
+$string['should_import_sessions_with_csv'] = 'Vous pouvez importer une liste de sessions à créer en important un fichier CSV.';
+$string['download_csv_model'] = 'Télécharger le modèle de fichier CSV';
+$string['session_name'] = 'Nom de la session';
+$string['session_start_date'] = 'Date de début';
+$string['session_end_date'] = 'Date de fin';
+$string['create_sessions'] = 'Créer ces sessions';
+$string['choose_file'] = 'Choisir un fichier';
+$string['csv_import_error'] = 'Une erreur est survenue durant le traitement du fichier CSV, a-t-il le bon format ?';
+$string['csv_no_data_found_error'] = 'Aucune donnée trouvée dans le fichier CSV';
+$string['sessions_have_errors'] = 'Certaines sessions comportent des erreurs, veuillez vérifier le formulaire';
+$string['import_sessions_success'] = 'Sessions importées avec succès';
+$string['import_sessions'] = 'Import de sessions via CSV';

@@ -31,7 +31,6 @@ $string['testapiconnection'] = 'Test API connection';
 /** Attendance */
 $string['attendance'] = 'Attendance';
 $string['add_session'] = 'Add a session';
-$string['import_sessions'] = 'Importer sessions';
 $string['date'] = 'Date';
 $string['hourStart'] = 'Start time';
 $string['hourEnd'] = 'End time';
@@ -102,3 +101,18 @@ $string['refresh_error'] = 'An error occurred while refreshing the attendance sh
 $string['archive_session_success'] = 'The session has been successfully archived';
 $string['archive_session_error'] = 'An error occurred during archiving';
 $string['archive_session_sync_error'] = 'An error occurred during synchronization with Edusign : {$a}';
+
+
+/** ---- Import CSV */
+$string['should_import_sessions_with_csv'] = 'You can import a list of sessions to create by importing a CSV file.';
+$string['download_csv_model'] = 'Download the CSV file template';
+$string['session_name'] = 'Session name';
+$string['session_start_date'] = 'Start date';
+$string['session_end_date'] = 'End date';
+$string['create_sessions'] = 'Create these sessions';
+$string['choose_file'] = 'Choose a file';
+$string['csv_import_error'] = 'An error occurred during the processing of the CSV file, does it have the correct format?';
+$string['csv_no_data_found_error'] = 'No data found in the CSV file';
+$string['sessions_have_errors'] = 'Some sessions have errors, please check the form';
+$string['import_sessions_success'] = 'Sessions imported successfully';
+$string['import_sessions'] = 'Import sessions via CSV';
