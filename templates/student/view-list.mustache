@@ -1,6 +1,14 @@
 <main class="view-list-page">
   <div class="d-flex flex-column mb-1">
     <h2>{{#str}}session, mod_edusign{{/str}}</h2>
+    {{^sessions}}
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h1 class="display-4">Il n'y a rien à signer aujourd'hui.</h1>
+          <p class="lead">Aucun cours n'est prévu pour cette journée.</p>
+        </div>
+      </div>
+    {{/sessions}}
     <div class="d-flex flex-wrap">
       {{#sessions}}
         <div
