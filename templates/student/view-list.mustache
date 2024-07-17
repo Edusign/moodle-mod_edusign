@@ -9,35 +9,61 @@
         </div>
       </div>
     {{/sessions}}
-    <div class="d-flex flex-wrap">
-      {{#sessions}}
-        <div
-          class="card m-2 view-list-card position-relative"
-          data-toggle="tooltip"
-          data-placement="top"
-          title="{{title}}"
-        >
-          <h5
-            class="card-header"
-            style="
-              height: 50px;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              white-space: nowrap;
-            "
+    {{#hasSessions}}
+    <h3 class="mt-5">En cours</h3>
+      <div class="d-flex flex-wrap">
+        {{#sessions}}
+          <div
+            class="card m-2 view-list-card position-relative"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="{{title}}"
           >
-            {{title }}
-          </h5>
-          <div class="card-body">
-            <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
-            </p>
-            <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
-            </p>
+            <h5
+              class="card-header"
+              style="height: 50px;overflow: hidden;text-overflow: ellipsis; white-space: nowrap;"
+            >
+              {{title }}
+            </h5>
+            <div class="card-body">
+              <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+              <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+            </div>
+            <a href="/mod/edusign/session.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100">
+            </a>
           </div>
-          <a href="/mod/edusign/session.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100">
-          </a>
-        </div>
-      {{/sessions}}
-    </div>
+        {{/sessions}}
+      </div>
+    {{/hasSessions}}
+
+    {{#hasArchivedSessions}}
+      <h3 class="mt-5">À venir</h3>
+      <div class="d-flex flex-wrap">
+        {{#incomingSessions}}
+          <div
+            class="card m-2 view-list-card position-relative"
+            data-toggle="tooltip"
+            data-placement="top"
+            title="{{title}}"
+          >
+            <h5
+              class="card-header"
+              style="height: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            >
+              {{title }}
+            </h5>
+            <div class="card-body">
+              <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+              <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+            </div>
+            </a>
+          </div>
+        {{/incomingSessions}}
+      </div>
+    {{/hasArchivedSessions}}
   </div>
 </template>

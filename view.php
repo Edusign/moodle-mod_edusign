@@ -109,7 +109,9 @@ $output = $OUTPUT->render_from_template('mod_edusign/student/view-list', [
   'USER' => $USER,
   'PAGE' => $PAGE,
   'sessions' => $sessions,
-  'incomingSessions' => $incomingSessions
+  'hasSessions' => count($sessions) > 0,
+  'incomingSessions' => $incomingSessions,
+  'hasIncomingSessions' => count($incomingSessions) > 0,
 ]);
 
 echo $OUTPUT->header();
