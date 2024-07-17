@@ -37,7 +37,9 @@ $PAGE->set_heading($course->fullname);
 $PAGE->force_settings_menu(true);
 $PAGE->set_cacheable(true);
 
-$PAGE->requires->js_call_amd('mod_edusign/pages/manage', 'init');
+$PAGE->requires->js_call_amd('mod_edusign/pages/manage', 'init', [
+    'cmId' => $cmId,
+]);
 
 $unarchivedSessions = array_filter($sessions, function($session) {
     return !$session->archived;
@@ -45,6 +47,7 @@ $unarchivedSessions = array_filter($sessions, function($session) {
 $archivedSessions = array_filter($sessions, function($session) {
     return !!$session->archived;
 });
+
 
 $output = $OUTPUT->render_from_template('mod_edusign/manage', [
     'title' => $title,

@@ -42,3 +42,72 @@
     align-items: center;
     flex-direction: column;
 }
+
+.view-list-card {
+    width: 260px;
+}
+
+.maxHeight-table tbody {
+    display: block;
+    max-height: calc(100vh - 400px);
+    overflow: auto;
+}
+
+.maxHeight-table thead,
+.maxHeight-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+.maxHeight-table thead {
+    width: calc(100% - 1em);
+}
+
+#import-csv-table tr td:first-of-type,
+#import-csv-table tr th:first-of-type {
+    width: 50%;
+}
+
+#import-csv-table input.is-invalid {
+    border: 1px solid red;
+}
+
+#import-csv-table input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.path-mod-edusign .toast-wrapper {
+    z-index: 9999999;
+}
+
+#import-csv-save .spinner-border {
+    display: none;
+}
+
+#import-csv-save.is-loading {
+    opacity: 0.5;
+    cursor: wait;
+    pointer-events: none;
+}
+
+#import-csv-save.is-loading .spinner-border {
+    display: inline-block;
+}
+
+.signature-link-iframe {
+    width: 100%;
+    min-height: 725px;
+    border: 0;
+}
+
+.session-card--unsigned .card-header {
+    background-color: #ffc107;
+    color: white;
+}
+
+.session-card--signed .card-header {
+    background-color: #28a745;
+    color: white;
+}

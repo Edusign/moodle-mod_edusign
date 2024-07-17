@@ -1,0 +1,50 @@
+<!-- modals/import-csv.mustache -->
+<template id="import-csv-modal">
+    <form id="import-session-form">
+        <p>
+            {{#str}}should_import_sessions_with_csv, mod_edusign{{/str}}<br />
+            <a href="/mod/edusign/sample-import-sessions.csv" target="_blank">
+                {{#str}}download_csv_model, mod_edusign{{/str}}
+            </a>
+        </p>
+        <div class="input-group mb-3">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" accept=".csv" name="csv-file" id="input-csv-file" aria-describedby="input-csv-file">
+                <label class="custom-file-label" for="input-csv-file">{{#str}}choose_file, mod_edusign{{/str}}</label>
+            </div>
+        </div>
+    </form>
+    <div id="import-csv-table" class="maxHeight-table"></div>
+</template>
+
+<template id="import-csv-imported-form-table">
+    <form id="import-csv-form">
+        <table>
+            <thead>
+                <th>
+                    {{#str}}session_name, mod_edusign{{/str}}
+                </th>
+                <th>
+                    {{#str}}session_start_date, mod_edusign{{/str}}    
+                </th>
+                <th>
+                    {{#str}}session_end_date, mod_edusign{{/str}}    
+                </th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+        <button id="import-csv-save" type="submit" class="btn btn-primary btn-block mt-1">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+             {{#str}}create_sessions, mod_edusign{{/str}}    
+        </button>
+    </form>
+</template>
+
+<template id="import-csv-imported-line">
+    <tr>
+        <td><input type="text" value="{{session_name}}" class="form-control name" /></td>
+        <td><input type="datetime" value="{{start_date}}" class="form-control start_date" /></td>
+        <td><input type="datetime" value="{{end_date}}" class="form-control end_date" /></td>
+    </tr>
+</template>

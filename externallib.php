@@ -113,7 +113,8 @@ class mod_edusign_external extends external_api
 
         try {
             $args = json_decode($JSONArgs, true);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+        }
 
         $cr = null;
         switch ($method) {
@@ -186,7 +187,7 @@ class mod_edusign_external extends external_api
 
         $students = getStudentsWithPresentialStates($context, $edusignApiCourse);
         $teachers = getTeachersWithPresentialStates($context, $edusignApiCourse);
- 
+
         try {
             return [
                 'result' => [
@@ -293,22 +294,20 @@ class mod_edusign_external extends external_api
     {
         global $DB;
         try {
-        
+
             $signatureLinks = [];
             $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
-            
+
             if (!empty($session->edusign_api_id)) {
-                if ($userType === 'teacher'){
+                if ($userType === 'teacher') {
                     $signatureLinks = EdusignApi::getProfessorSignatureLinks($session->edusign_api_id, [$userId]);
-                }
-                else if ($userType === 'student'){
+                } else if ($userType === 'student') {
                     $signatureLinks = EdusignApi::getStudentSignatureLinks($session->edusign_api_id, [$userId]);
-                }
-                else {
+                } else {
                     throw new \Exception('Bad userType must be teacher or student');
                 }
             }
-        
+
             return [
                 'result' => $signatureLinks,
                 'error' => '',
@@ -357,7 +356,7 @@ class mod_edusign_external extends external_api
             'userType' => new external_value(PARAM_TEXT, 'Edusign User Type ( teacher, student )'),
         ]);
     }
-    
+
     /**
      * Remove session from edusign and moodle
      *
@@ -369,10 +368,10 @@ class mod_edusign_external extends external_api
     {
         global $DB;
         $session = $DB->get_record('edusign_sessions', ['id' => $sessionId], 'edusign_api_id');
-        if ($withEdusignDelete){
+        if ($withEdusignDelete) {
             EdusignApi::deleteCourse($session->edusign_api_id);
         }
-        
+
         $DB->delete_records('edusign_sessions', ['id' => $sessionId]);
 
         return [
@@ -406,7 +405,7 @@ class mod_edusign_external extends external_api
             'withEdusignDelete' => new external_value(PARAM_BOOL, 'Delete also on edusign ?', VALUE_OPTIONAL, true),
         ]);
     }
-    
+
     /**
      * Archive or unarchive session from edusign and moodle
      *
@@ -417,16 +416,14 @@ class mod_edusign_external extends external_api
     {
         global $DB;
         $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
-        
+
         try {
-            if ($archiveState){
+            if ($archiveState) {
                 EdusignApi::lockCourse($session->edusign_api_id);
-            }
-            else {
+            } else {
                 EdusignApi::unlockCourse($session->edusign_api_id);
             }
-        }
-        catch(\Exception $e){
+        } catch (\Exception $e) {
             \core\notification::error(get_string('archive_session_sync_error', 'mod_edusign', $e->getMessage()));
         }
         $session->archived = $archiveState ? 1 : 0;
@@ -462,6 +459,131 @@ class mod_edusign_external extends external_api
         return new external_function_parameters([
             'sessionId' => new external_value(PARAM_INT, 'Session Id'),
             'archiveState' => new external_value(PARAM_BOOL, 'Archive state', VALUE_OPTIONAL, true),
+        ]);
+    }
+
+    private static function readCSVString($csvString)
+    {
+        $csv = array_map('str_getcsv', explode("\n", $csvString));
+        array_walk($csv, function (&$a) use ($csv) {
+            $a = array_combine($csv[0], $a);
+        });
+        array_shift($csv); # remove column header
+        return $csv;
+    }
+
+    /**
+     * Parse a CSV of sessions from edusign and moodle
+     *
+     * @param int $cmId course module id
+     * @return array
+     */
+    public static function parse_csv(string $base64File)
+    {
+        $file = trim(file_get_contents($base64File));
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $ext = $finfo->buffer($file);
+
+        if (str_starts_with($ext, 'text/') === false) {
+            throw new \Exception('File must be a CSV');
+        }
+
+        $csvFile = self::readCSVString($file);
+
+        return $csvFile;
+    }
+
+    /**
+     * Describes parse_csv return values.
+     *
+     * @return external_multiple_structure
+     */
+    public static function parse_csv_returns()
+    {
+        return new external_multiple_structure(
+            new external_single_structure([
+                'session_name' => new external_value(PARAM_TEXT, 'Name of the session'),
+                'start_date' => new external_value(PARAM_TEXT, 'Start date of the session (YYYY-MM-DD HH:MM:SS)'),
+                'end_date' => new external_value(PARAM_TEXT, 'End date of the session (YYYY-MM-DD HH:MM:SS)'),
+            ], 'CSV File'),
+        );
+    }
+
+    /**
+     * Describes the parameters for parse_csv.
+     *
+     * @return external_function_parameters
+     */
+    public static function parse_csv_parameters()
+    {
+        return new external_function_parameters([
+            'base64File' => new external_value(PARAM_TEXT, 'BASE64 CSV file'),
+        ]);
+    }
+
+    /**
+     * Import multiple sessions from a config into moodle
+     *
+     * @param int $cmId course module id
+     * @return array
+     */
+    public static function import_sessions(int $cmId, array $sessions)
+    {
+        if (empty($sessions)) {
+            throw new \Exception('No sessions to import');
+        }
+        $context = context_module::instance($cmId);
+        $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
+        
+        $cr = true;
+        foreach($sessions as $session){
+            $cr = $cr && create_session($context, $cm, [
+                'title' => $session['name'],
+                'startDate' => $session['start_date'],
+                'endDate' => $session['end_date'],
+            ]);
+        }
+        
+        if(!$cr){
+            throw new \Exception('An error occured while importing sessions');
+        }
+        
+        \core\notification::success(get_string('import_sessions_success', 'mod_edusign'));
+        
+        return [
+            'success' => $cr,
+        ];
+    }
+
+    /**
+     * Describes import_sessions return values.
+     *
+     * @return external_multiple_structure
+     */
+    public static function import_sessions_returns()
+    {
+        return new external_single_structure([
+            'success' => new external_value(PARAM_BOOL, 'Result'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for import_sessions.
+     *
+     * @return external_function_parameters
+     */
+    public static function import_sessions_parameters()
+    {
+        return new external_function_parameters([
+            'cmId' => new external_value(PARAM_INT, 'Course module Id to create sessions into'),
+            'sessions' => new external_multiple_structure(
+                new external_single_structure([
+                    'name' => new external_value(PARAM_TEXT, 'Name of the session'),
+                    'start_date' => new external_value(PARAM_TEXT, 'Start date of the session (YYYY-MM-DD HH:MM:SS)'),
+                    'end_date' => new external_value(PARAM_TEXT, 'End date of the session (YYYY-MM-DD HH:MM:SS)')
+                ]),
+                'Array of sessions to be created'
+            ),
         ]);
     }
 }

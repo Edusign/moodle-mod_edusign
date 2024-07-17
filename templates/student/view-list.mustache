@@ -1,0 +1,83 @@
+<main class="view-list-page">
+  <div class="d-flex flex-column mb-1">
+    <h2>{{#str}}session, mod_edusign{{/str}}</h2>
+    {{#sessions.0}}
+    <h3 class="mt-5">En cours</h3>
+      <div class="d-flex flex-wrap">
+        {{#sessions}}
+          <div
+            class="session-card card m-2 view-list-card position-relative {{#edusign_course.STUDENT.signature}}session-card--signed{{/edusign_course.STUDENT.signature}}{{^edusign_course.STUDENT.signature}}session-card--unsigned{{/edusign_course.STUDENT.signature}}"
+            data-toggle="tooltip"
+            data-placement="top"
+            {{#edusign_course.STUDENT.signature}}
+            title="Déjà signé"
+            {{/edusign_course.STUDENT.signature}}
+            {{^edusign_course.STUDENT.signature}}
+            title="A signer"
+            {{/edusign_course.STUDENT.signature}}
+          >
+            <h5
+              class="card-header"
+              style="height: 50px;overflow: hidden;text-overflow: ellipsis; white-space: nowrap;"
+            >
+              {{title}}
+            </h5>
+            <div class="card-body">
+              <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+              <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+              {{#edusign_course.STUDENT.signature}}
+                <img src="{{edusign_course.STUDENT.signature}}" alt="signature" class="signature" style="margin-left: auto; margin-right: auto; display: block" />
+              {{/edusign_course.STUDENT.signature}}
+            </div>
+            <a href="/mod/edusign/session.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100"></a>
+          </div>
+        {{/sessions}}
+      </div>
+    {{/sessions.0}}
+    
+    {{^sessions.0}}
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h1 class="display-4">Il n'y a rien à signer aujourd'hui.</h1>
+          <p class="lead">Aucun cours n'est prévu pour cette journée.</p>
+        </div>
+      </div>
+    {{/sessions.0}}
+
+    {{#incomingSessions.0}}
+      <h3 class="mt-5">À venir</h3>
+      <div class="d-flex flex-wrap">
+        {{#incomingSessions}}
+          <div
+            class="session-card session-card--incoming card m-2 view-list-card position-relative"
+          >
+            <h5
+              class="card-header"
+              style="height: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+            >
+              {{title }}
+            </h5>
+            <div class="card-body">
+              <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+              <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
+              </p>
+            </div>
+            </a>
+          </div>
+        {{/incomingSessions}}
+      </div>
+    {{/incomingSessions.0}}
+      
+      {{^incomingSessions.0}}
+        <div class="jumbotron jumbotron-fluid">
+          <div class="container">
+            <h1 class="display-4">Il n'y a rien à venir.</h1>
+            <p class="lead">Aucun cours n'est prévu pour plus tard.</p>
+          </div>
+        </div>
+      {{/incomingSessions.0}}
+  </div>
+</template>
