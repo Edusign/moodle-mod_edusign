@@ -63,6 +63,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/take', 'init', [
+    'cmId' => $cm->id,
     'student' => $USER,
     'course' => $course,
     'session' => $session,

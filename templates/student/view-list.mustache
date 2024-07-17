@@ -1,15 +1,7 @@
 <main class="view-list-page">
   <div class="d-flex flex-column mb-1">
     <h2>{{#str}}session, mod_edusign{{/str}}</h2>
-    {{^sessions}}
-      <div class="jumbotron jumbotron-fluid">
-        <div class="container">
-          <h1 class="display-4">Il n'y a rien à signer aujourd'hui.</h1>
-          <p class="lead">Aucun cours n'est prévu pour cette journée.</p>
-        </div>
-      </div>
-    {{/sessions}}
-    {{#hasSessions}}
+    {{#sessions.0}}
     <h3 class="mt-5">En cours</h3>
       <div class="d-flex flex-wrap">
         {{#sessions}}
@@ -36,9 +28,18 @@
           </div>
         {{/sessions}}
       </div>
-    {{/hasSessions}}
+    {{/sessions.0}}
+    
+    {{^sessions.0}}
+      <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h1 class="display-4">Il n'y a rien à signer aujourd'hui.</h1>
+          <p class="lead">Aucun cours n'est prévu pour cette journée.</p>
+        </div>
+      </div>
+    {{/sessions.0}}
 
-    {{#hasArchivedSessions}}
+    {{#incomingSessions.0}}
       <h3 class="mt-5">À venir</h3>
       <div class="d-flex flex-wrap">
         {{#incomingSessions}}
@@ -64,6 +65,15 @@
           </div>
         {{/incomingSessions}}
       </div>
-    {{/hasArchivedSessions}}
+    {{/incomingSessions.0}}
+      
+      {{^incomingSessions.0}}
+        <div class="jumbotron jumbotron-fluid">
+          <div class="container">
+            <h1 class="display-4">Il n'y a rien à venir.</h1>
+            <p class="lead">Aucun cours n'est prévu pour plus tard.</p>
+          </div>
+        </div>
+      {{/incomingSessions.0}}
   </div>
 </template>

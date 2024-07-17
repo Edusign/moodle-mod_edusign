@@ -88,7 +88,6 @@ $incomingSessions = filter_sessions_by_student($sessions, $USER->id);
 $sessions = formatSessions($sessions);
 $incomingSessions = formatSessions($incomingSessions);
 
-
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [
   'student' => $USER,
   'course' => $course,
@@ -109,9 +108,7 @@ $output = $OUTPUT->render_from_template('mod_edusign/student/view-list', [
   'USER' => $USER,
   'PAGE' => $PAGE,
   'sessions' => $sessions,
-  'hasSessions' => count($sessions) > 0,
   'incomingSessions' => $incomingSessions,
-  'hasIncomingSessions' => count($incomingSessions) > 0,
 ]);
 
 echo $OUTPUT->header();
