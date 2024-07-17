@@ -10,10 +10,19 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_edusign\classes\commons\EdusignApi;
+
 require_once(dirname(__FILE__) . '/../../config.php');
 
 $sessionId    = required_param('sessionId', PARAM_INT);
+if (!$sessionId) {
+    throw new moodle_exception('mod_edusign_invalid_session_id');
+}
 $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
+
+if (!$session) {
+    throw new moodle_exception('mod_edusign_session_not_found');
+}
 
 $cm           = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
 $course       = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -21,33 +30,32 @@ $edusign      = $DB->get_record('edusign', array('id' => $cm->instance), '*', MU
 
 require_login($course, true, $cm);
 
+if (
+    !is_student_has_session($session, $USER->id)
+    || strtotime($session->date_start) > time()
+    || strtotime($session->date_end) < time()
+) {
+    throw new \Exception('You are not allowed to access this session');
+}
+
 $context = context_module::instance($cm->id);
 
-$PAGE->set_heading($course->fullname);
-$PAGE->set_cacheable(true);
-
-
-$canManageAttendance = array(
+$canTakeOrManageAttendance = array(
     'mod/edusign:changeattendances',
-    'mod/edusign:manageattendances'
-);
-
-$canTakeAttendance = array(
+    'mod/edusign:manageattendances',
     'mod/edusign:takeattendances',
 );
 
-// Si on a une session on redirige vers la page de la session
-if ($sessionId) {
-    if (has_any_capability($canManageAttendance, $context)) {
-        redirect(new moodle_url('/mod/edusign/take.php', ['sessionId' => $sessionId]));
-    } else if (has_any_capability($canTakeAttendance, $context)) {
-        redirect(new moodle_url('/mod/edusign/take.php', ['sessionId' => $sessionId]));
-    }
-} else if (has_any_capability($canManageAttendance, $context)) {
-    redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));
+if (has_any_capability($canTakeOrManageAttendance, $context)) {
+    redirect(new moodle_url('/mod/edusign/take.php', ['sessionId' => $sessionId]));
 }
 
+$userEdusignApi = $DB->get_record('users_edusign_api', ['user_id' => $USER->id], '*', MUST_EXIST);
+$edusignUserInCourse = reset(EdusignApi::getStudentSignatureLinks($session->edusign_api_id, [$userEdusignApi->edusign_api_id]));
+$signatureLink = $edusignUserInCourse->SIGNATURE_LINK;
 
+$PAGE->set_heading($course->fullname);
+$PAGE->set_cacheable(true);
 $PAGE->set_cm($cm);
 $PAGE->set_context($context);
 $PAGE->set_title($course->shortname . ": " . $att->name);
@@ -57,7 +65,6 @@ $PAGE->set_cacheable(true);
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/take', 'init', [
     'student' => $USER,
     'course' => $course,
-    'sessions' => $sessions,
     'session' => $session,
 ]);
 
@@ -75,6 +82,7 @@ $output = $OUTPUT->render_from_template('mod_edusign/student/take', [
     'DB' => $DB,
     'USER' => $USER,
     'PAGE' => $PAGE,
+    'signatureLink' => $signatureLink,
 ]);
 
 
