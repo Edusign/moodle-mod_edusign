@@ -101,3 +101,13 @@
     min-height: 725px;
     border: 0;
 }
+
+.session-card--unsigned .card-header {
+    background-color: #ffc107;
+    color: white;
+}
+
+.session-card--signed .card-header {
+    background-color: #28a745;
+    color: white;
+}

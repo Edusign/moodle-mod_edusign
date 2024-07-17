@@ -14,20 +14,44 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
 $id           = required_param('id', PARAM_INT);
-$sessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
+
+$allSessions = $DB->get_records('edusign_sessions', ['activity_module_id' => $id]);
+$sessions = array_filter($allSessions, function ($session) {
   return strtotime($session->date_start) <= time() && strtotime($session->date_end) >= time();
-}));
+});
 
-$incomingSessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
+$incomingSessions = array_filter($allSessions, function ($session) {
   return strtotime($session->date_start) > time() && strtotime($session->date_end) > time();
-}));
+});
 
-function formatSessions($sessionsToFormat) {
-  foreach($sessionsToFormat as $sessionToFormat) {
-      $sessionToFormat->date_start = strtotime($sessionToFormat->date_start);
-      $sessionToFormat->date_end = strtotime($sessionToFormat->date_end);
-  }
-  return array_values($sessionsToFormat);
+$userEdusignApi = getUserWithEdusignApiId('student', $USER->id);
+
+function formatSessions($sessionsToFormat)
+{
+  return array_map(function ($sessionToFormat) {
+    $sessionToFormat->date_start = strtotime($sessionToFormat->date_start);
+    $sessionToFormat->date_end = strtotime($sessionToFormat->date_end);
+    return $sessionToFormat;
+  }, $sessionsToFormat);
+}
+
+
+function formatAndFilterFromEdusign($sessionsToFormat)
+{
+  global $userEdusignApi;
+  $formatedSessions = formatSessions($sessionsToFormat);
+  $formatedSessions = add_edusign_sessions_infos($formatedSessions);
+  $formatedSessions = array_map(function ($session) use ($userEdusignApi) {
+    $session->edusign_course->STUDENTS = array_filter($session->edusign_course->STUDENTS, function ($student) use ($userEdusignApi) {
+      return $student->studentId === $userEdusignApi->edusign_api_id;
+    });
+    $session->edusign_course->STUDENT = reset($session->edusign_course->STUDENTS);
+    unset($session->edusign_course->STUDENTS);
+    return $session;
+  }, $formatedSessions);
+  return array_values(array_filter($formatedSessions, function ($session) {
+    return $session->edusign_course->STUDENT;
+  }));
 }
 
 $sessionId    = optional_param('sessionId', null, PARAM_INT);
@@ -63,14 +87,12 @@ $canTakeAttendance = array(
 if ($sessionId) {
   if (has_any_capability($canManageAttendance, $context)) {
     redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id, 'sessionId' => $sessionId]));
-  }
-  else if (has_any_capability($canTakeAttendance, $context)) {
+  } else if (has_any_capability($canTakeAttendance, $context)) {
     redirect(new moodle_url('/mod/edusign/take.php', ['sessionId' => $sessionId]));
   } else {
     redirect(new moodle_url('/mod/edusign/session.php', ['id' => $id, 'sessionId' => $sessionId]));
   }
-}
-else if (has_any_capability($canManageAttendance, $context)) {
+} else if (has_any_capability($canManageAttendance, $context)) {
   redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));
 }
 
@@ -83,10 +105,8 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 
 
-$sessions = filter_sessions_by_student($sessions, $USER->id);
-$incomingSessions = filter_sessions_by_student($incomingSessions, $USER->id);
-$sessions = formatSessions($sessions);
-$incomingSessions = formatSessions($incomingSessions);
+$sessions = formatAndFilterFromEdusign($sessions);
+$incomingSessions = formatAndFilterFromEdusign($incomingSessions);
 
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [
   'student' => $USER,

@@ -6,25 +6,32 @@
       <div class="d-flex flex-wrap">
         {{#sessions}}
           <div
-            class="card m-2 view-list-card position-relative"
+            class="session-card card m-2 view-list-card position-relative {{#edusign_course.STUDENT.signature}}session-card--signed{{/edusign_course.STUDENT.signature}}{{^edusign_course.STUDENT.signature}}session-card--unsigned{{/edusign_course.STUDENT.signature}}"
             data-toggle="tooltip"
             data-placement="top"
-            title="{{title}}"
+            {{#edusign_course.STUDENT.signature}}
+            title="Déjà signé"
+            {{/edusign_course.STUDENT.signature}}
+            {{^edusign_course.STUDENT.signature}}
+            title="A signer"
+            {{/edusign_course.STUDENT.signature}}
           >
             <h5
               class="card-header"
               style="height: 50px;overflow: hidden;text-overflow: ellipsis; white-space: nowrap;"
             >
-              {{title }}
+              {{title}}
             </h5>
             <div class="card-body">
               <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
               </p>
               <p class="card-text">Fin :{{#userdate}} {{date_end}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
               </p>
+              {{#edusign_course.STUDENT.signature}}
+                <img src="{{edusign_course.STUDENT.signature}}" alt="signature" class="signature" style="margin-left: auto; margin-right: auto; display: block" />
+              {{/edusign_course.STUDENT.signature}}
             </div>
-            <a href="/mod/edusign/session.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100">
-            </a>
+            <a href="/mod/edusign/session.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100"></a>
           </div>
         {{/sessions}}
       </div>
@@ -44,10 +51,7 @@
       <div class="d-flex flex-wrap">
         {{#incomingSessions}}
           <div
-            class="card m-2 view-list-card position-relative"
-            data-toggle="tooltip"
-            data-placement="top"
-            title="{{title}}"
+            class="session-card session-card--incoming card m-2 view-list-card position-relative"
           >
             <h5
               class="card-header"
