@@ -79,6 +79,7 @@ $PAGE->set_cacheable(true);
 
 $sessions = formatSessions($sessions);
 
+
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [
   'student' => $USER,
   'course' => $course,
