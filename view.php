@@ -17,6 +17,10 @@ $sessions = array_values(array_filter($DB->get_records('edusign_sessions', ['act
   return strtotime($session->date_start) <= time() && strtotime($session->date_end) >= time();
 }));
 
+$incomingSessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
+  return strtotime($session->date_start) > time();
+}));
+
 function formatSessions($sessions) {
   foreach($sessions as $session) {
       $session->date_start = strtotime($session->date_start);
@@ -99,7 +103,8 @@ $output = $OUTPUT->render_from_template('mod_edusign/student/view-list', [
   'DB' => $DB,
   'USER' => $USER,
   'PAGE' => $PAGE,
-  'sessions' => $sessions
+  'sessions' => $sessions,
+  'incomingSessions' => $incomingSessions
 ]);
 
 echo $OUTPUT->header();
