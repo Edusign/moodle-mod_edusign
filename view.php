@@ -22,12 +22,12 @@ $incomingSessions = array_values(array_filter($DB->get_records('edusign_sessions
   return strtotime($session->date_start) > time() && strtotime($session->date_end) > time();
 }));
 
-function formatSessions($sessions) {
-  foreach($sessions as $session) {
-      $session->date_start = strtotime($session->date_start);
-      $session->date_end = strtotime($session->date_end);
+function formatSessions($sessionsToFormat) {
+  foreach($sessionsToFormat as $sessionToFormat) {
+      $sessionToFormat->date_start = strtotime($sessionToFormat->date_start);
+      $sessionToFormat->date_end = strtotime($sessionToFormat->date_end);
   }
-  return array_values($sessions);
+  return array_values($sessionsToFormat);
 }
 
 $sessionId    = optional_param('sessionId', null, PARAM_INT);
@@ -84,7 +84,7 @@ $PAGE->set_cacheable(true);
 
 
 $sessions = filter_sessions_by_student($sessions, $USER->id);
-$incomingSessions = filter_sessions_by_student($sessions, $USER->id);
+$incomingSessions = filter_sessions_by_student($incomingSessions, $USER->id);
 $sessions = formatSessions($sessions);
 $incomingSessions = formatSessions($incomingSessions);
 
