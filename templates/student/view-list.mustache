@@ -1,6 +1,20 @@
-<main>
-  <div class="d-flex justify-content-between mb-1">
+<main class="view-list-page">
+  <div class="d-flex flex-column mb-1">
     <h2>{{#str}}session, mod_edusign{{/str}}</h2>
-    Student view list
+    <div class="d-flex flex-wrap">
+      {{#sessions}}
+        <div class="card m-2 view-list-card position-relative">
+          <h5 class="card-header">{{title}}</h5>
+          <div class="card-body">
+            <p class="card-text">{{#userdate}} {{date_start}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}} / {{date_start}}
+            </p>
+            <p class="card-text">{{#userdate}} {{date_end}}, {{#str}} strftimedate, core_langconfig {{/str}} {{/userdate}} / {{date_end}}
+            </p>
+          </div>
+          <a href="/mod/edusign/take.php?sessionId={{id}}" class="view-list-card-link position-absolute container-fluid h-100">
+          </a>
+        </div>
+      {{/sessions}}
+    </div>
   </div>
 </template>

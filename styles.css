@@ -42,3 +42,7 @@
     align-items: center;
     flex-direction: column;
 }
+
+.view-list-card {
+    width: 260px;
+}

@@ -13,9 +13,17 @@
 require_once(dirname(__FILE__) . '/../../config.php');
 
 $id           = required_param('id', PARAM_INT);
-$sessions = array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
+$sessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
   return strtotime($session->date_start) <= time() && strtotime($session->date_end) >= time();
-});
+}));
+
+function formatSessions($sessions) {
+  foreach($sessions as $session) {
+      $session->date_start = strtotime($session->date_start);
+      $session->date_end = strtotime($session->date_end);
+  }
+  return array_values($sessions);
+}
 
 $sessionId    = optional_param('sessionId', null, PARAM_INT);
 
@@ -69,6 +77,8 @@ $PAGE->set_title($course->shortname . ": " . $att->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 
+$sessions = formatSessions($sessions);
+
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [
   'student' => $USER,
   'course' => $course,
@@ -88,8 +98,8 @@ $output = $OUTPUT->render_from_template('mod_edusign/student/view-list', [
   'DB' => $DB,
   'USER' => $USER,
   'PAGE' => $PAGE,
+  'sessions' => $sessions
 ]);
-
 
 echo $OUTPUT->header();
 echo $output;
