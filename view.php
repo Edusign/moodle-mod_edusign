@@ -11,6 +11,7 @@
  */
 
 require_once(dirname(__FILE__) . '/../../config.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 $id           = required_param('id', PARAM_INT);
 $sessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
@@ -81,7 +82,11 @@ $PAGE->set_title($course->shortname . ": " . $att->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 
+
+$sessions = filter_sessions_by_student($sessions, $USER->id);
+$incomingSessions = filter_sessions_by_student($sessions, $USER->id);
 $sessions = formatSessions($sessions);
+$incomingSessions = formatSessions($incomingSessions);
 
 
 $PAGE->requires->js_call_amd('mod_edusign/pages/student/view-list', 'init', [

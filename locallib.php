@@ -572,3 +572,22 @@ function update_session($session, array $data, )
     $DB->update_record('edusign_sessions', $session);
     return $session;
 }
+
+function is_student_has_session($session, $studentEdusignApiId){
+    $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
+    foreach($edusignCourse->STUDENTS as $student){
+        if($student->studentId === $studentEdusignApiId){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function filter_sessions_by_student($sessions, $userId){
+    $userEdusignApi = getUserWithEdusignApiId('student', $userId);
+    $studentEdusignApiId = $userEdusignApi->edusign_api_id;
+    return array_filter($sessions, function ($session) use ($studentEdusignApiId) {
+        return is_student_has_session($session, $studentEdusignApiId);
+    });
+}
