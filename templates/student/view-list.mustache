@@ -3,8 +3,23 @@
     <h2>{{#str}}session, mod_edusign{{/str}}</h2>
     <div class="d-flex flex-wrap">
       {{#sessions}}
-        <div class="card m-2 view-list-card position-relative">
-          <h5 class="card-header">{{title}}</h5>
+        <div
+          class="card m-2 view-list-card position-relative"
+          data-toggle="tooltip"
+          data-placement="top"
+          title="{{title}}"
+        >
+          <h5
+            class="card-header"
+            style="
+              height: 50px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            "
+          >
+            {{title }}
+          </h5>
           <div class="card-body">
             <p class="card-text">Début :{{#userdate}} {{date_start}}, {{#str}} strftimedatetime, core_langconfig {{/str}} {{/userdate}}
             </p>
