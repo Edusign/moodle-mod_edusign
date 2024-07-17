@@ -95,3 +95,9 @@
 #import-csv-save.is-loading .spinner-border {
     display: inline-block;
 }
+
+.signature-link-iframe {
+    width: 100%;
+    min-height: 725px;
+    border: 0;
+}

@@ -19,7 +19,7 @@ $sessions = array_values(array_filter($DB->get_records('edusign_sessions', ['act
 }));
 
 $incomingSessions = array_values(array_filter($DB->get_records('edusign_sessions', ['activity_module_id' => $id]), function ($session) {
-  return strtotime($session->date_start) > time();
+  return strtotime($session->date_start) > time() && strtotime($session->date_end) > time();
 }));
 
 function formatSessions($sessions) {
