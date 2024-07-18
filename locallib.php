@@ -278,7 +278,7 @@ function syncStudentsToApi($students, $context, $withVerification = false)
                 "LASTNAME" => $student->lastname,
                 "EMAIL" => $student->email,
                 "API_ID" => $student->id,
-                "SEND_EMAIL_CREDENTIALS" => true,
+                "SEND_EMAIL_CREDENTIALS" => false,
             ], [
                 'objectid' => $student->id,
                 'context' => $context,
@@ -354,7 +354,7 @@ function syncTeachersToApi(array $teachers, $context, $withVerification = false)
                 "LASTNAME" => $teacher->lastname,
                 "EMAIL" => $teacher->email,
                 "API_ID" => $teacher->id,
-                "dontSendCredentials" => false,
+                "dontSendCredentials" => true,
             ], [
                 'objectid' => $teacher->id,
                 'context' => $context,
