@@ -14,24 +14,26 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 /**
  * class for displaying add/update form.
  */
-class mod_edusign_mod_form extends moodleform_mod {
+class mod_edusign_mod_form extends moodleform_mod
+{
 
     /**
      * Called to define this moodle form
      *
      * @return void
      */
-    public function definition() {
+    public function definition()
+    {
         $edusignconfig = get_config('edusign');
         if (!isset($edusignconfig->subnet)) {
             $edusignconfig->subnet = '';
         }
-        $mform    =& $this->_form;
+        $mform    = &$this->_form;
 
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
@@ -60,5 +62,56 @@ class mod_edusign_mod_form extends moodleform_mod {
         }
 
         $this->add_action_buttons();
+    }
+
+    protected function get_suffixed_name(string $fieldname): string
+    {
+        return $fieldname . $this->get_suffix();
+    }
+
+    /**
+     * Add elements for setting the custom completion rules.
+     *
+     * @return array List of added element names, or names of wrapping group elements.
+     * @category completion
+     */
+    public function add_completion_rules(): array
+    {
+
+        $mform = $this->_form;
+
+        $group = [
+            $mform->createElement(
+                'checkbox',
+                $this->get_suffixed_name('completionallattendancesenabled'),
+                ' ',
+                get_string('completionallattendance', 'edusign')
+            ),
+        ];
+
+        $mform->addGroup(
+            $group,
+            $this->get_suffixed_name('completionallattendancegroup'),
+        );
+
+        $mform->addHelpButton(
+            $this->get_suffixed_name('completionallattendancegroup'),
+            'completionallattendance',
+            'edusign'
+        );
+
+        return [$this->get_suffixed_name('completionallattendancesenabled')];
+    }
+
+    /**
+     * Called during validation to see whether some activity-specific completion rules are selected.
+     *
+     * @param array $data Input data not yet validated.
+     * @return bool True if one or more rules is enabled, false if none are.
+     */
+    public function completion_rule_enabled($data)
+    {
+        return !empty($data[$this->get_suffixed_name('completionallattendancegroup')])
+            && !empty($data[$this->get_suffixed_name('completionallattendancegroup')][$this->get_suffixed_name('completionallattendancesenabled')]);
     }
 }

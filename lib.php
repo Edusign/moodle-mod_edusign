@@ -149,13 +149,18 @@ function edusign_delete_instance($id)
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
  */
-function mod_edusign_supports($feature)
+function edusign_supports($feature)
 {
-    switch ($feature) {
-        default:
-            return null;
+    $features = [
+        FEATURE_COMPLETION_TRACKS_VIEWS => false,
+        FEATURE_COMPLETION_HAS_RULES => true,
+    ];
+    if (isset($features[(string) $feature])) {
+        return $features[$feature];
     }
+    return null;
 }
+
 
 
 /**
@@ -190,4 +195,41 @@ function edusign_print_settings_tabs($selected = 'settings')
     ob_end_clean();
 
     return $tabmenu;
+}
+
+/**
+ * Obtains the automatic completion state for this forum based on any conditions
+ * in forum settings.
+ *
+ * @param object $course Course
+ * @param object $cm Course-module
+ * @param int $userid User ID
+ * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
+ * @return bool True if completed, false if not, $type if conditions not set.
+ */
+function edusign_get_completion_state($course, $cm, $userid, $type)
+{
+    global $CFG, $DB;
+    
+    // Get forum details
+    $forum = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+
+    // If completion option is enabled, evaluate it and return true/false
+    if ($forum->completionposts) {
+        return $forum->completionposts <= $DB->get_field_sql("
+            SELECT
+                COUNT(1)
+            FROM
+                {forum_posts} fp
+                INNER JOIN {forum_discussions} fd ON fp.discussion=fd.id
+            WHERE
+                fp.userid = :userid AND fd.forum = :forumid
+       ", [
+            'userid' => $userid,
+            'forumid' => $forum->id,
+        ]);
+    } else {
+        // Completion option is not enabled so just return $type
+        return $type;
+    }
 }

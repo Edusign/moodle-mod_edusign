@@ -21,6 +21,8 @@ $string['apiurl_text'] = 'URL de l\'API';
 $string['apiurl_text_help'] = 'URL de l\'API pour contacter les services Edusign';
 $string['apikey_text'] = 'Clef d\'API';
 $string['apikey_text_help'] = 'Clef d\'API pour synchroniser les utilisateurs et les cours avec Edusign';
+$string['completionallattendance'] = 'Signe toutes les fiches de présence de l\'activité';
+$string['completionallattendance_help'] = 'Lorsque cette option est activée, l\'activité est automatiquement complétée pour tous les étudiants qui ont été marqués comme présents sur toutes les sessions';
 
 /** Settings Plugin Health Tab */
 $string['plugin_health'] = 'Santé du plugin';

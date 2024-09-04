@@ -20,6 +20,8 @@ $string['apiurl_text'] = 'API URL';
 $string['apiurl_text_help'] = 'API URL to contact edusign services';
 $string['apikey_text'] = 'API Key';
 $string['apikey_text_help'] = 'API Key for synchronizing users and courses with Edusign';
+$string['completionallattendance'] = 'Sign all attendance sheets for the activity';
+$string['completionallattendance_help'] = 'When this option is enabled, the activity is automatically marked as completed for all students who have been marked as present in all sessions of the activity';
 
 /** Settings Plugin Health Tab */
 
