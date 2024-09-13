@@ -10,11 +10,7 @@ $string['modulename'] = 'Edusign';
 $string['pluginadministration'] = 'Edusign administration';
 $string['modulename_help'] = 'The edusign activity module enables a teacher to take attendance during class and students to view their own attendance record.';
 $string['loading'] = 'Loading ...';
-/*************
- * Settings Page
- *************/
 
-/** Settings Tab */
 $string['settings'] = 'Settings';
 $string['save'] = 'Enregistrer';
 $string['settings_section_config'] = 'Plugin configuration';
@@ -40,14 +36,11 @@ $string['completeonxattendancesigned:submit'] = 'Sign {$a} sheet(s)';
 $string['completeonxattendancesigned'] = 'Number of attendance sheets student must sign for the activity';
 $string['completion_X_attendance_help'] = 'When this option is enabled, the activity is automatically marked as completed for all students who have been marked as present in the provided session\'s number of the activity';
 
-/** Settings Plugin Health Tab */
-
 $string['plugin_advanced'] = 'Advanced settings';
 $string['test_api_error'] = 'An error occurred while connecting to the API : {$a}';
 $string['test_api_success'] = 'API connection test successful';
 $string['testapiconnection'] = 'Test API connection';
 
-/** Attendance */
 $string['attendance'] = 'Attendance';
 $string['add_session'] = 'Add a session';
 $string['date'] = 'Date';
@@ -64,7 +57,6 @@ $string['removeSessionAndSheet'] = 'Also delete the attendance sheet on Edusign 
 $string['archiveSessionQuestion'] = 'You are about to archive a session. Are you sure you want to continue?';
 $string['unarchiveSessionQuestion'] = 'You are about to unarchive a session. Are you sure you want to continue?';
 
-/** Add Session */
 $string['addsession'] = 'Add a session';
 $string['editSession'] = 'Edit a session';
 $string['sessiondate'] = 'Session date';
@@ -77,8 +69,6 @@ $string['errorstartdatebeforeenddate'] = 'Start date cannot be after end date';
 $string['forcesync'] = 'Force synchronization with Edusign (may take some seconds)';
 $string['processcompletion'] = 'Re process students completion status (may take long times following the number of students)';
 
-
-/** Session */
 $string['session'] = 'Session';
 $string['status'] = 'Status';
 $string['studentName'] = 'Name';
@@ -107,8 +97,6 @@ $string['showOnEdusignWebsite'] = 'Show on edusign app';
 $string['noArchivedSession'] = 'No archived session';
 $string['noUnarchivedSession'] = 'No current session ';
 
-/** ---- Ajax messages */
-
 $string['send_sign_email_error'] = 'An error occurred while send sign email to student : {$a}';
 $string['send_sign_email_success'] = 'Sign email successfully sent to student';
 $string['set_student_absent_error'] = 'An error occurred while setting student absent : {$a}';
@@ -122,8 +110,6 @@ $string['archive_session_success'] = 'The session has been successfully archived
 $string['archive_session_error'] = 'An error occurred during archiving';
 $string['archive_session_sync_error'] = 'An error occurred during synchronization with Edusign : {$a}';
 
-
-/** ---- Import CSV */
 $string['should_import_sessions_with_csv'] = 'You can import a list of sessions to create by importing a CSV file.';
 $string['download_csv_model'] = 'Download the CSV file template';
 $string['session_name'] = 'Session name';
