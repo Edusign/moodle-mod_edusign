@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace mod_edusign\completion;
 
+use cm_info;
 use core_completion\activity_custom_completion;
 
 /**
@@ -29,7 +30,8 @@ use core_completion\activity_custom_completion;
  * @package mod_edusign
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class custom_completion extends activity_custom_completion {
+class custom_completion extends activity_custom_completion
+{
 
     /**
      * Fetches the completion state for a given completion rule.
@@ -37,26 +39,24 @@ class custom_completion extends activity_custom_completion {
      * @param string $rule The completion rule.
      * @return int The completion state.
      */
-    public function get_state(string $rule): int {
+    public function get_state(string $rule): int
+    {
         global $CFG;
-        var_dump('getState');die;
-
+        
         $this->validate_rule($rule);
 
         $userid = $this->userid;
         $cm = $this->cm;
 
         require_once($CFG->dirroot . '/mod/edusign/locallib.php');
-
-        $edusign = new \edusign(null, $cm, $cm->get_course());
-        if ($edusign->get_instance()->teamsubmission) {
-            $submission = $edusign->get_group_submission($userid, 0, false);
-        } else {
-            $submission = $edusign->get_user_submission($userid, false);
+        
+        if ($rule === 'allsheets') {
+            return has_student_signed_all_sessions($cm, $userid) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+        } elseif ($rule === 'xsheets') {
+            $completeonxattendancesigned = intval($cm->customdata['customcompletionrules']['xsheets'] ?: 0);
+            return has_student_signed_x_sessions($cm, $userid, $completeonxattendancesigned) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
         }
-        $status = $submission && $submission->status == ASSIGN_SUBMISSION_STATUS_SUBMITTED;
-
-        return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+        return COMPLETION_INCOMPLETE;
     }
 
     /**
@@ -64,9 +64,9 @@ class custom_completion extends activity_custom_completion {
      *
      * @return array
      */
-    public static function get_defined_custom_rules(): array {
-        var_dump('get_defined_custom_rules');die;
-        return ['completionsubmit'];
+    public static function get_defined_custom_rules(): array
+    {
+        return ['allsheets', 'xsheets'];
     }
 
     /**
@@ -74,25 +74,30 @@ class custom_completion extends activity_custom_completion {
      *
      * @return array
      */
-    public function get_custom_rule_descriptions(): array {
-        var_dump('get_custom_rule_descriptions');die;
+    public function get_custom_rule_descriptions(): array
+    {
+        $completeonxattendancesigned = 0;
+        if (isset($this->cm->customdata['customcompletionrules']) && isset($this->cm->customdata['customcompletionrules']['xsheets'])) {
+            $completeonxattendancesigned = $this->cm->customdata['customcompletionrules']['xsheets'] ?: 0;
+        }
+        
         return [
-            'completionsubmit' => get_string('completiondetail:submit', 'edusign')
+            'allsheets' => get_string('completeonallattendancesigned:submit', 'edusign'),
+            'xsheets' => get_string('completeonxattendancesigned:submit', 'edusign', $completeonxattendancesigned),
         ];
     }
+    
 
     /**
      * Returns an array of all completion rules, in the order they should be displayed to users.
      *
      * @return array
      */
-    public function get_sort_order(): array {
-        var_dump('get_sort_order');die;
+    public function get_sort_order(): array
+    {
         return [
-            'completionview',
-            'completionsubmit',
-            'completionusegrade',
-            'completionpassgrade',
+            'allsheets',
+            'xsheets',
         ];
     }
 }

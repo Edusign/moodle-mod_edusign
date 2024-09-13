@@ -21,11 +21,13 @@ $string['apiurl_text'] = 'URL de l\'API';
 $string['apiurl_text_help'] = 'URL de l\'API pour contacter les services Edusign';
 $string['apikey_text'] = 'Clef d\'API';
 $string['apikey_text_help'] = 'Clef d\'API pour synchroniser les utilisateurs et les cours avec Edusign';
-$string['completionallattendance'] = 'Signe toutes les fiches de présence de l\'activité';
-$string['completionallattendance_help'] = 'Lorsque cette option est activée, l\'activité est automatiquement complétée pour tous les étudiants qui ont été marqués comme présents sur toutes les sessions';
+$string['completion_all_attendance'] = 'Signe toutes les fiches de présence de l\'activité';
+$string['completeonallattendancesigned:submit'] = 'Signer toutes les feuilles';
+$string['completeonallattendancesigned'] = 'L\'étudiant doit avoir signé toutes les fiches de présence de l\'activité';
+$string['completion_all_attendance_help'] = 'Lorsque cette option est activée, l\'activité est automatiquement complétée pour tous les étudiants qui ont été marqués comme présents sur toutes les sessions';
 
 /** Settings Plugin Health Tab */
-$string['plugin_health'] = 'Santé du plugin';
+$string['plugin_advanced'] = 'Paramètres avancés';
 $string['test_api_error'] = 'Une erreur est survenue lors de la connexion à l\'API: {$a}';
 $string['test_api_success'] = 'La connexion à l\'API a réussi';
 $string['testapiconnection'] = 'Tester la connexion avec l\'api';

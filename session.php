@@ -13,6 +13,7 @@
 use mod_edusign\classes\commons\EdusignApi;
 
 require_once(dirname(__FILE__) . '/../../config.php');
+require_once("{$CFG->libdir}/completionlib.php"); //require missing?
 
 $sessionId    = required_param('sessionId', PARAM_INT);
 if (!$sessionId) {

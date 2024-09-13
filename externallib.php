@@ -405,6 +405,57 @@ class mod_edusign_external extends external_api
             'withEdusignDelete' => new external_value(PARAM_BOOL, 'Delete also on edusign ?', VALUE_OPTIONAL, true),
         ]);
     }
+    
+     /**
+     * On attendance sheet has been signed
+     *
+     * @param int $cmId course module id
+     * @param int $sessionId session id
+     * @return array
+     */
+    public static function on_attendance_sheet_signed(int $cmId, int $sessionId)
+    {
+        global $DB;
+        $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $cm->course), '*');
+        
+        // Update completion state
+        $completion = new completion_info($course);
+        if ($completion->is_enabled($cm)) {
+            $completion->update_state($cm, COMPLETION_UNKNOWN);
+        }
+
+        return [
+            'result' => true,
+            'error' => '',
+        ];
+    }
+
+    /**
+     * Describes get_signature_link_from_course return values.
+     *
+     * @return external_multiple_structure
+     */
+    public static function on_attendance_sheet_signed_returns()
+    {
+        return new external_single_structure([
+            'result' => new external_value(PARAM_BOOL, 'Result'),
+            'error' => new external_value(PARAM_TEXT, 'Error message if the request failed'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for get_signature_link_from_course.
+     *
+     * @return external_function_parameters
+     */
+    public static function on_attendance_sheet_signed_parameters()
+    {
+        return new external_function_parameters([
+            'cmId' => new external_value(PARAM_INT, 'Course module Id'),
+            'sessionId' => new external_value(PARAM_INT, 'Session Id'),
+        ]);
+    }
 
     /**
      * Archive or unarchive session from edusign and moodle
@@ -412,7 +463,7 @@ class mod_edusign_external extends external_api
      * @param int $sessionId session id
      * @return array
      */
-    public static function archive_session(int $sessionId, bool $archiveState = true)
+    public static function archive_session(int $cmId, int $sessionId, bool $archiveState = true)
     {
         global $DB;
         $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
@@ -428,7 +479,20 @@ class mod_edusign_external extends external_api
         }
         $session->archived = $archiveState ? 1 : 0;
         $DB->update_record('edusign_sessions', $session);
-
+        
+        $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
+        $course       = $DB->get_record('course', array('id' => $cm->course), '*');
+        $edusign      = $DB->get_record('edusign', array('id' => $cm->instance), '*');
+        $students     = getStudentsFromContext(context_module::instance($cm->id));
+        
+        // // Update completion state
+        // $completion = new completion_info($course);
+        // if ($completion->is_enabled($cm) && !empty($edusign->complete_mode)) {
+        //     foreach ($students as $student) {
+        //         $completion->update_state($cm, COMPLETION_UNKNOWN, $student->id);
+        //     }
+        // }
+        
         \core\notification::success(get_string('archive_session_success', 'mod_edusign'));
         return [
             'result' => true,
@@ -457,6 +521,7 @@ class mod_edusign_external extends external_api
     public static function archive_session_parameters()
     {
         return new external_function_parameters([
+            'cmId' => new external_value(PARAM_INT, 'Course module Id'),
             'sessionId' => new external_value(PARAM_INT, 'Session Id'),
             'archiveState' => new external_value(PARAM_BOOL, 'Archive state', VALUE_OPTIONAL, true),
         ]);
@@ -534,22 +599,22 @@ class mod_edusign_external extends external_api
         }
         $context = context_module::instance($cmId);
         $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
-        
+
         $cr = true;
-        foreach($sessions as $session){
+        foreach ($sessions as $session) {
             $cr = $cr && create_session($context, $cm, [
                 'title' => $session['name'],
                 'startDate' => $session['start_date'],
                 'endDate' => $session['end_date'],
             ]);
         }
-        
-        if(!$cr){
+
+        if (!$cr) {
             throw new \Exception('An error occured while importing sessions');
         }
-        
+
         \core\notification::success(get_string('import_sessions_success', 'mod_edusign'));
-        
+
         return [
             'success' => $cr,
         ];

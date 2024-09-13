@@ -96,6 +96,15 @@ $functions = array(
         'ajax'         => true,
         'loginrequired'=> true,
     ),
+    'mod_edusign_on_attendance_sheet_signed' => array(
+        'classname'    => 'mod_edusign_external',
+        'methodname'   => 'on_attendance_sheet_signed',
+        'classpath'    => 'mod/edusign/externallib.php',
+        'description'  => 'Hook when an attendance sheet is signed for completion activity refresh',
+        'type'         => 'read',
+        'ajax'         => true,
+        'loginrequired'=> true,
+    ),
 );
 
 
@@ -109,6 +118,7 @@ $services = array(
             'mod_edusign_get_signature_link_from_course',
             'mod_edusign_remove_session',
             'mod_edusign_archive_session',
+            'mod_edusign_on_attendance_sheet_signed',
         ),
         'restrictedusers' => 0,
         'enabled' => 1,

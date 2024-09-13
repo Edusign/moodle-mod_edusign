@@ -30,11 +30,7 @@ class mod_edusign_mod_form extends moodleform_mod
     public function definition()
     {
         $edusignconfig = get_config('edusign');
-        if (!isset($edusignconfig->subnet)) {
-            $edusignconfig->subnet = '';
-        }
         $mform    = &$this->_form;
-
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('text', 'name', get_string('name'), array('size' => '64'));
@@ -49,18 +45,6 @@ class mod_edusign_mod_form extends moodleform_mod
 
         $this->standard_coursemodule_elements(true);
 
-        // IP address.
-        if (get_config('edusign', 'subnetactivitylevel')) {
-            $mform->addElement('header', 'security', get_string('extrarestrictions', 'edusign'));
-            $mform->addElement('text', 'subnet', get_string('defaultsubnet', 'edusign'), array('size' => '164'));
-            $mform->setType('subnet', PARAM_TEXT);
-            $mform->addHelpButton('subnet', 'defaultsubnet', 'edusign');
-            $mform->setDefault('subnet', $edusignconfig->subnet);
-        } else {
-            $mform->addElement('hidden', 'subnet', '');
-            $mform->setType('subnet', PARAM_TEXT);
-        }
-
         $this->add_action_buttons();
     }
 
@@ -69,6 +53,7 @@ class mod_edusign_mod_form extends moodleform_mod
         return $fieldname . $this->get_suffix();
     }
 
+   
     /**
      * Add elements for setting the custom completion rules.
      *
@@ -77,30 +62,78 @@ class mod_edusign_mod_form extends moodleform_mod
      */
     public function add_completion_rules(): array
     {
-
         $mform = $this->_form;
-
-        $group = [
-            $mform->createElement(
-                'checkbox',
-                $this->get_suffixed_name('completionallattendancesenabled'),
-                ' ',
-                get_string('completionallattendance', 'edusign')
-            ),
-        ];
-
-        $mform->addGroup(
-            $group,
-            $this->get_suffixed_name('completionallattendancegroup'),
+        
+        // Création de la checkbox pour "Toutes le feuilles signées"
+        $mform->addElement(
+            'radio',
+            $this->get_suffixed_name('complete_mode'),
+            '',
+            get_string('completion_all_attendance', 'edusign'),
+            'allsheets',
         );
 
         $mform->addHelpButton(
-            $this->get_suffixed_name('completionallattendancegroup'),
-            'completionallattendance',
+            $this->get_suffixed_name('complete_mode'),
+            'completion_all_attendance',
             'edusign'
         );
-
-        return [$this->get_suffixed_name('completionallattendancesenabled')];
+        
+        // Création de l'input pour choisir le nombre de feuilles signées au minimum
+        $group = [
+            $mform->createElement(
+                'radio',
+                $this->get_suffixed_name('complete_mode'),
+                '',
+                get_string('completeonxattendancesigned', 'edusign'),
+                'xsheets',
+            ),
+            $mform->createElement(
+                'text',
+                $this->get_suffixed_name('completeonxattendancesigned'),
+                ' ',
+                ['size' => 3]
+            ),
+        ];
+        $mform->setType('completeonxattendancesigned', PARAM_INT);
+        $mform->addGroup(
+            $group,
+            $this->get_suffixed_name('completeonxattendancesignedgroup'),
+            get_string('completion_of_X_attendance','edusign'),
+            [' '],
+            false
+        );
+        $mform->addHelpButton(
+            $this->get_suffixed_name('completeonxattendancesignedgroup'),
+            'completion_X_attendance',
+            'edusign'
+        );
+        
+        $mform->disabledIf(
+            $this->get_suffixed_name('completeonxattendancesigned'),
+            $this->get_suffixed_name('complete_mode'),
+            'neq',
+            'xsheets'
+        );
+        
+        return [
+            $this->get_suffixed_name('complete_mode'),
+            $this->get_suffixed_name('completeonxattendancesignedgroup'),
+        ];
+    }
+    
+    function get_data() {
+        $data = parent::get_data();
+        if (!$data) {
+            return $data;
+        }
+        if (empty($data)) {
+            $data = new stdClass;
+        }
+        if (empty($data->{$this->get_suffixed_name('complete_mode')})){
+            $data->{$this->get_suffixed_name('complete_mode')} = 'allsheets';
+        }
+        return $data;
     }
 
     /**
@@ -111,7 +144,21 @@ class mod_edusign_mod_form extends moodleform_mod
      */
     public function completion_rule_enabled($data)
     {
-        return !empty($data[$this->get_suffixed_name('completionallattendancegroup')])
-            && !empty($data[$this->get_suffixed_name('completionallattendancegroup')][$this->get_suffixed_name('completionallattendancesenabled')]);
+        
+        if (
+            empty($data[$this->get_suffixed_name('complete_mode')])) {
+            return false;
+        }
+        if ($data[$this->get_suffixed_name('complete_mode')] === 'xsheets' &&
+            (
+                empty($data[$this->get_suffixed_name('completeonxattendancesigned')])
+                || 
+                $data[$this->get_suffixed_name('completeonxattendancesigned')] == 0
+            )
+        ) {
+            return false;
+        }
+        return true;
     }
+    
 }

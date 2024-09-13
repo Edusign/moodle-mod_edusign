@@ -56,7 +56,7 @@ function edusign_grade_item_update($edusign, $grades = null)
  * @author      Sébastien Lampazona
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-function mod_edusign_before_footer()
+function mod_edusign_before_footer_html_generation()
 {
     global $USER;
 
@@ -87,6 +87,12 @@ function edusign_add_instance($edusign)
         $edusign->grade = 100;
     }
 
+    if ($edusign->complete_mode) {
+        $edusign->completeonxattendancesigned = $edusign->completeonxattendancesigned ?: 0;
+        $edusign->completionexpected = true;
+        $edusign->completion = COMPLETION_TRACKING_AUTOMATIC;
+    }
+    
     $edusign->id = $DB->insert_record('edusign', $edusign);
 
     createTrainingFromCourse(
@@ -117,9 +123,66 @@ function edusign_update_instance($edusign)
     global $DB;
 
     $edusign->timemodified = time();
-    $edusign->id = $DB->update_record('edusign', $edusign);
+    $edusign->id = $edusign->instance;
+    
+    if ($edusign->complete_mode) {
+        $edusign->completeonxattendancesigned = $edusign->completeonxattendancesigned ?: 0;
+        $edusign->completionexpected = true;
+        $edusign->completion = COMPLETION_TRACKING_AUTOMATIC;
+    }
+
+    if (! $DB->update_record('edusign', $edusign)) {
+        return false;
+    }
 
     return true;
+}
+
+/**
+ * Add a get_coursemodule_info function in case any edusign type wants to add 'extra' information
+ * for the course (see resource).
+ *
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
+ *
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information that the courses
+ *                        will know about (most noticeably, an icon).
+ */
+function edusign_get_coursemodule_info($coursemodule)
+{
+    global $DB;
+
+    $dbparams = ['id' => $coursemodule->instance];
+    if (!$edusign = $DB->get_record('edusign', $dbparams)) {
+        return false;
+    }
+
+    $result = new cached_cm_info();
+    $result->name = $edusign->name;
+
+    if ($coursemodule->showdescription) {
+        // Convert intro to html. Do not filter cached version, filters run at display time.
+        $result->content = format_module_intro('edusign', $edusign, $coursemodule->id, false);
+    }
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($edusign->complete_mode === 'allsheets'){
+        $result->customdata['customcompletionrules']['allsheets'] = $edusign->complete_mode === 'allsheets';
+    }
+    if ($edusign->complete_mode === 'xsheets'){
+        $result->customdata['customcompletionrules']['xsheets'] = $edusign->completeonxattendancesigned;
+    }
+
+    // Populate some other values that can be used in calendar or on dashboard.
+    if ($edusign->duedate) {
+        $result->customdata['duedate'] = $edusign->duedate;
+    }
+    if ($edusign->cutoffdate) {
+        $result->customdata['cutoffdate'] = $edusign->cutoffdate;
+    }
+
+    return $result;
 }
 
 /**
@@ -151,14 +214,14 @@ function edusign_delete_instance($id)
  */
 function edusign_supports($feature)
 {
-    $features = [
-        FEATURE_COMPLETION_TRACKS_VIEWS => false,
-        FEATURE_COMPLETION_HAS_RULES => true,
-    ];
-    if (isset($features[(string) $feature])) {
-        return $features[$feature];
+    switch ($feature) {
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return false;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
+        default:
+            return null;
     }
-    return null;
 }
 
 
@@ -182,10 +245,10 @@ function edusign_print_settings_tabs($selected = 'settings')
     );
 
     $tabs[] = new tabobject(
-        'health',
-        $CFG->wwwroot . '/mod/edusign/health.php',
-        get_string('plugin_health', 'mod_edusign'),
-        get_string('plugin_health', 'mod_edusign'),
+        'advanced',
+        $CFG->wwwroot . '/mod/edusign/advanced.php',
+        get_string('plugin_advanced', 'mod_edusign'),
+        get_string('plugin_advanced', 'mod_edusign'),
         false
     );
 
@@ -195,41 +258,4 @@ function edusign_print_settings_tabs($selected = 'settings')
     ob_end_clean();
 
     return $tabmenu;
-}
-
-/**
- * Obtains the automatic completion state for this forum based on any conditions
- * in forum settings.
- *
- * @param object $course Course
- * @param object $cm Course-module
- * @param int $userid User ID
- * @param bool $type Type of comparison (or/and; can be used as return value if no conditions)
- * @return bool True if completed, false if not, $type if conditions not set.
- */
-function edusign_get_completion_state($course, $cm, $userid, $type)
-{
-    global $CFG, $DB;
-    
-    // Get forum details
-    $forum = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
-
-    // If completion option is enabled, evaluate it and return true/false
-    if ($forum->completionposts) {
-        return $forum->completionposts <= $DB->get_field_sql("
-            SELECT
-                COUNT(1)
-            FROM
-                {forum_posts} fp
-                INNER JOIN {forum_discussions} fd ON fp.discussion=fd.id
-            WHERE
-                fp.userid = :userid AND fd.forum = :forumid
-       ", [
-            'userid' => $userid,
-            'forumid' => $forum->id,
-        ]);
-    } else {
-        // Completion option is not enabled so just return $type
-        return $type;
-    }
 }

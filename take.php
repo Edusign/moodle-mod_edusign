@@ -16,6 +16,7 @@ $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
 $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $courseEdusign = $DB->get_record('course_edusign_api', ['course_id' => $course->id], '*', MUST_EXIST);
+$edusign      = $DB->get_record('edusign', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $context = context_module::instance($cm->id);
 
@@ -36,6 +37,7 @@ if (!empty($courseEdusign)){
 if (!empty($session->edusign_api_id)){
     $edusignApiCourse = EdusignApi::getCourseById($session->edusign_api_id);
 }
+
 
 $students = getStudentsWithPresentialStates($context, $edusignApiCourse);
 $teachers = getTeachersWithPresentialStates($context, $edusignApiCourse);
