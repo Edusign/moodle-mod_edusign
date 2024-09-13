@@ -18,9 +18,9 @@ import ModalDeleteCancel from 'core/modal_delete_cancel';
 import Modal from 'core/modal';
 import ModalEvents from 'core/modal_events';
 import dayjs from '../lib/dayjs';
-import {add as addToast} from 'core/toast';
+import { add as addToast } from 'core/toast';
 
-const getStudentIframeLink = function(studentId) {
+const getStudentIframeLink = function (studentId) {
     return Ajax.call([{
         methodname: 'mod_edusign_get_signature_link_from_course',
         args: {
@@ -29,12 +29,12 @@ const getStudentIframeLink = function(studentId) {
             userType: 'student',
         }
     }])[0]
-        .then(({result}) => {
+        .then(({ result }) => {
             return result?.[0]?.SIGNATURE_LINK;
         });
 };
 
-const getTeacherIframeLink = function(teacherId) {
+const getTeacherIframeLink = function (teacherId) {
     return Ajax.call([{
         methodname: 'mod_edusign_get_signature_link_from_course',
         args: {
@@ -43,12 +43,12 @@ const getTeacherIframeLink = function(teacherId) {
             userType: 'teacher',
         }
     }])[0]
-        .then(({result}) => {
+        .then(({ result }) => {
             return result?.[0]?.SIGNATURE_LINK;
         });
 };
 
-const archiveSession = function(archiveState = true) {
+const archiveSession = function (archiveState = true) {
     return Ajax.call([{
         methodname: 'mod_edusign_archive_session',
         args: {
@@ -123,7 +123,7 @@ const sendStudentSignEmail = (studentsId) => {
 };
 
 const setStudentAbsent = (studentId, comment) => {
-    return sendMethod('set_student_absent', [studentId], {comment});
+    return sendMethod('set_student_absent', [studentId], { comment });
 };
 
 /**
@@ -132,7 +132,7 @@ const setStudentAbsent = (studentId, comment) => {
  * @param {Object} user
  * @returns Promise
  */
-const askUserSignature = async function(userType, user) {
+const askUserSignature = async function (userType, user) {
     let iframeURL = null;
     if (userType === 'student') {
         iframeURL = await getStudentIframeLink(user.edusign_api_id);
@@ -155,16 +155,13 @@ const askUserSignature = async function(userType, user) {
             refreshView();
         });
 
-        // TODO : Not functional, need to be code in the iframe
-        const signatureIframe = document.querySelector("#signature-iframe");
-        signatureIframe.contentWindow.addEventListener("accept-signature", () => {
-            modalInstance.getRoot().close();
-            refreshView();
+        window.addEventListener("message", ({data}) => {
+            modalInstance.hide();
+            if (data === 'accept-signature') {
+                refreshView();
+            }
         });
 
-        signatureIframe.contentWindow.addEventListener("deny-signature", () => {
-            modalInstance.getRoot().close();
-        });
     });
 };
 
@@ -172,7 +169,7 @@ const askUserSignature = async function(userType, user) {
  * Opens a modal to add a comment to the student absence
  * @returns Promise
  */
-const openModalAddCommentToStudentAbsence = function() {
+const openModalAddCommentToStudentAbsence = function () {
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
             title: 'Student absence',
@@ -193,7 +190,7 @@ const openModalAddCommentToStudentAbsence = function() {
  * Opens a modal to set the student as delayed
  * @returns Promise
  */
-const openModalSetStudentDelayed = function() {
+const openModalSetStudentDelayed = function () {
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
             title: 'Student delay',
@@ -220,7 +217,7 @@ const openModalSetStudentDelayed = function() {
  * Opens a modal to set the student as early departure
  * @returns Promise
  */
-const openModalSetStudentEarlyDeparture = function() {
+const openModalSetStudentEarlyDeparture = function () {
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
             title: 'Student early departure',
@@ -252,11 +249,11 @@ const openModalSetStudentEarlyDeparture = function() {
  * @param {string} studentId
  * @returns Promise
  */
-const setStudentDelayed = function(delay = 15, studentId) {
-    return sendMethod('set_student_delay', [studentId], {delay});
+const setStudentDelayed = function (delay = 15, studentId) {
+    return sendMethod('set_student_delay', [studentId], { delay });
 };
 
-const sendMethod = function(methodName, studentsId, args = {}) {
+const sendMethod = function (methodName, studentsId, args = {}) {
     return Ajax.call([{
         methodname: 'mod_edusign_take_attendance',
         args: {
@@ -280,11 +277,11 @@ const refreshView = () => {
             cmId,
             sessionId,
         }
-    }])[0].then(({result}) => {
+    }])[0].then(({ result }) => {
         initTable(result.students);
         initTeachers(result.teachers);
         return result;
-    }).catch(async(error) => {
+    }).catch(async (error) => {
         console.error(error);
         addToast(await Str.get_string('refresh_error', 'mod_edusign', error?.message || 'An unknowed error has occured'), {
             type: 'error'
@@ -292,7 +289,7 @@ const refreshView = () => {
     });
 };
 
-const initTeachers = function(teachers) {
+const initTeachers = function (teachers) {
     const teachersList = document.querySelector('#teachersList');
     teachersList.innerHTML = '';
     const template = document.querySelector("#teachers");
@@ -319,7 +316,7 @@ const initTeachers = function(teachers) {
     });
 };
 
-const initTable = async function(students) {
+const initTable = async function (students) {
     const tbody = document.querySelector("#studentListTbody");
     tbody.innerHTML = '';
     const template = document.querySelector("#studentRow");
@@ -329,7 +326,7 @@ const initTable = async function(students) {
         return a.firstname.localeCompare(b.firstname);
     });
 
-    const sortedStudentsPromise = sortedStudents.map(async(student) => {
+    const sortedStudentsPromise = sortedStudents.map(async (student) => {
         const clone = template.content.cloneNode(true);
         const studentTR = clone.querySelector("tr");
         const checkboxTD = clone.querySelector(".user-checkbox");
@@ -352,7 +349,7 @@ const initTable = async function(students) {
     tbody.append(...allStudentsNodes);
     // Removes the disabled property of the sign button if at least one checkbox is checked
     tbody.querySelectorAll('.user-checkbox').forEach((checkbox) => {
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
             const signSelectedBtn = document.querySelector('#sign-selected-btn');
             if (tbody.querySelectorAll('.user-checkbox:checked').length > 0) {
                 signSelectedBtn.removeAttribute('disabled');
@@ -365,7 +362,7 @@ const initTable = async function(students) {
     });
 };
 
-const getStudentPresentialStateHTML = async function(student) {
+const getStudentPresentialStateHTML = async function (student) {
     let html = '';
     let signatureHTML = '';
 
@@ -391,29 +388,29 @@ const getStudentPresentialStateHTML = async function(student) {
             </div>`;
 };
 
-const initActionButtonForTeacher = function(teacher, context) {
+const initActionButtonForTeacher = function (teacher, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function() {
+    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function () {
         askUserSignature('teacher', teacher);
     });
 };
 
-const initActionButtonForStudent = function(student, context) {
+const initActionButtonForStudent = function (student, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn').addEventListener('click', function() {
+    context.querySelector('.manual-sign-btn').addEventListener('click', function () {
         askUserSignature('student', student);
     });
 
     // Send an email to the student to sign the document
-    context.querySelector('.send-sign-email-btn').addEventListener('click', function() {
+    context.querySelector('.send-sign-email-btn').addEventListener('click', function () {
         sendStudentSignEmail([student.edusign_api_id])
-            .then(async(data) => {
+            .then(async (data) => {
                 addToast(await Str.get_string('send_sign_email_success', 'mod_edusign'), {
                     type: 'success'
                 });
                 return data;
             })
-            .catch(async(error) => {
+            .catch(async (error) => {
                 console.error(error);
                 addToast(await Str.get_string('send_sign_email_error', 'mod_edusign', error?.message || 'An unknowed error has occured'), {
                     type: 'error'
@@ -422,18 +419,18 @@ const initActionButtonForStudent = function(student, context) {
     });
 
     // Set the student as absent
-    context.querySelector('.justified-abscence-btn').addEventListener('click', function() {
+    context.querySelector('.justified-abscence-btn').addEventListener('click', function () {
         openModalAddCommentToStudentAbsence()
             .then((comment) => {
                 return setStudentAbsent(student.edusign_api_id, comment);
             })
-            .then(async(data) => {
+            .then(async (data) => {
                 addToast(await Str.get_string('set_student_absent_success', 'mod_edusign'), {
                     type: 'success'
                 });
                 return data;
             })
-            .catch(async(error) => {
+            .catch(async (error) => {
                 console.error(error);
                 addToast(await Str.get_string('set_student_absent_error', 'mod_edusign', error?.message || 'An unknowed error has occured'), {
                     type: 'error'
@@ -442,20 +439,20 @@ const initActionButtonForStudent = function(student, context) {
     });
 
     // Set the student as delayed
-    context.querySelector('.late-btn').addEventListener('click', function() {
+    context.querySelector('.late-btn').addEventListener('click', function () {
         // Opens a modal to set in minutes the delay of the student
         openModalSetStudentDelayed()
             .then((delay) => {
                 // Use the delay to set the student as delayed
                 return setStudentDelayed(delay, student.edusign_api_id);
             })
-            .then(async(data) => {
+            .then(async (data) => {
                 addToast(await Str.get_string('set_student_delay_success', 'mod_edusign'), {
                     type: 'success'
                 });
                 return data;
             })
-            .catch(async(error) => {
+            .catch(async (error) => {
                 console.error(error);
                 addToast(await Str.get_string('set_student_delay_error', 'mod_edusign', error?.message || 'An unknowed error has occured'), {
                     type: 'error'
@@ -464,20 +461,20 @@ const initActionButtonForStudent = function(student, context) {
     });
 
     // Set the early departure of the student
-    context.querySelector('.early-departure-btn').addEventListener('click', function() {
+    context.querySelector('.early-departure-btn').addEventListener('click', function () {
         // Opens a modal to set in minutes the early departure of the student
         openModalSetStudentEarlyDeparture()
             .then((earlyDeparture) => {
                 // Use the early departure to set the student as early departure
-                return sendMethod('set_student_early_departure', [student.edusign_api_id], {earlyDeparture: earlyDeparture.toISOString()});
+                return sendMethod('set_student_early_departure', [student.edusign_api_id], { earlyDeparture: earlyDeparture.toISOString() });
             })
-            .then(async(data) => {
+            .then(async (data) => {
                 addToast(await Str.get_string('set_student_early_departure_success', 'mod_edusign'), {
                     type: 'success'
                 });
                 return data;
             })
-            .catch(async(error) => {
+            .catch(async (error) => {
                 console.error(error);
                 addToast(await Str.get_string('set_student_early_departure_error', 'mod_edusign', error?.message || 'An unknowed error has occured'), {
                     type: 'error'
@@ -485,9 +482,9 @@ const initActionButtonForStudent = function(student, context) {
             });
     });
 };
-const initCheckbox = function() {
+const initCheckbox = function () {
     // Allows to check or uncheck all the students
-    document.querySelector('#main-checkbox').addEventListener('change', function() {
+    document.querySelector('#main-checkbox').addEventListener('change', function () {
         document.querySelectorAll('.user-checkbox:not([disabled])').forEach((checkbox) => {
             checkbox.checked = this.checked;
             // Trigger change to update the sign button bellow
@@ -496,29 +493,29 @@ const initCheckbox = function() {
     });
 };
 
-const initRefreshButton = function() {
+const initRefreshButton = function () {
     // Allows to refresh the table
-    document.querySelector('#refresh-button').addEventListener('click', function() {
+    document.querySelector('#refresh-button').addEventListener('click', function () {
         refreshView();
     });
 };
 
-const initSignButton = function() {
+const initSignButton = function () {
     // Allows to send signature request for all checked users
-    document.querySelector('#sign-selected-btn').addEventListener('click', function() {
+    document.querySelector('#sign-selected-btn').addEventListener('click', function () {
         // Select all checked students
         const studentsId = Array.from(document.querySelectorAll('.user-checkbox:checked')).map((checkbox) => {
             return checkbox.closest('tr').dataset.studentId;
         });
         // Send them a signature request
-        sendStudentSignEmail(studentsId).then(async() => {
+        sendStudentSignEmail(studentsId).then(async () => {
             const mainCheckbox = document.querySelector('#main-checkbox');
             mainCheckbox.checked = false;
             document.querySelector('#main-checkbox').dispatchEvent(new Event('change'));
             return addToast(await Str.get_string('send_sign_email_success', 'mod_edusign'), {
                 type: 'success'
             });
-        }).catch(async(data) => {
+        }).catch(async (data) => {
             addToast(await Str.get_string('send_sign_email_error', 'mod_edusign', data?.error || 'An unknowed error has occured'), {
                 type: 'error'
             });
@@ -526,9 +523,9 @@ const initSignButton = function() {
     });
 };
 
-const initArchiveButton = function() {
-    document.querySelector('#archive-session-btn').addEventListener('click', function() {
-        return new Promise(async(resolve, reject) => {
+const initArchiveButton = function () {
+    document.querySelector('#archive-session-btn').addEventListener('click', function () {
+        return new Promise(async (resolve, reject) => {
             return ModalDeleteCancel.create({
                 title: await Str.get_string('archiveSession', 'mod_edusign'),
                 body: (`
@@ -545,17 +542,35 @@ const initArchiveButton = function() {
                 });
                 return modalInstance;
             })
-            .then(resolve)
-            .catch(reject);
+                .then(resolve)
+                .catch(reject);
         });
     });
 };
+
+
+const onDocumentSigned = () => {
+    return Ajax.call([{
+        methodname: 'mod_edusign_on_attendance_sheet_signed',
+        args: {
+            cmId,
+            sessionId: session.id,
+        }
+    }])[0]
+    .catch(async(error) => {
+        console.error(error);
+    }).then(() => {
+        document.location.href = '/mod/edusign/view.php?id=' + cmId;
+        return;
+    });
+};
+
 
 // eslint-disable-next-line no-unused-vars
 let course = null;
 let session = null;
 
-export const init = async(students, teachers, _course, _session) => {
+export const init = async (students, teachers, _course, _session) => {
     course = _course;
     session = _session;
     initTable(students);

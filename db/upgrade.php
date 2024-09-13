@@ -44,6 +44,24 @@ function xmldb_edusign_upgrade($oldversion=0) {
 
         upgrade_mod_savepoint(true, 2024022913, 'edusign');
     }
+    
+    if ($oldversion < 2024111215) {
+        $table = new xmldb_table('edusign');
+
+        //Define if activity is complete when a student has signed all sessions
+        $field = new xmldb_field('complete_mode', XMLDB_TYPE_TEXT, 'small', null, null, null, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        //Define if activity is complete when a student has signed this number of sessions, 0 is disabled
+        $field = new xmldb_field('completeonxattendancesigned', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        upgrade_mod_savepoint(true, 2024111215, 'edusign');
+    }
 
     return true;
 }

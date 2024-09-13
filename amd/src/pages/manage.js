@@ -33,6 +33,7 @@ const archiveSessionHandler = function(sessionId, archiveState) {
     return Ajax.call([{
         methodname: 'mod_edusign_archive_session',
         args: {
+            cmId,
             sessionId,
             archiveState,
         }

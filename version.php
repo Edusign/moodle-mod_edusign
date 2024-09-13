@@ -8,8 +8,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2024071713;      // The current module version (Date: YYYYMMDDXX).
+$plugin->version   = 2024111215;      // The current module version (Date: YYYYMMDDXX).
 $plugin->requires  = 2023042408;      // Requires this Moodle version.
 $plugin->component = 'mod_edusign';   // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '2024071713';
+$plugin->release = '2024111215';

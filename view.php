@@ -100,7 +100,7 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 $PAGE->set_cm($cm);
 $PAGE->set_context($context);
-$PAGE->set_title($course->shortname . ": " . $att->name);
+$PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_cacheable(true);
 

@@ -36,7 +36,7 @@ $sessionId    = optional_param('sessionId', false, PARAM_INT);
 $cm           = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
 $course       = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $att          = $DB->get_record('edusign', array('id' => $cm->instance), '*', MUST_EXIST);
-$courseEdusign = $DB->get_record('course_edusign_api', ['course_id' => $course->id], '*', MUST_EXIST);
+$courseEdusign = $DB->get_record('course_edusign_api', ['course_id' => $course->id], '*');
 // get session if exists
 $session = $sessionId ? $DB->get_record('edusign_sessions', ['id' => $sessionId], '*', MUST_EXIST) : null;
 
@@ -74,15 +74,23 @@ if ($session) {
     ]);
 }
 if ($fromForm = $mform->get_data()) {
+    $forceSync = false;
+    if (isset($fromForm->forcesync)) {
+        $forceSync = true;
+    }
+    $processcompletion = false;
+    if (isset($fromForm->processcompletion)) {
+        $processcompletion = true;
+    }
     $startDate = date('Y-m-d', $fromForm->sessiondate) . ' ' . str_pad($fromForm->sestime['starthour'], 2, "0", STR_PAD_LEFT) . ':' . str_pad($fromForm->sestime['startminute'], 2, "0", STR_PAD_LEFT) . ':00';
     $endDate = date('Y-m-d', $fromForm->sessiondate) . ' ' . str_pad($fromForm->sestime['endhour'], 2, "0", STR_PAD_LEFT) . ':' . str_pad($fromForm->sestime['endminute'], 2, "0", STR_PAD_LEFT) . ':00';
     if ($session) {
         try {
-            $cr = update_session($session, [
+            $cr = update_session($context, $cm, $session, [
                 'title' => $fromForm->title,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-            ], !!$fromForm->forcesync);
+            ], $processcompletion);
             if ($cr) {
                 \core\notification::success('Session successfully updated');
             }
@@ -95,7 +103,7 @@ if ($fromForm = $mform->get_data()) {
                 'title' => $fromForm->title,
                 'startDate' => $startDate,
                 'endDate' => $endDate,
-            ], !!$fromForm->forcesync);
+            ], $forceSync, $processcompletion);
             if ($cr) {
                 \core\notification::success('Session successfully created');
                 redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));
