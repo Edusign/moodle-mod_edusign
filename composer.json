@@ -1,0 +1,23 @@
+{
+    "name": "mod/edusign",
+    "type": "module",
+    "description": "Edusign integration for Moodle",
+    "keywords": [
+        "package",
+        "dependency",
+        "autoload"
+    ],
+    "version": "1.1.0",
+    "homepage": "https://edusign.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lampazona Sébastien",
+            "email": "sebastien@edusign.fr",
+            "homepage": "https://edusign.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/Edusign/moodle-mod_edusign/issues"
+    }
+}

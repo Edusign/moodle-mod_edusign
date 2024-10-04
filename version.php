@@ -7,9 +7,10 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+$composer = json_decode(file_get_contents(__DIR__ . '/composer.json'));
 
 $plugin->version   = 2024111215;      // The current module version (Date: YYYYMMDDXX).
 $plugin->requires  = 2023042408;      // Requires this Moodle version.
 $plugin->component = 'mod_edusign';   // Full name of the plugin (used for diagnostics).
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '2024111215';
+$plugin->release = $composer->version;
