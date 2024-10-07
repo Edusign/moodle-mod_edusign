@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.3...v1.0.4) (2024-10-07)
+
+
+### Bug Fixes
+
+* **CICD:** adding slack message for new version ([5f4be60](https://github.com/Edusign/moodle-mod_edusign/commit/5f4be60aa853563b89a8d799421b61d25cd070e6))
+
 ## [1.0.3](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.2...v1.0.3) (2024-10-07)
 
 
