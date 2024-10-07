@@ -10,28 +10,32 @@ permissions:
 name: release-please
 
 jobs:
-  release:
+  release-please:
     runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      release_created: ${{ steps.release-please.outputs.release_created }}
+      tag_name: ${{ steps.release-please.outputs.tag_name }}
     steps:
-      # 1. Checkout the repository
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 2. Run release-please to create a new release
-      - name: Release Please
-        uses: google-github-actions/release-please-action@v3
+      - id: release-please
+        uses: googleapis/release-please-action@v4
         with:
           release-type: php
-
-      # 3. Create a ZIP file of the repository
+  publish-artifacts:
+    needs: release-please
+    if: needs.release-please.outputs.release_created
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
       - name: Create ZIP file
         run: |
           zip -r mod-edusign.zip ./*
-
-      # 4. Upload the ZIP file to the release
-      - name: Upload ZIP to release
-        uses: softprops/action-gh-release@v1
+      - name: Publish zip file
+        uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: mod-edusign.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
