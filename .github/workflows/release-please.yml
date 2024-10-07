@@ -32,7 +32,10 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create ZIP file
         run: |
-          zip -r mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip mod_edusign -x "*/.*" ".*"
+          rm -Rf mod_edusign mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip
+          mkdir mod_edusign
+          rsync -r --exclude '.git' --exclude '.github' --exclude 'mod_edusign' ./ mod_edusign
+          zip -r mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip mod_edusign
       - name: Publish zip file
         uses: softprops/action-gh-release@v2
         with:
