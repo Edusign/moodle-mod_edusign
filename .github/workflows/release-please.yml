@@ -12,7 +12,6 @@ name: release-please
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    permissions: {}
     outputs:
       release_created: ${{ steps.release-please.outputs.release_created }}
       tag_name: ${{ steps.release-please.outputs.tag_name }}
