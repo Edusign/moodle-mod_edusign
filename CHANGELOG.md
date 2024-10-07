@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.2...v1.0.3) (2024-10-07)
+
+
+### Bug Fixes
+
+* **Version:** fix an issue with outdated version of plugin ([f36f72e](https://github.com/Edusign/moodle-mod_edusign/commit/f36f72ea44af740406020fb58e98e84a71b0c17e))
+
 ## [1.0.2](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.1...v1.0.2) (2024-10-07)
 
 
