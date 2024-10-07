@@ -43,3 +43,53 @@ jobs:
           files: mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Send the good news to slack
+        id: slack
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          # This data can be any valid JSON from a previous step in the GitHub Action
+          payload: |
+            {
+              "blocks":[
+                  {
+                    "type":"section",
+                    "text":{
+                        "type":"plain_text",
+                        "emoji":true,
+                        "text":"Une nouvelle version du module Edusign pour Moodle est disponible"
+                    }
+                  },
+                  {
+                    "type":"divider"
+                  },
+                  {
+                    "type":"section",
+                    "text":{
+                        "type":"mrkdwn",
+                        "text":"*<https://github.com/Edusign/moodle-mod_edusign/releases/tag/${{ needs.release-please.outputs.tag_name }}|Release ${{ needs.release-please.outputs.tag_name }}>*\nUn nouvelle release a été crée pour le plugin *mod_edusign* en version *${{ needs.release-please.outputs.tag_name }}*\n<https://github.com/Edusign/moodle-mod_edusign/releases/download/${{ needs.release-please.outputs.tag_name }}/mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip|Cliquez ici> pour télécharger le fichier .zip"
+                    },
+                    "accessory":{
+                        "type":"image",
+                        "image_url":"https://info.payara.fish/hubfs/newrelease.png",
+                        "alt_text":"calendar thumbnail"
+                    }
+                  },
+                  {
+                    "type":"context",
+                    "elements":[
+                        {
+                          "type":"image",
+                          "image_url":"https://cdn-glapd.nitrocdn.com/carLIEFHsZWYaqtkCbVAhEibLXEnyTnJ/assets/images/optimized/rev-7fc7c7e/www.top10hebergeurs.com/wp-content/uploads/2022/05/pngwing.com-1.png",
+                          "alt_text":"notifications warning icon"
+                        },
+                        {
+                          "type":"mrkdwn",
+                          "text":"*Nouvelle version ${{ needs.release-please.outputs.tag_name }} du plugin mod_edusign *"
+                        }
+                    ]
+                  }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+      
