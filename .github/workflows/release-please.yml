@@ -32,11 +32,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Create ZIP file
         run: |
-          zip -r mod-edusign.zip ./*
+          zip -r mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip mod_edusign -x "*/.*" ".*"
       - name: Publish zip file
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.release-please.outputs.tag_name }}
-          files: mod-edusign.zip
+          files: mod_edusign-${{ needs.release-please.outputs.tag_name }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
