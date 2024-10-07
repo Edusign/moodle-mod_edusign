@@ -50,6 +50,7 @@ jobs:
           # This data can be any valid JSON from a previous step in the GitHub Action
           payload: |
             {
+              "channel": "Une nouvelle version du module Edusign pour Moodle est disponible",
               "blocks":[
                   {
                     "type":"section",
@@ -92,4 +93,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-      
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
