@@ -20,6 +20,7 @@ namespace mod_edusign\completion;
 
 use cm_info;
 use core_completion\activity_custom_completion;
+use Exception;
 
 /**
  * Activity custom completion subclass for the edusign activity.
@@ -41,20 +42,24 @@ class custom_completion extends activity_custom_completion
      */
     public function get_state(string $rule): int
     {
-        global $CFG;
-        
-        $this->validate_rule($rule);
+        try {
+            global $CFG;
 
-        $userid = $this->userid;
-        $cm = $this->cm;
+            $this->validate_rule($rule);
 
-        require_once($CFG->dirroot . '/mod/edusign/locallib.php');
-        
-        if ($rule === 'allsheets') {
-            return has_student_signed_all_sessions($cm, $userid) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
-        } elseif ($rule === 'xsheets') {
-            $completeonxattendancesigned = intval($cm->customdata['customcompletionrules']['xsheets'] ?: 0);
-            return has_student_signed_x_sessions($cm, $userid, $completeonxattendancesigned) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+            $userid = $this->userid;
+            $cm = $this->cm;
+
+            require_once($CFG->dirroot . '/mod/edusign/locallib.php');
+
+            if ($rule === 'allsheets') {
+                return has_student_signed_all_sessions($cm, $userid) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+            } elseif ($rule === 'xsheets') {
+                $completeonxattendancesigned = intval($cm->customdata['customcompletionrules']['xsheets'] ?: 0);
+                return has_student_signed_x_sessions($cm, $userid, $completeonxattendancesigned) ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
+            }
+        } catch (Exception $e) {
+            \core\notification::error('An error occured while getting session state : ' . $e->getMessage());
         }
         return COMPLETION_INCOMPLETE;
     }
@@ -80,13 +85,13 @@ class custom_completion extends activity_custom_completion
         if (isset($this->cm->customdata['customcompletionrules']) && isset($this->cm->customdata['customcompletionrules']['xsheets'])) {
             $completeonxattendancesigned = $this->cm->customdata['customcompletionrules']['xsheets'] ?: 0;
         }
-        
+
         return [
             'allsheets' => get_string('completeonallattendancesigned:submit', 'edusign'),
             'xsheets' => get_string('completeonxattendancesigned:submit', 'edusign', $completeonxattendancesigned),
         ];
     }
-    
+
 
     /**
      * Returns an array of all completion rules, in the order they should be displayed to users.
