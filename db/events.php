@@ -37,4 +37,13 @@ $observers = array(
         'eventname' => '\core\event\role_assigned',
         'callback' => 'mod_edusign_observer::role_assigned',
     ),
+    array(
+        'eventname' => '\core\event\role_unassigned',
+        'callback' => 'mod_edusign_observer::role_unassigned',
+    ),
+    array(
+        'eventname' => '\core\event\user_deleted',
+        'callback' => 'mod_edusign_observer::user_deleted',
+    ),
+    
 );

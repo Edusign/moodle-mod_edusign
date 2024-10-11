@@ -2,6 +2,8 @@
 
 use core\event\course_created as CourseCreated;
 use core\event\role_assigned as RoleAssigned;
+use core\event\role_unassigned as RoleUnassigned;
+use core\event\user_deleted as UserDeleted;
 use mod_edusign\classes\commons\EdusignApi;
 
 require_once(__DIR__ . '/../locallib.php');
@@ -28,7 +30,7 @@ class mod_edusign_observer
         // $course = $DB->get_record('course', ['id' => $eventData['objectid']]);
         return true;
     }
-    
+
     public static function course_updated($event)
     {
         global $DB, $CFG;
@@ -37,7 +39,7 @@ class mod_edusign_observer
         $activities = course_modinfo::get_array_of_activities($course);
 
         $hasEdusignActivity = false;
-        foreach($activities as $activity) {
+        foreach ($activities as $activity) {
             if ($activity->mod === 'edusign') {
                 $hasEdusignActivity = true;
                 break;
@@ -55,8 +57,7 @@ class mod_edusign_observer
                         'context' => $event->get_context(),
                     ]
                 );
-            }
-            else {
+            } else {
                 updateTrainingFromCourse(
                     $course->id,
                     [
@@ -107,6 +108,40 @@ class mod_edusign_observer
                 error_log($e->getMessage());
             }
         }
+
+        $task = new \mod_edusign\task\student_retroactivity();
+        $task = $task->instance($user->id, $context->instanceid);
+        \core\task\manager::queue_adhoc_task($task);
+        return true;
+    }
+
+    // S'abonner à l'événement de désassignation d'utilisateur à un cours
+    public static function role_unassigned(RoleUnassigned $event)
+    {
+        global $DB;
+        $context = $event->get_context();
+        $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+        $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
+        
+        $task = new \mod_edusign\task\student_retroactivity();
+        $task = $task->instance($user->id, $context->instanceid);
+        \core\task\manager::queue_adhoc_task($task);
+        
+        return true;
+    }
+    
+    // S'abonner à l'événement de désassignation d'utilisateur à un cours
+    public static function user_deleted(UserDeleted $event)
+    {
+        global $DB;
+        $context = $event->get_context();
+        $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+        $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
+        
+        $task = new \mod_edusign\task\student_retroactivity();
+        $task = $task->instance($user->id, $context->instanceid);
+        \core\task\manager::queue_adhoc_task($task);
+        
         return true;
     }
 }
