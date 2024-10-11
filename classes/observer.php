@@ -8,6 +8,15 @@ use mod_edusign\classes\commons\EdusignApi;
 
 require_once(__DIR__ . '/../locallib.php');
 require_once(__DIR__ . '/commons/EdusignApi.php');
+
+enum OperationType
+{
+    case ADD_STUDENT;
+    case ADD_PROFESSOR;
+    case REMOVE_STUDENT;
+    case REMOVE_PROFESSOR;
+}
+
 /**
  * Email signup notification event observers.
  *
@@ -87,6 +96,7 @@ class mod_edusign_observer
             if ($user->edusign_api_id !== null) {
                 $ressourcesToAdd = ['professorsIds' => [$user->edusign_api_id]];
             }
+            self::triggerStudentRetroActivity($event, 'ADD_PROFESSOR');
         } else if ($user->role === 'student') {
             $users = syncStudentsToApi([$user], $context);
             if (!empty($users)) {
@@ -95,6 +105,7 @@ class mod_edusign_observer
             if ($user->edusign_api_id !== null) {
                 $ressourcesToAdd = ['studentsIds' => [$user->edusign_api_id]];
             }
+            self::triggerStudentRetroActivity($event, 'ADD_STUDENT');
         }
         // Add student to training
         if (!empty($ressourcesToAdd) && $context->contextlevel === CONTEXT_COURSE) {
@@ -109,9 +120,6 @@ class mod_edusign_observer
             }
         }
 
-        $task = new \mod_edusign\task\student_retroactivity();
-        $task = $task->instance($user->id, $context->instanceid);
-        \core\task\manager::queue_adhoc_task($task);
         return true;
     }
 
@@ -119,19 +127,24 @@ class mod_edusign_observer
     public static function role_unassigned(RoleUnassigned $event)
     {
         global $DB;
-        $context = $event->get_context();
         $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
         $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
-        
-        $task = new \mod_edusign\task\student_retroactivity();
-        $task = $task->instance($user->id, $context->instanceid);
-        \core\task\manager::queue_adhoc_task($task);
-        
+        if ($user->role === 'teacher') {
+            self::triggerStudentRetroActivity($event, 'REMOVE_PROFESSOR');
+        } else if ($user->role === 'student') {
+            self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
+        }
         return true;
     }
     
     // S'abonner à l'événement de désassignation d'utilisateur à un cours
     public static function user_deleted(UserDeleted $event)
+    {
+        self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
+        return true;
+    }
+    
+    private static function triggerStudentRetroActivity($event, string $operationType)
     {
         global $DB;
         $context = $event->get_context();
@@ -139,9 +152,7 @@ class mod_edusign_observer
         $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
         
         $task = new \mod_edusign\task\student_retroactivity();
-        $task = $task->instance($user->id, $context->instanceid);
-        \core\task\manager::queue_adhoc_task($task);
-        
-        return true;
+        $task = $task->instance($user->id, $context->instanceid, $operationType);
+        return \core\task\manager::queue_adhoc_task($task);
     }
 }
