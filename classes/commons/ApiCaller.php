@@ -39,13 +39,10 @@ class ApiCaller {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($bodyParams));
         }
-        else if ($method === 'PUT' || $method === 'PATCH') {
+        else if ($method === 'PUT' || $method === 'PATCH' || $method === 'DELETE') {
             array_push($headers, 'Content-Type:application/json');
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($bodyParams));
-        }
-        else if ($method === 'DELETE') {
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
         }
         else if ($method !== 'GET') {
             // Rien à configurer ici pour une requête GET
