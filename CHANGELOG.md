@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.5...v1.1.0) (2024-10-14)
+
+
+### Features
+
+* **Retroactivity:** adding retroactivity when updated course assignment list ([cab7bb1](https://github.com/Edusign/moodle-mod_edusign/commit/cab7bb130a74e0458525ba182c2341debaadaa73))
+
+
+### Bug Fixes
+
+* **Completion State:** adding a try/catch on completion state for prevent bug ([283a176](https://github.com/Edusign/moodle-mod_edusign/commit/283a176c3fade7696e7299d944b9820343192438))
+
+
+### Miscellaneous Chores
+
+* **Version:** incrementing internal plugin version ([5604f97](https://github.com/Edusign/moodle-mod_edusign/commit/5604f970432c527db546f0265f89f202177eef84))
+
 ## [1.0.5](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.4...v1.0.5) (2024-10-07)
 
 
