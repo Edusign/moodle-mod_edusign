@@ -75,11 +75,22 @@ class EdusignApi extends ApiCaller{
         return !empty($cr->result->ID) ? $cr->result->ID : null;
     }
     
-    
     public static function updateCourse(string $courseId, array $courseData, array $baseEvent = []) : string | null {
         $courseData['ID'] = $courseId;
         $cr = self::tryRequestWithEvent('PATCH', '/v1/course', ['fromStudents' => true], ['course' => $courseData], $baseEvent);
         return !empty($cr->result->ID) ? $cr->result->ID : null;
+    }
+    
+    public static function addStudentToCourse(string $courseId, string $studentId, array $baseEvent = []) : string | null {
+        $courseData['studentId'] = $studentId;
+        $cr = self::tryRequestWithEvent('PUT', '/v1/course/attendance/' . $courseId, [], $courseData, $baseEvent);
+        return !empty($cr->result) ? $cr->result : null;
+    }
+        
+    public static function deleteStudentFromCourse(string $courseId, string $studentId, array $baseEvent = []) : string | null {
+        $courseData['studentId'] = $studentId;
+        $cr = self::tryRequestWithEvent('DELETE', '/v1/course/attendance/' . $courseId, [], $courseData, $baseEvent);
+        return !empty($cr->result) ? $cr->result : null;
     }
 
     public static function createStudent($studentInfos, array $baseEvent = []) : string | null {
