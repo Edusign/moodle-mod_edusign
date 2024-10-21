@@ -41,21 +41,6 @@ class mod_edusign_mod_form extends moodleform_mod
         $mform->addElement('date_time_selector', 'date_start', get_string('dateStart', 'edusign'));
         $mform->addElement('date_time_selector', 'date_end', get_string('dateEnd', 'edusign'));
 
-        $courseId = optional_param('course', null, PARAM_INT);
-
-        // if ($courseId){
-        //     $course = get_course($courseId);
-        //     $mform->setDefault('date_start',  $course->startdate);
-        //     if ($course->enddate && $course->enddate > $course->startdate) {
-        //         $mform->setDefault('date_end',  $course->enddate);
-        //     }
-        //     else {
-        //         $mform->setDefault('date_end',  strtotime('+6 month'));
-        //     }
-        // }
-        // else {
-        //     $mform->setDefault('date_end',  strtotime('+6 month'));
-        // }
         $this->standard_intro_elements();
 
         // Grade settings.
