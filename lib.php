@@ -95,8 +95,12 @@ function edusign_add_instance($edusign)
     
     $edusign->id = $DB->insert_record('edusign', $edusign);
 
+    edusign_grade_item_update($edusign);
+    
     createTrainingFromCourse(
         $edusign->course,
+        $edusign->date_start,
+        $edusign->date_end,
         $context,
         [
             'objectid' => $edusign->id,
@@ -104,7 +108,6 @@ function edusign_add_instance($edusign)
         ]
     );
 
-    edusign_grade_item_update($edusign);
 
     return $edusign->id;
 }
@@ -131,10 +134,16 @@ function edusign_update_instance($edusign)
         $edusign->completion = COMPLETION_TRACKING_AUTOMATIC;
     }
 
+    updateTrainingFromCourse(
+        $edusign->course,
+        $edusign->date_start,
+        $edusign->date_end,
+    );
+        
     if (! $DB->update_record('edusign', $edusign)) {
         return false;
     }
-
+    
     return true;
 }
 

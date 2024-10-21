@@ -47,33 +47,21 @@ class mod_edusign_observer
         $course = get_course($eventData['objectid']);
         $activities = course_modinfo::get_array_of_activities($course);
 
-        $hasEdusignActivity = false;
         foreach ($activities as $activity) {
             if ($activity->mod === 'edusign') {
-                $hasEdusignActivity = true;
-                break;
-            }
-        }
-
-        if ($hasEdusignActivity) {
-            $edusignCourseId = $DB->get_record('course_edusign_api', ['course_id' => $course->id]);
-            if (!$edusignCourseId->edusign_api_id) {
-                createTrainingFromCourse(
-                    $course->id,
-                    $event->get_context(),
-                    [
-                        'objectid' => $eventData['objectId'],
-                        'context' => $event->get_context(),
-                    ]
-                );
-            } else {
-                updateTrainingFromCourse(
-                    $course->id,
-                    [
-                        'objectid' => $eventData['objectId'],
-                        'context' => $event->get_context(),
-                    ]
-                );
+                $edusignCourseId = $DB->get_record('course_edusign_api', ['course_id' => $course->id]);
+                if (!$edusignCourseId->edusign_api_id) {
+                    createTrainingFromCourse(
+                        $course->id,
+                        $activity->start_date,
+                        $activity->end_date,
+                        $event->get_context(),
+                        [
+                            'objectid' => $eventData['objectId'],
+                            'context' => $event->get_context(),
+                        ]
+                    );
+                }
             }
         }
         return true;

@@ -18,6 +18,9 @@
         <FIELD NAME="showextrauserdetails" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Define if extra user details should be shown in reports."/>
         <FIELD NAME="complete_mode" TYPE="char" LENGTH="100" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Define  the type of activity completion"/>
         <FIELD NAME="completeonxattendancesigned" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Define if activity is complete when a student has signed this number of sessions"/>
+        <FIELD NAME="date_start" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="start time of training"/>
+        <FIELD NAME="date_end" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="end time of training"/>
+        
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for edusign"/>

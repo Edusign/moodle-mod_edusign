@@ -51,7 +51,9 @@ if (has_any_capability($canTakeOrManageAttendance, $context)) {
     redirect(new moodle_url('/mod/edusign/take.php', ['sessionId' => $sessionId]));
 }
 
-$userEdusignApi = $DB->get_record('users_edusign_api', ['user_id' => $USER->id], '*', MUST_EXIST);
+$usersEdusignApi = $DB->get_records('users_edusign_api', ['user_id' => $USER->id], MUST_EXIST);
+$userEdusignApi = reset($usersEdusignApi);
+
 $edusignUserInCourse = reset(EdusignApi::getStudentSignatureLinks($session->edusign_api_id, [$userEdusignApi->edusign_api_id]));
 $signatureLink = $edusignUserInCourse->SIGNATURE_LINK;
 

@@ -38,7 +38,13 @@ function edusign_form_sessiondate_selector(MoodleQuickForm $mform)
         $sesendtime[] = &$mform->createElement('select', 'endminute', get_string('minute', 'form'), $minutes, false, true);
         $sesendtime[] = &$mform->createElement('select', 'endhour', get_string('hour', 'form'), $hours, false, true);
     }
+    
     $mform->addGroup($sesendtime, 'sestime', get_string('time', 'edusign'), array(' '), true);
+    
+    $mform->setDefault('sestime[starthour]', 8);
+    $mform->setDefault('sestime[startminute]', 0);
+    $mform->setDefault('sestime[endhour]', 17);
+    $mform->setDefault('sestime[endminute]', 0);
 }
 
 function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
@@ -54,25 +60,25 @@ function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
     return false;
 }
 
-function createTrainingFromCourse($courseId, $context, array $baseEvent = [])
+function createTrainingFromCourse($courseId, $startDate, $endDate, $context, array $baseEvent = [])
 {
     global $DB;
 
     $course = get_course($courseId);
-    // $courseEdusignApi = $DB->get_record('course_edusign_api', array('course_id' => $courseId));
+    $courseEdusignApi = $DB->get_record('course_edusign_api', array('course_id' => $courseId));
     // Try to create course on edusign api
-    // if ($courseEdusignApi->edusign_api_id) {
-    //     $course->edusign_api_id = $courseEdusignApi->edusign_api_id;
-    //     return $course;
-    // }
+    if ($courseEdusignApi->edusign_api_id) {
+        $course->edusign_api_id = $courseEdusignApi->edusign_api_id;
+        return $course;
+    }
     $students = getStudentsFromContext($context);
     // $teachers = getTeachersFromContext($context);
 
     try {
         $trainingData = [
             'NAME' => $course->fullname,
-            'START' =>  date('Y-m-d', $course->startdate),
-            'END' =>  date('Y-m-d', $course->enddate),
+            'START' =>  $startDate,
+            'END' =>  $endDate,
         ];
         if (!empty($students)) {
             $trainingData['STUDENTS'] = array_filter(array_map(function ($student) {
@@ -107,7 +113,7 @@ function createTrainingFromCourse($courseId, $context, array $baseEvent = [])
     }
 }
 
-function updateTrainingFromCourse($courseId, array $baseEvent = [])
+function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEvent = [])
 {
     global $DB;
 
@@ -121,11 +127,11 @@ function updateTrainingFromCourse($courseId, array $baseEvent = [])
     try {
         $trainingData = [
             'NAME' => $course->fullname,
-            'START' =>  date('Y-m-d', $course->startdate),
-            'END' =>  date('Y-m-d', $course->enddate),
+            'START' =>  $startDate,
+            'END' =>  $endDate,
         ];
 
-        EdusignApi::updateTraining($trainingData, $baseEvent);
+        EdusignApi::updateTraining($courseEdusignApi->edusign_api_id, $trainingData, $baseEvent);
         \core\notification::success('Course successfully updated on edusign API');
         return $course;
     } catch (Exception $e) {
@@ -515,17 +521,20 @@ function getTeachersWithPresentialStates($context, $edusignApiCourse = null)
             $teachers[] = $teacher;
         }
     }
-
+    
     return $teachers;
 }
 
 function create_session($context, stdClass $cm, array $data, $forceSync = false, $processCompletion = false)
 {
     global $DB;
+    $edusign = reset($DB->get_records('edusign', ['id' => $cm->instance]));
+    $course       = $DB->get_record('course', array('id' => $cm->course), '*');
+    
     // Synchronisation et récupération des étudiants liés au module d'activité
     $students = syncStudentsToApiFromContext($context, $forceSync);
     $teachers = syncTeachersToApiFromContext($context, $forceSync);
-
+    
     // Create course to edusign api with students edusign api ids
     $courseData = [
         'NAME' => $data['title'],
@@ -544,8 +553,10 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         $courseData['TRAINING_ID'] = $courseEdusignApi->edusign_api_id;
     }
 
-    if (!isTrainingExistsOnEdusign($courseData['TRAINING_ID'])) {
-        $updatedCourse = createTrainingFromCourse($cm->course, $context);
+    if (!$courseData['TRAINING_ID'] || !isTrainingExistsOnEdusign($courseData['TRAINING_ID'])) {
+        if ($edusign){
+            createTrainingFromCourse($cm->course, $edusign->date_start, $edusign->date_end, $context);
+        }
     }
 
     foreach (array_values($teachers) as $index => $teacher) {
@@ -564,8 +575,6 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         'title' => $data['title'],
     ]);
 
-    $course       = $DB->get_record('course', array('id' => $cm->course), '*');
-    $edusign      = $DB->get_record('edusign', array('id' => $cm->instance), '*');
 
     // Update completion state
     if ($processCompletion) {

@@ -39,10 +39,10 @@ class AddSessionForm extends moodleform
     
         $errors = [];
         if (strtotime($startDate) < strtotime('now at midnight')) {
-            $errors['sessiondate'] = get_string('errorsessiondateinpast', 'edusign');
+            $errors['sessiondate'] = get_string('errordateinpast', 'edusign');
         }
         if (strtotime($startDate) >= strtotime($endDate)) {
-            $errors['sestime'] = get_string('errorstartdatebeforeenddate', 'edusign');
+            $errors['sestime'] = get_string('errorstardatebeforeenddate', 'edusign');
         }
         return $errors;
     }

@@ -63,5 +63,34 @@ function xmldb_edusign_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2024111215, 'edusign');
     }
 
+    if ($oldversion < 2024111218) {
+        $table = new xmldb_table('edusign');
+
+        //Define the start date activity ( required for creating training on edusign )
+        $field = new xmldb_field('date_start', XMLDB_TYPE_DATETIME);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        //Define the end date activity ( required for creating training on edusign )
+        $field = new xmldb_field('date_end', XMLDB_TYPE_DATETIME);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        $activities = $DB->get_records('edusign');
+        foreach($activities as $activity){
+            $course = get_course($activity->course);
+            
+            $data = new stdClass();
+            $data->id = $activity->id;
+            $data->date_start = date('Y-m-d H:i:s', $course->startdate);
+            $data->date_end = date('Y-m-d H:i:s', $course->enddate ?: ($course->startdate + 86400));
+            $DB->update_record('edusign', $data);
+        }
+        
+        upgrade_mod_savepoint(true, 2024111218, 'edusign');
+    }
+
     return true;
 }

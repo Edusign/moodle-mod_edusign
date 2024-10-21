@@ -38,6 +38,24 @@ class mod_edusign_mod_form extends moodleform_mod
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->setDefault('name', get_string('modulename', 'edusign'));
 
+        $mform->addElement('date_time_selector', 'date_start', get_string('dateStart', 'edusign'));
+        $mform->addElement('date_time_selector', 'date_end', get_string('dateEnd', 'edusign'));
+
+        $courseId = optional_param('course', null, PARAM_INT);
+
+        // if ($courseId){
+        //     $course = get_course($courseId);
+        //     $mform->setDefault('date_start',  $course->startdate);
+        //     if ($course->enddate && $course->enddate > $course->startdate) {
+        //         $mform->setDefault('date_end',  $course->enddate);
+        //     }
+        //     else {
+        //         $mform->setDefault('date_end',  strtotime('+6 month'));
+        //     }
+        // }
+        // else {
+        //     $mform->setDefault('date_end',  strtotime('+6 month'));
+        // }
         $this->standard_intro_elements();
 
         // Grade settings.
@@ -53,7 +71,7 @@ class mod_edusign_mod_form extends moodleform_mod
         return $fieldname . $this->get_suffix();
     }
 
-   
+
     /**
      * Add elements for setting the custom completion rules.
      *
@@ -63,7 +81,7 @@ class mod_edusign_mod_form extends moodleform_mod
     public function add_completion_rules(): array
     {
         $mform = $this->_form;
-        
+
         // Création de la checkbox pour "Toutes le feuilles signées"
         $mform->addElement(
             'radio',
@@ -78,7 +96,7 @@ class mod_edusign_mod_form extends moodleform_mod
             'completion_all_attendance',
             'edusign'
         );
-        
+
         // Création de l'input pour choisir le nombre de feuilles signées au minimum
         $group = [
             $mform->createElement(
@@ -99,7 +117,7 @@ class mod_edusign_mod_form extends moodleform_mod
         $mform->addGroup(
             $group,
             $this->get_suffixed_name('completeonxattendancesignedgroup'),
-            get_string('completion_of_X_attendance','edusign'),
+            get_string('completion_of_X_attendance', 'edusign'),
             [' '],
             false
         );
@@ -108,29 +126,55 @@ class mod_edusign_mod_form extends moodleform_mod
             'completion_X_attendance',
             'edusign'
         );
-        
+
         $mform->disabledIf(
             $this->get_suffixed_name('completeonxattendancesigned'),
             $this->get_suffixed_name('complete_mode'),
             'neq',
             'xsheets'
         );
-        
+
         return [
             $this->get_suffixed_name('complete_mode'),
             $this->get_suffixed_name('completeonxattendancesignedgroup'),
         ];
     }
-    
-    function get_data() {
+
+    function set_data($default_values)
+    {
+        $courseId = optional_param('course', null, PARAM_INT);
+
+        if ($courseId) {
+            $course = get_course($courseId);
+            $default_values->{$this->get_suffixed_name('date_start')} = intval($course->startdate);
+            if ($course->enddate && $course->enddate > $course->startdate) {
+                $default_values->{$this->get_suffixed_name('date_end')} = intval($course->enddate);
+            } else {
+                $default_values->{$this->get_suffixed_name('date_end')} = intval(strtotime(date('Y-m-d H:i:s', $default_values->{$this->get_suffixed_name('date_start')}) . '+6 month'));
+            }
+        } else {
+            $default_values->{$this->get_suffixed_name('date_start')} = strtotime($default_values->{$this->get_suffixed_name('date_start')});
+            $default_values->{$this->get_suffixed_name('date_end')} = strtotime($default_values->{$this->get_suffixed_name('date_end')} ?: '+6 month');
+        }
+        
+        return parent::set_data($default_values);
+    }
+
+    function get_data()
+    {
         $data = parent::get_data();
         if (!$data) {
+
             return $data;
         }
         if (empty($data)) {
             $data = new stdClass;
         }
-        if (empty($data->{$this->get_suffixed_name('complete_mode')})){
+
+        $data->{$this->get_suffixed_name('date_start')} = date('Y-m-d H:i:s', $data->{$this->get_suffixed_name('date_start')});
+        $data->{$this->get_suffixed_name('date_end')} = date('Y-m-d H:i:s', $data->{$this->get_suffixed_name('date_end')});
+
+        if (empty($data->{$this->get_suffixed_name('complete_mode')})) {
             $data->{$this->get_suffixed_name('complete_mode')} = 'allsheets';
         }
         return $data;
@@ -144,15 +188,17 @@ class mod_edusign_mod_form extends moodleform_mod
      */
     public function completion_rule_enabled($data)
     {
-        
+
         if (
-            empty($data[$this->get_suffixed_name('complete_mode')])) {
+            empty($data[$this->get_suffixed_name('complete_mode')])
+        ) {
             return false;
         }
-        if ($data[$this->get_suffixed_name('complete_mode')] === 'xsheets' &&
+        if (
+            $data[$this->get_suffixed_name('complete_mode')] === 'xsheets' &&
             (
                 empty($data[$this->get_suffixed_name('completeonxattendancesigned')])
-                || 
+                ||
                 $data[$this->get_suffixed_name('completeonxattendancesigned')] == 0
             )
         ) {
@@ -160,5 +206,25 @@ class mod_edusign_mod_form extends moodleform_mod
         }
         return true;
     }
-    
+
+
+
+    // Custom validation should be added here.
+    function validation($data, $files)
+    {
+        $startDate = $data['date_start'];
+        $endDate = $data['date_end'];
+
+        $errors = [];
+        if (empty($startDate)) {
+            $errors['date_start'] = get_string('errorstartdateempty', 'edusign');
+        }
+        if (empty($endDate)) {
+            $errors['date_end'] = get_string('errorenddateempty', 'edusign');
+        }
+        if ($startDate >= $endDate) {
+            $errors['date_end'] = get_string('errorstartdatebeforeenddate', 'edusign');
+        }
+        return $errors;
+    }
 }
