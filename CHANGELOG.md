@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.2.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.1.0...v1.2.0) (2024-10-23)
+
+
+### Features
+
+* **Trainings:** adding start and end date to edusign activity ([dd16aba](https://github.com/Edusign/moodle-mod_edusign/commit/dd16abaac023660c8527a4f7ce2f891e6d453594))
+
+
+### Bug Fixes
+
+* **Trainings:** update for adding sync with trainings ([0dfad1c](https://github.com/Edusign/moodle-mod_edusign/commit/0dfad1c9e110be8ac8a08c6bb5c75d2f678522d6))
+
+
+### Miscellaneous Chores
+
+* **cleanup:** removing useless comments ([1933536](https://github.com/Edusign/moodle-mod_edusign/commit/1933536899ed80f737b53b2c3570835ac6732ce2))
+
 ## [1.1.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.0.5...v1.1.0) (2024-10-14)
 
 
