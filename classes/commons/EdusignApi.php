@@ -189,6 +189,11 @@ class EdusignApi extends ApiCaller{
         return $cr->status === "success";
     }
     
+    public static function removeTrainingResources(string $trainingId, array $resources, array $baseEvent = []) : bool {
+        $cr = self::tryRequestWithEvent('PATCH', '/v1/trainings/resources/'.$trainingId, [], $resources, $baseEvent);
+        return $cr->status === "success";
+    }
+    
     public static function lockCourse(string $courseId, array $baseEvent = []) : bool {
         $cr = self::tryRequestWithEvent('GET', '/v1/course/lock/'.$courseId, [], [], $baseEvent);
         return $cr->status === "success";

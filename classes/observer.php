@@ -77,7 +77,7 @@ class mod_edusign_observer
         $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
         $ressourcesToAdd = [];
         if ($user->role === 'teacher') {
-            $users = syncTeachersToApi([$user], $context);
+            $users = syncTeachersToApi([$user], $context, true);
             if (!empty($users)) {
                 $user = $users[0];
             }
@@ -86,7 +86,7 @@ class mod_edusign_observer
             }
             self::triggerStudentRetroActivity($event, 'ADD_PROFESSOR');
         } else if ($user->role === 'student') {
-            $users = syncStudentsToApi([$user], $context);
+            $users = syncStudentsToApi([$user], $context, true);
             if (!empty($users)) {
                 $user = $users[0];
             }
