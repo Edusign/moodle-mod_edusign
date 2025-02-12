@@ -69,7 +69,7 @@ class student_retroactivity extends \core\task\adhoc_task
                     }
                     // With update course, we must send all students and all teachers at each call
                     EdusignApi::updateCourse($edusignCourseApiId, $requestBody, $baseEvent);
-                } else if ($userRole = "student") {
+                } else if ($userRole === "student") {
                     if (!$userBDD) {
                         continue;
                     }

@@ -115,8 +115,17 @@ class mod_edusign_observer
     public static function role_unassigned(RoleUnassigned $event)
     {
         global $DB;
+
+        mtrace('observer::role_unassigned - Event: ' . print_r($event, true));
+
         $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+
+        mtrace('observer::role_unassigned - Role: ' . print_r($role, true));
+
         $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
+
+        mtrace('observer::role_unassigned - User: ' . print_r($user, true));
+
         if ($user->role === 'teacher') {
             self::triggerStudentRetroActivity($event, 'REMOVE_PROFESSOR');
         } else if ($user->role === 'student') {
@@ -137,8 +146,16 @@ class mod_edusign_observer
         global $DB;
         $context = $event->get_context();
         $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+
+        mtrace('triggerStudentRetroActivity - Operation type: ' . $operationType);
+        mtrace('triggerStudentRetroActivity - Role: ' . print_r($role, true));
+        mtrace('triggerStudentRetroActivity - Event object ID: ' . $event->get_data()['objectid']);
+        mtrace('triggerStudentRetroActivity - Related user ID: ' . $event->get_data()['relateduserid']);
+
         $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
         
+        mtrace('triggerStudentRetroActivity - User: ' . print_r($user, true));
+
         $task = new \mod_edusign\task\student_retroactivity();
         $task = $task->instance($user->id, $context->instanceid, $operationType);
         return \core\task\manager::queue_adhoc_task($task);
