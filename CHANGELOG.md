@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.0...v1.6.1) (2025-02-19)
+
+
+### Bug Fixes
+
+* **main:** fix nulled role (pb database migration) ([b41023a](https://github.com/Edusign/moodle-mod_edusign/commit/b41023ab40662e3554cb77fc8a661e70ff86ab84))
+
 ## [1.6.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.5.0...v1.6.0) (2025-02-19)
 
 
