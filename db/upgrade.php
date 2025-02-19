@@ -90,7 +90,7 @@ function xmldb_edusign_upgrade($oldversion=0) {
                 $DB->update_record('edusign', $data);
     
             } catch(Exception $exception) {
-                debugging('Error updating edusign activities: ' . $exception->getMessage() . "\n" . $exception->getTraceAsString());
+                debugging('Error updating edusign activities: ' . $exception->getMessage() . "\n" . $exception->getTraceAsString() . "\n" . print_r($activity, true));
             }
         }
         
