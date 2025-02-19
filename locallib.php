@@ -177,22 +177,35 @@ function getStudentsFromContext($context)
 }
 
 
-function getUserWithEdusignApiId(string $role, int $userId)
+function getUserWithEdusignApiId(string|null $role, int $userId) 
 {
     global $DB;
     $user = $DB->get_record('user', ['id' => $userId]);
+
     if ($role === "editingteacher") {
         $role = "teacher";
     }
-    $userEdusignApi = $DB->get_record_sql(
-        'SELECT user_id, edusign_api_id FROM {users_edusign_api} WHERE user_id = ? AND role = ?',
-        [$userId, $role]
-    );
+    
+    $userEdusignApi = null;
+    if(!$role) {
+        $userEdusignApi = $DB->get_record_sql(
+            'SELECT user_id, edusign_api_id, role FROM {users_edusign_api} WHERE user_id = ?',
+            [$userId]
+        );
+    } else {
+        $userEdusignApi = $DB->get_record_sql(
+            'SELECT user_id, edusign_api_id, role FROM {users_edusign_api} WHERE user_id = ? AND role = ?',
+            [$userId, $role]
+        );
+    }
+    
     $user->edusign_api_id = null;
     $user->role = $role;
+    
     if (empty($userEdusignApi)) {
         return $user;
     }
+    
     $user->edusign_api_id = $userEdusignApi->edusign_api_id;
     return $user;
 }
