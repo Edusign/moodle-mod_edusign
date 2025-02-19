@@ -80,13 +80,18 @@ function xmldb_edusign_upgrade($oldversion=0) {
         
         $activities = $DB->get_records('edusign');
         foreach($activities as $activity){
-            $course = get_course($activity->course);
+            try {
+                $course = get_course($activity->course);
             
-            $data = new stdClass();
-            $data->id = $activity->id;
-            $data->date_start = date('Y-m-d H:i:s', $course->startdate);
-            $data->date_end = date('Y-m-d H:i:s', $course->enddate ?: ($course->startdate + 86400));
-            $DB->update_record('edusign', $data);
+                $data = new stdClass();
+                $data->id = $activity->id;
+                $data->date_start = date('Y-m-d H:i:s', $course->startdate);
+                $data->date_end = date('Y-m-d H:i:s', $course->enddate ?: ($course->startdate + 86400));
+                $DB->update_record('edusign', $data);
+    
+            } catch(Exception $exception) {
+                debugging('Error updating edusign activities: ' . $exception->getMessage() . "\n" . $exception->getTraceAsString());
+            }
         }
         
         upgrade_mod_savepoint(true, 2024111218, 'edusign');
