@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.2](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.1...v1.6.2) (2025-02-20)
+
+
+### Bug Fixes
+
+* **master:** fix uncaught exceptions ([cec60b1](https://github.com/Edusign/moodle-mod_edusign/commit/cec60b19b937b19230ed9e779e295b5ec1272f9c))
+
 ## [1.6.1](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.0...v1.6.1) (2025-02-19)
 
 
