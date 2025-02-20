@@ -107,7 +107,7 @@ function createTrainingFromCourse($courseId, $startDate, $endDate, $context, arr
         \core\notification::success('Course successfully linked on edusign API');
         $course->edusign_api_id = $edusignAPIID;
         return $course;
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         // Error is journalized
         \core\notification::error('Error while creating course on edusign API : ' . $e->getMessage());
     }
@@ -134,7 +134,7 @@ function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEv
         EdusignApi::updateTraining($courseEdusignApi->edusign_api_id, $trainingData, $baseEvent);
         \core\notification::success('Course successfully updated on edusign API');
         return $course;
-    } catch (Exception $e) {
+    } catch (\Exception $e) {
         // Error is journalized
         \core\notification::error('Error while updating course on edusign API : ' . $e->getMessage());
     }
@@ -177,7 +177,7 @@ function getStudentsFromContext($context)
 }
 
 
-function getUserWithEdusignApiId(string|null $role, int $userId) 
+function getUserWithEdusignApiId(string|null $role, int $userId)
 {
     global $DB;
     $user = $DB->get_record('user', ['id' => $userId]);
@@ -641,13 +641,18 @@ function update_session($context, stdClass $cm, $session, array $data, $processC
 
 function is_student_has_session(&$session, $userId)
 {
-    $userEdusignApi = getUserWithEdusignApiId('student', $userId);
-    $studentEdusignApiId = $userEdusignApi->edusign_api_id;
-    $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
-    foreach ($edusignCourse->STUDENTS as $student) {
-        if ($student->studentId === $studentEdusignApiId) {
-            return true;
+    
+    try {
+        $userEdusignApi = getUserWithEdusignApiId('student', $userId);
+        $studentEdusignApiId = $userEdusignApi->edusign_api_id;
+        $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
+        foreach ($edusignCourse->STUDENTS as $student) {
+            if ($student->studentId === $studentEdusignApiId) {
+                return true;
+            }
         }
+    } catch (\Exception $e) {
+        mtrace('Error in is_student_has_session: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
     }
     return false;
 }
@@ -685,20 +690,24 @@ function has_student_signed_all_sessions(cm_info $cm, int $userId)
         return false;
     }
 
-    $userEdusignApi = getUserWithEdusignApiId('student', $userId);
-    $studentEdusignApiId = $userEdusignApi->edusign_api_id;
-
     $hasSigned = true;
-    foreach ($sessions as $session) {
-        if ($session->archived === '1') {
-            continue;
-        }
-        $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
-        foreach ($edusignCourse->STUDENTS as $student) {
-            if ($student->studentId === $studentEdusignApiId && !$student->signature) {
-                $hasSigned &= false;
+    try {
+        $userEdusignApi = getUserWithEdusignApiId('student', $userId);
+        $studentEdusignApiId = $userEdusignApi->edusign_api_id;
+
+        foreach ($sessions as $session) {
+            if ($session->archived === '1') {
+                continue;
+            }
+            $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
+            foreach ($edusignCourse->STUDENTS as $student) {
+                if ($student->studentId === $studentEdusignApiId && !$student->signature) {
+                    $hasSigned &= false;
+                }
             }
         }
+    } catch (\Exception $e) {
+        mtrace('Error in has_student_signed_all_sessions: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
     }
 
     return $hasSigned;
@@ -715,20 +724,24 @@ function has_student_signed_x_sessions(cm_info $cm, int $userId, int $nbSessions
         return false;
     }
 
-    $userEdusignApi = getUserWithEdusignApiId('student', $userId);
-    $studentEdusignApiId = $userEdusignApi->edusign_api_id;
-
     $nbSessionsSigned = 0;
-    foreach ($sessions as $session) {
-        if ($session->archived === '1') {
-            continue;
-        }
-        $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
-        foreach ($edusignCourse->STUDENTS as $student) {
-            if ($student->studentId === $studentEdusignApiId && $student->signature) {
-                $nbSessionsSigned++;
+    try {
+        $userEdusignApi = getUserWithEdusignApiId('student', $userId);
+        $studentEdusignApiId = $userEdusignApi->edusign_api_id;
+
+        foreach ($sessions as $session) {
+            if ($session->archived === '1') {
+                continue;
+            }
+            $edusignCourse = EdusignApi::getCourseById($session->edusign_api_id);
+            foreach ($edusignCourse->STUDENTS as $student) {
+                if ($student->studentId === $studentEdusignApiId && $student->signature) {
+                    $nbSessionsSigned++;
+                }
             }
         }
+    } catch (\Exception $e) {
+        mtrace('Error in has_student_signed_x_sessions: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
     }
 
     return $nbSessionsSigned >= $nbSessions;
