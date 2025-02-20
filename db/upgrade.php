@@ -89,8 +89,8 @@ function xmldb_edusign_upgrade($oldversion=0) {
                 $data->date_end = date('Y-m-d H:i:s', $course->enddate ?: ($course->startdate + 86400));
                 $DB->update_record('edusign', $data);
     
-            } catch(Exception $exception) {
-                debugging('Error updating edusign activities: ' . $exception->getMessage() . "\n" . $exception->getTraceAsString() . "\n" . print_r($activity, true));
+            } catch(\Exception $e) {
+                mtrace('Error updating edusign activities: ' . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n" . print_r($activity, true));
             }
         }
         

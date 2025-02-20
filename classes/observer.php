@@ -73,27 +73,31 @@ class mod_edusign_observer
     {
         global $DB;
         $context = $event->get_context();
-        $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
-        $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
         $ressourcesToAdd = [];
-        if ($user->role === 'teacher') {
-            $users = syncTeachersToApi([$user], $context, true);
-            if (!empty($users)) {
-                $user = $users[0];
+        try {
+            $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+            $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']); 
+            if ($user->role === 'teacher') {
+                $users = syncTeachersToApi([$user], $context, true);
+                if (!empty($users)) {
+                    $user = $users[0];
+                }
+                if ($user->edusign_api_id !== null) {
+                    $ressourcesToAdd = ['professorsIds' => [$user->edusign_api_id]];
+                }
+                self::triggerStudentRetroActivity($event, 'ADD_PROFESSOR');
+            } else if ($user->role === 'student') {
+                $users = syncStudentsToApi([$user], $context, true);
+                if (!empty($users)) {
+                    $user = $users[0];
+                }
+                if ($user->edusign_api_id !== null) {
+                    $ressourcesToAdd = ['studentsIds' => [$user->edusign_api_id]];
+                }
+                self::triggerStudentRetroActivity($event, 'ADD_STUDENT');
             }
-            if ($user->edusign_api_id !== null) {
-                $ressourcesToAdd = ['professorsIds' => [$user->edusign_api_id]];
-            }
-            self::triggerStudentRetroActivity($event, 'ADD_PROFESSOR');
-        } else if ($user->role === 'student') {
-            $users = syncStudentsToApi([$user], $context, true);
-            if (!empty($users)) {
-                $user = $users[0];
-            }
-            if ($user->edusign_api_id !== null) {
-                $ressourcesToAdd = ['studentsIds' => [$user->edusign_api_id]];
-            }
-            self::triggerStudentRetroActivity($event, 'ADD_STUDENT');
+        } catch (\Exception $e) {
+            mtrace('Error in role_assigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         // Add student to training
         if (!empty($ressourcesToAdd) && $context->contextlevel === CONTEXT_COURSE) {
@@ -118,18 +122,22 @@ class mod_edusign_observer
 
         mtrace('observer::role_unassigned - Event: ' . print_r($event, true));
 
-        $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
+        try {
+            $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
 
-        mtrace('observer::role_unassigned - Role: ' . print_r($role, true));
+            mtrace('observer::role_unassigned - Role: ' . print_r($role, true));
 
-        $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
+            $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
 
-        mtrace('observer::role_unassigned - User: ' . print_r($user, true));
+            mtrace('observer::role_unassigned - User: ' . print_r($user, true));
 
-        if ($user->role === 'teacher') {
-            self::triggerStudentRetroActivity($event, 'REMOVE_PROFESSOR');
-        } else if ($user->role === 'student') {
-            self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
+            if ($user->role === 'teacher') {
+                self::triggerStudentRetroActivity($event, 'REMOVE_PROFESSOR');
+            } else if ($user->role === 'student') {
+                self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
+            }
+        } catch (\Exception $e) {
+            mtrace('Error in role_unassigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         return true;
     }
@@ -145,19 +153,25 @@ class mod_edusign_observer
     {
         global $DB;
         $context = $event->get_context();
-        $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
-
-        mtrace('triggerStudentRetroActivity - Operation type: ' . $operationType);
-        mtrace('triggerStudentRetroActivity - Role: ' . print_r($role, true));
-        mtrace('triggerStudentRetroActivity - Event object ID: ' . $event->get_data()['objectid']);
-        mtrace('triggerStudentRetroActivity - Related user ID: ' . $event->get_data()['relateduserid']);
-
-        $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
         
-        mtrace('triggerStudentRetroActivity - User: ' . print_r($user, true));
+        try {
+            $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
 
-        $task = new \mod_edusign\task\student_retroactivity();
-        $task = $task->instance($user->id, $context->instanceid, $operationType);
-        return \core\task\manager::queue_adhoc_task($task);
+            mtrace('triggerStudentRetroActivity - Operation type: ' . $operationType);
+            mtrace('triggerStudentRetroActivity - Role: ' . print_r($role, true));
+            mtrace('triggerStudentRetroActivity - Event object ID: ' . $event->get_data()['objectid']);
+            mtrace('triggerStudentRetroActivity - Related user ID: ' . $event->get_data()['relateduserid']);
+
+            $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
+            
+            mtrace('triggerStudentRetroActivity - User: ' . print_r($user, true));
+
+            $task = new \mod_edusign\task\student_retroactivity();
+            $task = $task->instance($user->id, $context->instanceid, $operationType);
+            return \core\task\manager::queue_adhoc_task($task);
+        } catch (\Exception $e) {
+            mtrace('Error in triggerStudentRetroActivity: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+        }
+        return false;
     }
 }
