@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="pix/monologo.svg" alt="Edusign" width="110" />
-</p>
-
 <h1 align="center">Edusign for Moodle</h1>
 
 <p align="center">
