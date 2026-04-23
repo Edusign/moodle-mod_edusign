@@ -12,7 +12,7 @@ $string['modulename_help'] = 'The edusign activity module enables a teacher to t
 $string['loading'] = 'Loading ...';
 
 $string['settings'] = 'Settings';
-$string['save'] = 'Enregistrer';
+$string['save'] = 'Save';
 $string['settings_section_config'] = 'Plugin configuration';
 $string['refresh_token'] = 'Generate a new token';
 $string['modhealth'] = 'Plugin Health';
@@ -125,3 +125,16 @@ $string['csv_no_data_found_error'] = 'No data found in the CSV file';
 $string['sessions_have_errors'] = 'Some sessions have errors, please check the form';
 $string['import_sessions_success'] = 'Sessions imported successfully';
 $string['import_sessions'] = 'Import sessions via CSV';
+
+$string['currentSessions'] = 'Current sessions';
+$string['archivedSessions'] = 'Archived sessions';
+$string['inProgress'] = 'In progress';
+$string['upcoming'] = 'Upcoming';
+$string['alreadySigned'] = 'Already signed';
+$string['toSign'] = 'To sign';
+$string['startLabel'] = 'Start:';
+$string['endLabel'] = 'End:';
+$string['nothingToSignToday'] = 'There is nothing to sign today.';
+$string['noCourseScheduledToday'] = 'No course is scheduled for today.';
+$string['nothingUpcoming'] = 'There is nothing upcoming.';
+$string['noCourseScheduledLater'] = 'No course is scheduled for later.';

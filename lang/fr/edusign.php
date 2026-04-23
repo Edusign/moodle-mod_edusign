@@ -124,3 +124,16 @@ $string['csv_no_data_found_error'] = 'Aucune donnée trouvée dans le fichier CS
 $string['sessions_have_errors'] = 'Certaines sessions comportent des erreurs, veuillez vérifier le formulaire';
 $string['import_sessions_success'] = 'Sessions importées avec succès';
 $string['import_sessions'] = 'Importer les sessions via CSV';
+
+$string['currentSessions'] = 'Sessions en cours';
+$string['archivedSessions'] = 'Sessions archivées';
+$string['inProgress'] = 'En cours';
+$string['upcoming'] = 'À venir';
+$string['alreadySigned'] = 'Déjà signé';
+$string['toSign'] = 'À signer';
+$string['startLabel'] = 'Début :';
+$string['endLabel'] = 'Fin :';
+$string['nothingToSignToday'] = 'Il n\'y a rien à signer aujourd\'hui.';
+$string['noCourseScheduledToday'] = 'Aucun cours n\'est prévu pour cette journée.';
+$string['nothingUpcoming'] = 'Il n\'y a rien à venir.';
+$string['noCourseScheduledLater'] = 'Aucun cours n\'est prévu pour plus tard.';

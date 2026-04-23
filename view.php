@@ -31,6 +31,7 @@ function formatSessions($sessionsToFormat)
   return array_map(function ($sessionToFormat) {
     $sessionToFormat->date_start = strtotime($sessionToFormat->date_start);
     $sessionToFormat->date_end = strtotime($sessionToFormat->date_end);
+    $sessionToFormat->sessionUrl = (new moodle_url('/mod/edusign/session.php', ['sessionId' => $sessionToFormat->id]))->out(false);
     return $sessionToFormat;
   }, $sessionsToFormat);
 }
