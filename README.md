@@ -20,7 +20,7 @@
   <a href="https://edusign.com">Website</a> ·
   <a href="https://developers.edusign.com">API docs</a> ·
   <a href="https://github.com/Edusign/moodle-mod_edusign/issues">Report a bug</a> ·
-  <a href="mailto:support@edusign.com">Contact sales</a>
+  <a href="mailto:support@edusign.com">Contact us</a>
 </p>
 
 ---
