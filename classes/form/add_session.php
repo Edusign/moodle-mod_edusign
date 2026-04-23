@@ -23,7 +23,7 @@ class AddSessionForm extends moodleform
         global $ADMIN;
         $mform = $this->_form; // Don't forget the underscore!
         $mform->addElement('header', 'general', get_string('addsession', 'edusign'));
-        $mform->addElement('text', 'title', get_string('title', 'edusign'), [ 'value' => 'Ma feuille de présence']);
+        $mform->addElement('text', 'title', get_string('title', 'edusign'), [ 'value' => get_string('defaultSessionTitle', 'mod_edusign')]);
         $mform->setType('title', PARAM_TEXT);
         edusign_form_sessiondate_selector($mform);
         $mform->addElement('checkbox', 'forcesync', get_string('forcesync', 'edusign'), false);
@@ -42,7 +42,7 @@ class AddSessionForm extends moodleform
             $errors['sessiondate'] = get_string('errordateinpast', 'edusign');
         }
         if (strtotime($startDate) >= strtotime($endDate)) {
-            $errors['sestime'] = get_string('errorstardatebeforeenddate', 'edusign');
+            $errors['sestime'] = get_string('errorstartdatebeforeenddate', 'edusign');
         }
         return $errors;
     }

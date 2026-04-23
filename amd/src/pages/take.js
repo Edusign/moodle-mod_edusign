@@ -57,7 +57,7 @@ const archiveSession = function (archiveState = true) {
         }
     }])[0]
         .then((result) => {
-            window.location.href = '/mod/edusign/view.php?id=' + cmId;
+            window.location.href = M.cfg.wwwroot + '/mod/edusign/view.php?id=' + cmId;
             return result;
         });
 };
@@ -140,7 +140,7 @@ const askUserSignature = async function (userType, user) {
         iframeURL = await getTeacherIframeLink(user.edusign_api_id);
     }
     return Modal.create({
-        title: 'Signature',
+        title: await Str.get_string('signatureModalTitle', 'mod_edusign'),
         body: (`
             <iframe id="signature-iframe" src="${iframeURL}"></iframe>
         `),
@@ -169,12 +169,17 @@ const askUserSignature = async function (userType, user) {
  * Opens a modal to add a comment to the student absence
  * @returns Promise
  */
-const openModalAddCommentToStudentAbsence = function () {
+const openModalAddCommentToStudentAbsence = async function () {
+    const [title, placeholder, ariaLabel] = await Str.get_strings([
+        { key: 'studentAbsenceModalTitle', component: 'mod_edusign' },
+        { key: 'absenceCommentPlaceholder', component: 'mod_edusign' },
+        { key: 'absenceCommentAriaLabel', component: 'mod_edusign' },
+    ]);
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
-            title: 'Student absence',
+            title,
             body: (`
-                <textarea placeholder="Add a comment for this absence (optionnaly)" class="form-control" id="input-comment" aria-label="Comment for absence"></textarea>
+                <textarea placeholder="${placeholder}" class="form-control" id="input-comment" aria-label="${ariaLabel}"></textarea>
             `),
             show: true,
             removeOnClose: true,
@@ -190,16 +195,22 @@ const openModalAddCommentToStudentAbsence = function () {
  * Opens a modal to set the student as delayed
  * @returns Promise
  */
-const openModalSetStudentDelayed = function () {
+const openModalSetStudentDelayed = async function () {
+    const [title, label, ariaLabel, minutesUnit] = await Str.get_strings([
+        { key: 'studentDelayModalTitle', component: 'mod_edusign' },
+        { key: 'delay', component: 'mod_edusign' },
+        { key: 'delayMinutesAriaLabel', component: 'mod_edusign' },
+        { key: 'minutes', component: 'mod_edusign' },
+    ]);
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
-            title: 'Student delay',
+            title,
             body: (`
-                <label for="input-delay">Delay</label>
+                <label for="input-delay">${label}</label>
                 <div class="input-group mb-3">
-                    <input type="number" class="form-control" id="input-delay" aria-label="Minutes of delay">
+                    <input type="number" class="form-control" id="input-delay" aria-label="${ariaLabel}">
                     <div class="input-group-append">
-                        <span class="input-group-text">minutes</span>
+                        <span class="input-group-text">${minutesUnit}</span>
                     </div>
                 </div>
             `),
@@ -217,12 +228,16 @@ const openModalSetStudentDelayed = function () {
  * Opens a modal to set the student as early departure
  * @returns Promise
  */
-const openModalSetStudentEarlyDeparture = function () {
+const openModalSetStudentEarlyDeparture = async function () {
+    const [title, label] = await Str.get_strings([
+        { key: 'studentEarlyDepartureModalTitle', component: 'mod_edusign' },
+        { key: 'earlyDeparture', component: 'mod_edusign' },
+    ]);
     return new Promise((resolve) => {
         return ModalSaveCancel.create({
-            title: 'Student early departure',
+            title,
             body: (`
-                <label for="input-early-departure">Early departure</label>
+                <label for="input-early-departure">${label}</label>
                 <div class="input-group mb-3" id="input-early-departure-container">
                 </div>
             `),
@@ -337,7 +352,7 @@ const initTable = async function (students) {
         if (student.edusign_data?.signature) {
             checkboxTD.setAttribute('disabled', 'disabled');
             checkboxTD.setAttribute('data-toggle', 'tooltip');
-            checkboxTD.setAttribute('title', `This student has already signed`);
+            checkboxTD.setAttribute('title', await Str.get_string('studentAlreadySignedTooltip', 'mod_edusign'));
         }
         studentTR.dataset.studentId = student.edusign_api_id;
         fullNameTD.textContent = student.firstname + ' ' + student.lastname;
@@ -560,7 +575,7 @@ const onDocumentSigned = () => {
     .catch(async(error) => {
         console.error(error);
     }).then(() => {
-        document.location.href = '/mod/edusign/view.php?id=' + cmId;
+        document.location.href = M.cfg.wwwroot + '/mod/edusign/view.php?id=' + cmId;
         return;
     });
 };
