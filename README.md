@@ -142,16 +142,6 @@ Ships with:
 - 🇫🇷 French (`lang/fr`)
 - 🇪🇸 Spanish (`lang/es`)
 
-We welcome pull requests adding new languages — see the `lang/en/edusign.php` file for the full string list.
-
-## Roadmap highlights
-
-- Deeper reporting inside Moodle (session-level analytics, export to Excel).
-- LTI launcher for institutions running Moodle-adjacent LMSes.
-- Native Moodle Mobile support.
-
-Have a feature you need? [Open an issue](https://github.com/Edusign/moodle-mod_edusign/issues/new) — we prioritize based on customer demand.
-
 ## Contributing
 
 Contributions are very welcome! Please:
@@ -164,7 +154,7 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 
 ## Support
 
-- 🐛 **Bugs & feature requests** → [GitHub Issues](https://github.com/Edusign/moodle-mod_edusign/issues)
+- 🐛 **Bugs & feature requests** → [GitHub Issues](https://github.com/Edusign/moodle-mod_edusign/issues) or [support@edusign.com](mailto:support@edusign.com)
 - 📚 **Product documentation** → [edusign.com](https://edusign.com)
 - 🔌 **API & webhooks** → [developers.edusign.com](https://developers.edusign.com)
 - 💬 **Paid support / onboarding** → [support@edusign.com](mailto:support@edusign.com)
