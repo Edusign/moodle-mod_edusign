@@ -20,7 +20,7 @@
   <a href="https://edusign.com">Website</a> ·
   <a href="https://developers.edusign.com">API docs</a> ·
   <a href="https://github.com/Edusign/moodle-mod_edusign/issues">Report a bug</a> ·
-  <a href="mailto:contact@edusign.com">Contact sales</a>
+  <a href="mailto:support@edusign.com">Contact sales</a>
 </p>
 
 ---
@@ -167,7 +167,7 @@ Releases are automated with [release-please](https://github.com/googleapis/relea
 - 🐛 **Bugs & feature requests** → [GitHub Issues](https://github.com/Edusign/moodle-mod_edusign/issues)
 - 📚 **Product documentation** → [edusign.com](https://edusign.com)
 - 🔌 **API & webhooks** → [developers.edusign.com](https://developers.edusign.com)
-- 💬 **Paid support / onboarding** → [contact@edusign.com](mailto:contact@edusign.com)
+- 💬 **Paid support / onboarding** → [support@edusign.com](mailto:support@edusign.com)
 
 ## License
 
