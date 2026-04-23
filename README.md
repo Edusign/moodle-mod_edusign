@@ -46,7 +46,7 @@ Used by hundreds of French training centers (Qualiopi) and higher‑education in
 
 ## See it in action
 
-> Screenshots and a short demo video are coming soon. In the meantime, [book a live demo](https://edusign.com) — we'll walk you through the full flow in under 20 minutes.
+> [Book a live demo](https://edusign.com) — we'll walk you through the full flow in under 20 minutes.
 
 ## How it works
 
