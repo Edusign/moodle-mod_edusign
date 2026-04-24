@@ -23,7 +23,7 @@ const onDocumentSigned = () => {
     .catch(async(error) => {
         console.error(error);
     }).then(() => {
-        document.location.href = '/mod/edusign/view.php?id=' + cmId;
+        document.location.href = M.cfg.wwwroot + '/mod/edusign/view.php?id=' + cmId;
         return;
     });
 };

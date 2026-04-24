@@ -104,12 +104,12 @@ function createTrainingFromCourse($courseId, $startDate, $endDate, $context, arr
                 'edusign_api_id' => $edusignAPIID,
             ]);
         }
-        \core\notification::success('Course successfully linked on edusign API');
+        \core\notification::success(get_string('course_linked_success', 'mod_edusign'));
         $course->edusign_api_id = $edusignAPIID;
         return $course;
     } catch (\Exception $e) {
         // Error is journalized
-        \core\notification::error('Error while creating course on edusign API : ' . $e->getMessage());
+        \core\notification::error(get_string('course_linked_error', 'mod_edusign', $e->getMessage()));
     }
 }
 
@@ -132,11 +132,11 @@ function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEv
         ];
 
         EdusignApi::updateTraining($courseEdusignApi->edusign_api_id, $trainingData, $baseEvent);
-        \core\notification::success('Course successfully updated on edusign API');
+        \core\notification::success(get_string('course_updated_success', 'mod_edusign'));
         return $course;
     } catch (\Exception $e) {
         // Error is journalized
-        \core\notification::error('Error while updating course on edusign API : ' . $e->getMessage());
+        \core\notification::error(get_string('course_updated_error', 'mod_edusign', $e->getMessage()));
     }
 }
 
