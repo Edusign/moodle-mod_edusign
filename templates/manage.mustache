@@ -2,7 +2,7 @@
   <a href="sessions.php?cmId={{cmId}}" class="btn btn-primary mb-5">{{#str}}add_session, mod_edusign{{/str}}</a>
   <a id="import-sessions" class="btn btn-primary mb-5">{{#str}}import_sessions, mod_edusign{{/str}}</a>
   
-  <h2>Session en cours</h2>
+  <h2>{{#str}}currentSessions, mod_edusign{{/str}}</h2>
   <table class="table table-striped unarchived-sessions mb-6">
     <thead>
       <tr>
@@ -45,7 +45,7 @@
     </tbody>
   </table>
   
-  <h2>Session archivées</h2>
+  <h2>{{#str}}archivedSessions, mod_edusign{{/str}}</h2>
   <table class="table table-striped archived-sessions">
     <thead>
       <tr>

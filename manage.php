@@ -48,6 +48,7 @@ $archivedSessions = array_filter($sessions, function($session) {
     return !!$session->archived;
 });
 
+$sampleCsvUrl = new moodle_url('/mod/edusign/sample-import-sessions.csv');
 
 $output = $OUTPUT->render_from_template('mod_edusign/manage', [
     'title' => $title,
@@ -58,6 +59,7 @@ $output = $OUTPUT->render_from_template('mod_edusign/manage', [
     'context' => $context,
     'unarchivedSessions' => array_values($unarchivedSessions),
     'archivedSessions' => array_values($archivedSessions),
+    'sampleCsvUrl' => $sampleCsvUrl->out(false),
     'PAGE' => $PAGE,
     'OUTPUT' => $OUTPUT,
     'CFG' => $CFG,
