@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.3](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.2...v1.6.3) (2026-04-24)
+
+
+### Bug Fixes
+
+* broken subdirectory links and extracted hardcoded French strings ([43bea87](https://github.com/Edusign/moodle-mod_edusign/commit/43bea87dfc110467c4b38653c1b1275e5c4ef6b7))
+* **master:** fix broken subdirectory links and extract hardcoded French strings ([7e471ee](https://github.com/Edusign/moodle-mod_edusign/commit/7e471eefe7ef73b5a28b03f34ac5b6100f54165e))
+
 ## [1.6.2](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.1...v1.6.2) (2025-02-20)
 
 
