@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.3...v1.7.0) (2026-05-04)
+
+
+### Features
+
+* add Spanish (es) translation ([e0764b8](https://github.com/Edusign/moodle-mod_edusign/commit/e0764b8ff07447552641dadd74b3cb182a7df2e5))
+
 ## [1.6.3](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.2...v1.6.3) (2026-04-24)
 
 
