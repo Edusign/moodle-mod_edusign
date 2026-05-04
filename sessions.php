@@ -92,10 +92,10 @@ if ($fromForm = $mform->get_data()) {
                 'endDate' => $endDate,
             ], $processcompletion);
             if ($cr) {
-                \core\notification::success('Session successfully updated');
+                \core\notification::success(get_string('session_updated_success', 'mod_edusign'));
             }
         } catch (Exception $e) {
-            \core\notification::error('An error occured while updating session : ' . $e->getMessage());
+            \core\notification::error(get_string('session_updated_error', 'mod_edusign', $e->getMessage()));
         }
     } else {
         try {
@@ -105,11 +105,11 @@ if ($fromForm = $mform->get_data()) {
                 'endDate' => $endDate,
             ], $forceSync, $processcompletion);
             if ($cr) {
-                \core\notification::success('Session successfully created');
+                \core\notification::success(get_string('session_created_success', 'mod_edusign'));
                 redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));
             }
         } catch (Exception $e) {
-            \core\notification::error('An error occured while creating session : ' . $e->getMessage());
+            \core\notification::error(get_string('session_created_error', 'mod_edusign', $e->getMessage()));
         }
     }
 }

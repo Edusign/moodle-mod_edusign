@@ -17,12 +17,12 @@ require_once("{$CFG->libdir}/completionlib.php"); //require missing?
 
 $sessionId    = required_param('sessionId', PARAM_INT);
 if (!$sessionId) {
-    throw new moodle_exception('mod_edusign_invalid_session_id');
+    throw new moodle_exception('invalid_session_id', 'mod_edusign');
 }
 $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
 
 if (!$session) {
-    throw new moodle_exception('mod_edusign_session_not_found');
+    throw new moodle_exception('session_not_found', 'mod_edusign');
 }
 
 $cm           = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
