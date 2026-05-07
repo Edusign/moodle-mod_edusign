@@ -174,6 +174,8 @@ $string['session_archived_error'] = 'Se ha producido un error al archivar la ses
 $string['session_unarchived_error'] = 'Se ha producido un error al desarchivar la sesión: {$a}';
 
 $string['signatureModalTitle'] = 'Firma';
+$string['signature_link_unavailable'] = 'No hay ningún enlace de firma disponible';
+$string['signature_link_error'] = 'No se puede abrir la ventana de firma: {$a}';
 $string['studentAbsenceModalTitle'] = 'Ausencia del estudiante';
 $string['absenceCommentPlaceholder'] = 'Añadir un comentario para esta ausencia (opcional)';
 $string['absenceCommentAriaLabel'] = 'Comentario para la ausencia';

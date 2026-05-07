@@ -29,7 +29,10 @@ const getStudentIframeLink = function (studentId) {
             userType: 'student',
         }
     }])[0]
-        .then(({ result }) => {
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
             return result?.[0]?.SIGNATURE_LINK;
         });
 };
@@ -43,7 +46,10 @@ const getTeacherIframeLink = function (teacherId) {
             userType: 'teacher',
         }
     }])[0]
-        .then(({ result }) => {
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
             return result?.[0]?.SIGNATURE_LINK;
         });
 };
@@ -139,6 +145,9 @@ const askUserSignature = async function (userType, user) {
     } else {
         iframeURL = await getTeacherIframeLink(user.edusign_api_id);
     }
+    if (!iframeURL) {
+        throw new Error(await Str.get_string('signature_link_unavailable', 'mod_edusign'));
+    }
     return Modal.create({
         title: await Str.get_string('signatureModalTitle', 'mod_edusign'),
         body: (`
@@ -149,19 +158,30 @@ const askUserSignature = async function (userType, user) {
         removeOnClose: true,
     }).then((modalInstance) => {
         modalInstance.getRoot().addClass('signature-modal');
+        const onSignatureMessage = ({data}) => {
+            if (data === 'accept-signature') {
+                modalInstance.hide();
+            }
+        };
+        window.addEventListener('message', onSignatureMessage);
 
         // A la fermeture de la modale, on rafraichit la vue
         modalInstance.getRoot().on(ModalEvents.hidden, () => {
+            window.removeEventListener('message', onSignatureMessage);
             refreshView();
         });
 
-        window.addEventListener("message", ({data}) => {
-            modalInstance.hide();
-            if (data === 'accept-signature') {
-                refreshView();
-            }
-        });
+    });
+};
 
+const showSignatureError = async function (error) {
+    console.error(error);
+    addToast(await Str.get_string(
+        'signature_link_error',
+        'mod_edusign',
+        error?.message || 'An unknowed error has occured'
+    ), {
+        type: 'error'
     });
 };
 
@@ -407,15 +427,17 @@ const getStudentPresentialStateHTML = async function (student) {
 
 const initActionButtonForTeacher = function (teacher, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function () {
-        askUserSignature('teacher', teacher);
+    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function (event) {
+        event.preventDefault();
+        askUserSignature('teacher', teacher).catch(showSignatureError);
     });
 };
 
 const initActionButtonForStudent = function (student, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn').addEventListener('click', function () {
-        askUserSignature('student', student);
+    context.querySelector('.manual-sign-btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        askUserSignature('student', student).catch(showSignatureError);
     });
 
     // Send an email to the student to sign the document
@@ -436,7 +458,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the student as absent
-    context.querySelector('.justified-abscence-btn').addEventListener('click', function () {
+    context.querySelector('.justified-abscence-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         openModalAddCommentToStudentAbsence()
             .then((comment) => {
                 return setStudentAbsent(student.edusign_api_id, comment);
@@ -456,7 +479,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the student as delayed
-    context.querySelector('.late-btn').addEventListener('click', function () {
+    context.querySelector('.late-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         // Opens a modal to set in minutes the delay of the student
         openModalSetStudentDelayed()
             .then((delay) => {
@@ -478,7 +502,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the early departure of the student
-    context.querySelector('.early-departure-btn').addEventListener('click', function () {
+    context.querySelector('.early-departure-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         // Opens a modal to set in minutes the early departure of the student
         openModalSetStudentEarlyDeparture()
             .then((earlyDeparture) => {

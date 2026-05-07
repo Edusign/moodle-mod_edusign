@@ -174,6 +174,8 @@ $string['session_archived_error'] = 'An error occurred while archiving the sessi
 $string['session_unarchived_error'] = 'An error occurred while unarchiving the session: {$a}';
 
 $string['signatureModalTitle'] = 'Signature';
+$string['signature_link_unavailable'] = 'No signature link is available';
+$string['signature_link_error'] = 'Unable to open the signature window: {$a}';
 $string['studentAbsenceModalTitle'] = 'Student absence';
 $string['absenceCommentPlaceholder'] = 'Add a comment for this absence (optional)';
 $string['absenceCommentAriaLabel'] = 'Comment for absence';

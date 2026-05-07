@@ -173,6 +173,8 @@ $string['session_archived_error'] = 'Une erreur s\'est produite lors de l\'archi
 $string['session_unarchived_error'] = 'Une erreur s\'est produite lors du désarchivage de la session : {$a}';
 
 $string['signatureModalTitle'] = 'Signature';
+$string['signature_link_unavailable'] = 'Aucun lien de signature n\'est disponible';
+$string['signature_link_error'] = 'Impossible d\'ouvrir la fenêtre de signature : {$a}';
 $string['studentAbsenceModalTitle'] = 'Absence de l\'étudiant';
 $string['absenceCommentPlaceholder'] = 'Ajouter un commentaire pour cette absence (optionnel)';
 $string['absenceCommentAriaLabel'] = 'Commentaire pour l\'absence';
