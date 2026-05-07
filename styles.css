@@ -7,11 +7,21 @@
     padding: 0;
 }
 
+.qr-code-modal .modal-dialog {
+    max-width: min(960px, calc(100vw - 2rem));
+}
+
 .signature-modal iframe,
 .qr-code-modal iframe {
     width: 100%;
     min-height: 750px;
     border: 0;
+}
+
+.qr-code-modal iframe {
+    height: min(760px, calc(100vh - 180px));
+    min-height: 620px;
+    display: block;
 }
 
 .signature {

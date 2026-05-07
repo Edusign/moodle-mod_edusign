@@ -203,16 +203,24 @@ const showQRCodeModal = async function () {
         throw new Error(await Str.get_string('qr_code_link_unavailable', 'mod_edusign'));
     }
 
+    const title = await Str.get_string('qrCodeModalTitle', 'mod_edusign');
+
     return Modal.create({
-        title: await Str.get_string('qrCodeModalTitle', 'mod_edusign'),
+        title,
         body: (`
-            <iframe id="qr-code-iframe" src="${iframeURL}"></iframe>
+            <iframe
+                id="qr-code-iframe"
+                src="${iframeURL}"
+                title="${title}"
+                style="width: 100%; height: min(760px, calc(100vh - 180px)); min-height: 620px; border: 0; display: block;"
+            ></iframe>
         `),
         footer: '',
         show: true,
         removeOnClose: true,
     }).then((modalInstance) => {
         modalInstance.getRoot().addClass('qr-code-modal');
+        modalInstance.getRoot().find('.modal-dialog').addClass('modal-xl');
     });
 };
 
