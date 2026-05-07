@@ -212,7 +212,7 @@ const showQRCodeModal = async function () {
                 id="qr-code-iframe"
                 src="${iframeURL}"
                 title="${title}"
-                style="width: 100%; height: min(760px, calc(100vh - 180px)); min-height: 620px; border: 0; display: block;"
+                style="width: 100%; height: min(840px, calc(100vh - 110px)); min-height: 700px; border: 0; display: block;"
             ></iframe>
         `),
         footer: '',
