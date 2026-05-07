@@ -58,6 +58,9 @@ $PAGE->set_title($course->shortname . ": " . $att->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->force_settings_menu(true);
 $PAGE->set_cacheable(true);
+$PAGE->requires->js_call_amd('mod_edusign/pages/sessions', 'init', [
+    'editing' => !empty($session),
+]);
 
 $mform = new AddSessionForm($url, [
     'id' => $cmId,

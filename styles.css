@@ -107,6 +107,18 @@
     gap: 0.25rem;
 }
 
+.edusign-submit-loading {
+    display: inline-flex;
+    align-items: center;
+    color: #495057;
+    vertical-align: middle;
+}
+
+input[type="submit"].is-loading {
+    opacity: 0.65;
+    pointer-events: none;
+}
+
 #import-csv-save .spinner-border {
     display: none;
 }
