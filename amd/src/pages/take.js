@@ -351,7 +351,7 @@ const initTable = async function (students) {
 
         if (student.edusign_data?.signature) {
             checkboxTD.setAttribute('disabled', 'disabled');
-            checkboxTD.setAttribute('data-toggle', 'tooltip');
+            checkboxTD.setAttribute('data-bs-toggle', 'tooltip');
             checkboxTD.setAttribute('title', await Str.get_string('studentAlreadySignedTooltip', 'mod_edusign'));
         }
         studentTR.dataset.studentId = student.edusign_api_id;
@@ -368,10 +368,10 @@ const initTable = async function (students) {
             const signSelectedBtn = document.querySelector('#sign-selected-btn');
             if (tbody.querySelectorAll('.user-checkbox:checked').length > 0) {
                 signSelectedBtn.removeAttribute('disabled');
-                signSelectedBtn.removeAttribute('data-toggle');
+                signSelectedBtn.removeAttribute('data-bs-toggle');
             } else {
                 signSelectedBtn.setAttribute('disabled', 'disabled');
-                signSelectedBtn.setAttribute('data-toggle', 'tooltip');
+                signSelectedBtn.setAttribute('data-bs-toggle', 'tooltip');
             }
         });
     });
@@ -386,10 +386,12 @@ const getStudentPresentialStateHTML = async function (student) {
     } else if (student.edusign_data.signature) {
         html = `<span class="badge badge-success">${await Str.get_string('present', 'mod_edusign')}</span>`;
         signatureHTML = `<img src="${student.edusign_data.signature}" style="height: 50px" class="signature" />`;
+    } else if (student.edusign_data.comment?.trim()) {
+        html = `<span class="badge badge-warning">${await Str.get_string('justifiedAbsence', 'mod_edusign')}</span>`;
     } else if (!student.edusign_data.signature && student.edusign_data.signatureEmail) {
         html = `<span class="badge badge-info">${await Str.get_string('waitingSignature', 'mod_edusign')}</span>`;
     } else {
-        html = '<span class="badge badge-danger">Absent</span>';
+        html = `<span class="badge badge-danger">${await Str.get_string('absent', 'mod_edusign')}</span>`;
     }
     if (student.edusign_data?.delay > 0) {
         html += `<span class="text-small text-muted">${student.edusign_data.delay} ${await Str.get_string('minLate', 'mod_edusign')}</span>`;
