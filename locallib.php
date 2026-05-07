@@ -61,7 +61,7 @@ function edusign_build_recurring_sessions(stdClass $formdata, string $startDate,
         ]];
     }
 
-    $selecteddays = array_keys(array_filter((array)($formdata->repeatdays ?? [])));
+    $selecteddays = edusign_get_selected_repeat_days($formdata);
     if (empty($selecteddays)) {
         throw new invalid_parameter_exception(get_string('errorrepeatdaysrequired', 'mod_edusign'));
     }
@@ -117,6 +117,25 @@ function edusign_build_recurring_sessions(stdClass $formdata, string $startDate,
     }
 
     return $sessions;
+}
+
+function edusign_get_selected_repeat_days($formdata): array
+{
+    $data = (array)$formdata;
+    $repeatdays = (array)($data['repeatdays'] ?? []);
+    $weekdays = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+    ];
+
+    return array_values(array_filter($weekdays, function ($day) use ($data, $repeatdays) {
+        return !empty($repeatdays[$day]) || !empty($data[$day]);
+    }));
 }
 
 function edusign_get_session_groupids(stdClass $formdata): array

@@ -53,7 +53,7 @@ class AddSessionForm extends moodleform
                 $mform->createElement('advcheckbox', 'saturday', '', get_string('saturday', 'edusign')),
                 $mform->createElement('advcheckbox', 'sunday', '', get_string('sunday', 'edusign')),
             ];
-            $mform->addGroup($days, 'repeatdays', get_string('repeaton', 'edusign'), ['&nbsp;&nbsp;&nbsp;&nbsp;'], false);
+            $mform->addGroup($days, 'repeatdays', get_string('repeaton', 'edusign'), ['&nbsp;&nbsp;&nbsp;&nbsp;'], true);
             $mform->disabledIf('repeatdays', 'repeatsessions', 'notchecked');
 
             $repeatoptions = [];
@@ -170,7 +170,7 @@ class AddSessionForm extends moodleform
             $errors['sestime'] = get_string('errorstartdatebeforeenddate', 'edusign');
         }
         if (!empty($data['repeatsessions'])) {
-            $repeatdays = array_filter($data['repeatdays'] ?? []);
+            $repeatdays = edusign_get_selected_repeat_days($data);
             if (empty($repeatdays)) {
                 $errors['repeatdays'] = get_string('errorrepeatdaysrequired', 'edusign');
             }
