@@ -26,6 +26,48 @@ class AddSessionForm extends moodleform
         $mform->addElement('text', 'title', get_string('title', 'edusign'), [ 'value' => get_string('defaultSessionTitle', 'mod_edusign')]);
         $mform->setType('title', PARAM_TEXT);
         edusign_form_sessiondate_selector($mform);
+
+        if (empty($this->_customdata['editing'])) {
+            $mform->addElement('header', 'multiplesessions', get_string('multiplesessions', 'edusign'));
+            $mform->setExpanded('multiplesessions', false);
+
+            $mform->addElement(
+                'advcheckbox',
+                'repeatsessions',
+                '',
+                get_string('repeatsessions', 'edusign')
+            );
+            $mform->setDefault('repeatsessions', 0);
+
+            $days = [
+                $mform->createElement('advcheckbox', 'monday', '', get_string('monday', 'edusign')),
+                $mform->createElement('advcheckbox', 'tuesday', '', get_string('tuesday', 'edusign')),
+                $mform->createElement('advcheckbox', 'wednesday', '', get_string('wednesday', 'edusign')),
+                $mform->createElement('advcheckbox', 'thursday', '', get_string('thursday', 'edusign')),
+                $mform->createElement('advcheckbox', 'friday', '', get_string('friday', 'edusign')),
+                $mform->createElement('advcheckbox', 'saturday', '', get_string('saturday', 'edusign')),
+                $mform->createElement('advcheckbox', 'sunday', '', get_string('sunday', 'edusign')),
+            ];
+            $mform->addGroup($days, 'repeatdays', get_string('repeaton', 'edusign'), [' '], false);
+            $mform->hideIf('repeatdays', 'repeatsessions', 'notchecked');
+
+            $repeatoptions = [];
+            for ($i = 1; $i <= 12; $i++) {
+                $repeatoptions[$i] = $i;
+            }
+            $repeatgroup = [
+                $mform->createElement('select', 'repeatinterval', '', $repeatoptions),
+                $mform->createElement('static', 'repeatintervalunit', '', get_string('weeks', 'edusign')),
+            ];
+            $mform->addGroup($repeatgroup, 'repeatevery', get_string('repeatevery', 'edusign'), [' '], false);
+            $mform->setDefault('repeatevery[repeatinterval]', 1);
+            $mform->hideIf('repeatevery', 'repeatsessions', 'notchecked');
+
+            $mform->addElement('date_selector', 'repeatuntil', get_string('repeatuntil', 'edusign'));
+            $mform->setDefault('repeatuntil', strtotime('+1 month'));
+            $mform->hideIf('repeatuntil', 'repeatsessions', 'notchecked');
+        }
+
         $mform->addElement('checkbox', 'forcesync', get_string('forcesync', 'edusign'), false);
         $mform->addElement('checkbox', 'processcompletion', get_string('processcompletion', 'edusign'), false);
         $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
@@ -43,6 +85,15 @@ class AddSessionForm extends moodleform
         }
         if (strtotime($startDate) >= strtotime($endDate)) {
             $errors['sestime'] = get_string('errorstartdatebeforeenddate', 'edusign');
+        }
+        if (!empty($data['repeatsessions'])) {
+            $repeatdays = array_filter($data['repeatdays'] ?? []);
+            if (empty($repeatdays)) {
+                $errors['repeatdays'] = get_string('errorrepeatdaysrequired', 'edusign');
+            }
+            if (empty($data['repeatuntil']) || $data['repeatuntil'] < $data['sessiondate']) {
+                $errors['repeatuntil'] = get_string('errorrepeatuntilbeforestart', 'edusign');
+            }
         }
         return $errors;
     }

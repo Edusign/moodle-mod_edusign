@@ -47,6 +47,74 @@ function edusign_form_sessiondate_selector(MoodleQuickForm $mform)
     $mform->setDefault('sestime[endminute]', 0);
 }
 
+function edusign_build_recurring_sessions(stdClass $formdata, string $startDate, string $endDate): array
+{
+    if (empty($formdata->repeatsessions)) {
+        return [[
+            'title' => $formdata->title,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ]];
+    }
+
+    $selecteddays = array_keys(array_filter((array)($formdata->repeatdays ?? [])));
+    if (empty($selecteddays)) {
+        throw new invalid_parameter_exception(get_string('errorrepeatdaysrequired', 'mod_edusign'));
+    }
+
+    $daynumbers = [
+        'monday' => 1,
+        'tuesday' => 2,
+        'wednesday' => 3,
+        'thursday' => 4,
+        'friday' => 5,
+        'saturday' => 6,
+        'sunday' => 7,
+    ];
+
+    $selecteddaynumbers = array_map(function ($day) use ($daynumbers) {
+        return $daynumbers[$day];
+    }, $selecteddays);
+
+    $interval = max(1, (int)($formdata->repeatevery['repeatinterval'] ?? 1));
+    $repeatuntil = usergetmidnight((int)$formdata->repeatuntil) + DAYSECS - 1;
+    $base = new DateTimeImmutable($startDate);
+    $baseend = new DateTimeImmutable($endDate);
+    $duration = $baseend->getTimestamp() - $base->getTimestamp();
+    $baseweek = usergetmidnight($base->getTimestamp());
+    $sessions = [[
+        'title' => $formdata->title,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+    ]];
+
+    for ($current = $base; $current->getTimestamp() <= $repeatuntil; $current = $current->modify('+1 day')) {
+        $daynumber = (int)$current->format('N');
+        if (!in_array($daynumber, $selecteddaynumbers, true)) {
+            continue;
+        }
+
+        $currentmidnight = usergetmidnight($current->getTimestamp());
+        $weekdiff = (int)floor(($currentmidnight - $baseweek) / WEEKSECS);
+        if ($weekdiff < 0 || $weekdiff % $interval !== 0) {
+            continue;
+        }
+
+        $sessionstart = $current->format('Y-m-d H:i:s');
+        if (strtotime($sessionstart) <= strtotime($startDate)) {
+            continue;
+        }
+
+        $sessions[] = [
+            'title' => $formdata->title,
+            'startDate' => $sessionstart,
+            'endDate' => date('Y-m-d H:i:s', strtotime($sessionstart) + $duration),
+        ];
+    }
+
+    return $sessions;
+}
+
 function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
 {
     try {
