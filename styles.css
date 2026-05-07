@@ -94,6 +94,19 @@
     z-index: 9999999;
 }
 
+.session-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    white-space: nowrap;
+}
+
+.session-actions__primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
 #import-csv-save .spinner-border {
     display: none;
 }
