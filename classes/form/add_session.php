@@ -29,7 +29,7 @@ class AddSessionForm extends moodleform
 
         if (empty($this->_customdata['editing'])) {
             $mform->addElement('header', 'multiplesessions', get_string('multiplesessions', 'edusign'));
-            $mform->setExpanded('multiplesessions', false);
+            $mform->setExpanded('multiplesessions', true);
 
             $mform->addElement(
                 'advcheckbox',
