@@ -2,11 +2,13 @@
     font-size: 0.8em;
 }
 
-.signature-modal .modal-body {
+.signature-modal .modal-body,
+.qr-code-modal .modal-body {
     padding: 0;
 }
 
-.signature-modal iframe {
+.signature-modal iframe,
+.qr-code-modal iframe {
     width: 100%;
     min-height: 750px;
     border: 0;

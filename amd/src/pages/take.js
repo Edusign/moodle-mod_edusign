@@ -54,6 +54,22 @@ const getTeacherIframeLink = function (teacherId) {
         });
 };
 
+const getQRCodeIframeLink = function (teacherId) {
+    return Ajax.call([{
+        methodname: 'mod_edusign_get_qr_code_link_from_course',
+        args: {
+            sessionId,
+            professorId: teacherId,
+        }
+    }])[0]
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
+            return result;
+        });
+};
+
 const archiveSession = function (archiveState = true) {
     return Ajax.call([{
         methodname: 'mod_edusign_archive_session',
@@ -174,10 +190,47 @@ const askUserSignature = async function (userType, user) {
     });
 };
 
+const showQRCodeModal = async function () {
+    const teacher = availableTeachers.find((teacher) => {
+        return teacher.edusign_api_id;
+    });
+    if (!teacher) {
+        throw new Error(await Str.get_string('qr_code_link_unavailable', 'mod_edusign'));
+    }
+
+    const iframeURL = await getQRCodeIframeLink(teacher.edusign_api_id);
+    if (!iframeURL) {
+        throw new Error(await Str.get_string('qr_code_link_unavailable', 'mod_edusign'));
+    }
+
+    return Modal.create({
+        title: await Str.get_string('qrCodeModalTitle', 'mod_edusign'),
+        body: (`
+            <iframe id="qr-code-iframe" src="${iframeURL}"></iframe>
+        `),
+        footer: '',
+        show: true,
+        removeOnClose: true,
+    }).then((modalInstance) => {
+        modalInstance.getRoot().addClass('qr-code-modal');
+    });
+};
+
 const showSignatureError = async function (error) {
     console.error(error);
     addToast(await Str.get_string(
         'signature_link_error',
+        'mod_edusign',
+        error?.message || 'An unknowed error has occured'
+    ), {
+        type: 'error'
+    });
+};
+
+const showQRCodeError = async function (error) {
+    console.error(error);
+    addToast(await Str.get_string(
+        'qr_code_link_error',
         'mod_edusign',
         error?.message || 'An unknowed error has occured'
     ), {
@@ -315,6 +368,7 @@ const refreshView = () => {
     }])[0].then(({ result }) => {
         initTable(result.students);
         initTeachers(result.teachers);
+        availableTeachers = result.teachers;
         return result;
     }).catch(async (error) => {
         console.error(error);
@@ -537,8 +591,15 @@ const initCheckbox = function () {
 
 const initRefreshButton = function () {
     // Allows to refresh the table
-    document.querySelector('#refresh-button').addEventListener('click', function () {
+    document.querySelector('#refresh-button').addEventListener('click', function (event) {
+        event.preventDefault();
         refreshView();
+    });
+};
+
+const initQRCodeButton = function () {
+    document.querySelector('#display-qr-code-btn').addEventListener('click', function () {
+        showQRCodeModal().catch(showQRCodeError);
     });
 };
 
@@ -611,14 +672,17 @@ const onDocumentSigned = () => {
 // eslint-disable-next-line no-unused-vars
 let course = null;
 let session = null;
+let availableTeachers = [];
 
 export const init = async (students, teachers, _course, _session) => {
     course = _course;
     session = _session;
+    availableTeachers = teachers;
     initTable(students);
     initTeachers(teachers);
     initCheckbox();
     initRefreshButton();
+    initQRCodeButton();
     initSignButton();
     initArchiveButton();
 };

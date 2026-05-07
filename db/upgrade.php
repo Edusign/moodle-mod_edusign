@@ -107,5 +107,9 @@ function xmldb_edusign_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2026050700, 'edusign');
     }
 
+    if ($oldversion < 2026050701) {
+        upgrade_mod_savepoint(true, 2026050701, 'edusign');
+    }
+
     return true;
 }

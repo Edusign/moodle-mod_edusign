@@ -7,7 +7,10 @@
         <i class="icon fa-solid fa-arrows-rotate" role="img" title="{{#str}}refresh, mod_edusign{{/str}}"
           aria-label="{{#str}}refresh, mod_edusign{{/str}}"></i>
       </a>
-      <button disabled id="sign-selected-btn" class="btn btn-primary" type="button" data-bs-toggle="tooltip"
+      <button id="display-qr-code-btn" class="btn btn-secondary ml-2" type="button">
+        {{#str}}displayQRCode, mod_edusign{{/str}}
+      </button>
+      <button disabled id="sign-selected-btn" class="btn btn-primary ml-2" type="button" data-bs-toggle="tooltip"
         data-bs-placement="top" title="{{#str}}signSelected_help, mod_edusign{{/str}}">
         {{#str}}sendSignatureMailSelected, mod_edusign{{/str}}
       </button>

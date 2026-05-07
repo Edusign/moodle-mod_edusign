@@ -60,6 +60,15 @@ $functions = array(
         'ajax'         => true,
         'loginrequired'=> true,
     ),
+    'mod_edusign_get_qr_code_link_from_course' => array(
+        'classname'    => 'mod_edusign_external',
+        'methodname'   => 'get_qr_code_link_from_course',
+        'classpath'    => 'mod/edusign/externallib.php',
+        'description'  => 'Get the iframe link to display the dynamic QR code for a course',
+        'type'         => 'read',
+        'ajax'         => true,
+        'loginrequired'=> true,
+    ),
     'mod_edusign_remove_session' => array(
         'classname'    => 'mod_edusign_external',
         'methodname'   => 'remove_session',
@@ -116,6 +125,7 @@ $services = array(
             'mod_edusign_take_attendance',
             'mod_edusign_get_students_and_teachers',
             'mod_edusign_get_signature_link_from_course',
+            'mod_edusign_get_qr_code_link_from_course',
             'mod_edusign_remove_session',
             'mod_edusign_archive_session',
             'mod_edusign_on_attendance_sheet_signed',

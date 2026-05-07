@@ -358,6 +358,66 @@ class mod_edusign_external extends external_api
     }
 
     /**
+     * Get the iframe link to display the dynamic QR code for a course.
+     *
+     * @param int $sessionId
+     * @param string $professorId
+     * @return array
+     */
+    public static function get_qr_code_link_from_course(int $sessionId, string $professorId)
+    {
+        global $DB;
+
+        try {
+            $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
+            if (empty($session) || empty($session->edusign_api_id)) {
+                throw new \Exception('No Edusign course is linked to this session');
+            }
+            if (empty($professorId)) {
+                throw new \Exception('No Edusign professor is linked to this session');
+            }
+
+            $qrCodeLink = EdusignApi::getQRCodeLink($session->edusign_api_id, $professorId);
+
+            return [
+                'result' => $qrCodeLink,
+                'error' => '',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'result' => null,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Describes get_qr_code_link_from_course return values.
+     *
+     * @return external_single_structure
+     */
+    public static function get_qr_code_link_from_course_returns()
+    {
+        return new external_single_structure([
+            'result' => new external_value(PARAM_URL, 'Course QR code iframe link', VALUE_OPTIONAL, null, NULL_ALLOWED),
+            'error' => new external_value(PARAM_TEXT, 'Error message if the request failed'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for get_qr_code_link_from_course.
+     *
+     * @return external_function_parameters
+     */
+    public static function get_qr_code_link_from_course_parameters()
+    {
+        return new external_function_parameters([
+            'sessionId' => new external_value(PARAM_INT, 'Session Id'),
+            'professorId' => new external_value(PARAM_TEXT, 'Edusign Professor ID'),
+        ]);
+    }
+
+    /**
      * Remove session from edusign and moodle
      *
      * @param int $sessionId session id
