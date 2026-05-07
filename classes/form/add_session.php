@@ -12,6 +12,7 @@ use moodleform;
 
 require_once("$CFG->libdir/formslib.php");
 require_once($CFG->libdir . '/adminlib.php');
+require_once($CFG->dirroot . '/group/lib.php');
 require_once(__DIR__ . '/../../locallib.php');
 
 class AddSessionForm extends moodleform
@@ -19,12 +20,16 @@ class AddSessionForm extends moodleform
     //Add elements to form
     public function definition()
     {
-        global $CFG;
-        global $ADMIN;
+        global $CFG, $USER;
         $mform = $this->_form; // Don't forget the underscore!
+        $course = $this->_customdata['course'];
+        $cm = $this->_customdata['cm'];
+        $modcontext = $this->_customdata['modcontext'];
+
         $mform->addElement('header', 'general', get_string('addsession', 'edusign'));
         $mform->addElement('text', 'title', get_string('title', 'edusign'), [ 'value' => get_string('defaultSessionTitle', 'mod_edusign')]);
         $mform->setType('title', PARAM_TEXT);
+        $this->add_session_type_elements($mform, $course, $cm, $modcontext, $USER);
         edusign_form_sessiondate_selector($mform);
 
         if (empty($this->_customdata['editing'])) {
@@ -73,6 +78,84 @@ class AddSessionForm extends moodleform
         $mform->addElement('submit', 'submitbutton', get_string('savechanges'));
     }
 
+    private function add_session_type_elements($mform, $course, $cm, $modcontext, $user): void
+    {
+        if (!empty($this->_customdata['editing'])) {
+            return;
+        }
+
+        $groupmode = groups_get_activity_groupmode($cm);
+        switch ($groupmode) {
+            case NOGROUPS:
+                $mform->addElement(
+                    'static',
+                    'sessiontypedescription',
+                    get_string('sessiontype', 'edusign'),
+                    get_string('commonsession', 'edusign')
+                );
+                $mform->addHelpButton('sessiontypedescription', 'sessiontype', 'edusign');
+                $mform->addElement('hidden', 'sessiontype', EDUSIGN_SESSION_COMMON);
+                $mform->setType('sessiontype', PARAM_INT);
+                break;
+
+            case SEPARATEGROUPS:
+                $mform->addElement(
+                    'static',
+                    'sessiontypedescription',
+                    get_string('sessiontype', 'edusign'),
+                    get_string('groupsession', 'edusign')
+                );
+                $mform->addHelpButton('sessiontypedescription', 'sessiontype', 'edusign');
+                $mform->addElement('hidden', 'sessiontype', EDUSIGN_SESSION_GROUP);
+                $mform->setType('sessiontype', PARAM_INT);
+                break;
+
+            case VISIBLEGROUPS:
+                $radio = [];
+                $radio[] = $mform->createElement(
+                    'radio',
+                    'sessiontype',
+                    '',
+                    get_string('commonsession', 'edusign'),
+                    EDUSIGN_SESSION_COMMON
+                );
+                $radio[] = $mform->createElement(
+                    'radio',
+                    'sessiontype',
+                    '',
+                    get_string('groupsession', 'edusign'),
+                    EDUSIGN_SESSION_GROUP
+                );
+                $mform->addGroup($radio, 'sessiontype', get_string('sessiontype', 'edusign'), ' ', false);
+                $mform->setType('sessiontype', PARAM_INT);
+                $mform->addHelpButton('sessiontype', 'sessiontype', 'edusign');
+                $mform->setDefault('sessiontype', EDUSIGN_SESSION_COMMON);
+                break;
+        }
+
+        if ($groupmode !== SEPARATEGROUPS && $groupmode !== VISIBLEGROUPS) {
+            return;
+        }
+
+        if ($groupmode === SEPARATEGROUPS && !has_capability('moodle/site:accessallgroups', $modcontext)) {
+            $groups = groups_get_all_groups($course->id, $user->id, $cm->groupingid);
+        } else {
+            $groups = groups_get_all_groups($course->id, 0, $cm->groupingid);
+        }
+
+        if ($groups) {
+            $selectgroups = [];
+            foreach ($groups as $group) {
+                $selectgroups[$group->id] = $group->name;
+            }
+            $select = $mform->addElement('select', 'groups', get_string('groups', 'group'), $selectgroups);
+            $select->setMultiple(true);
+            $mform->disabledIf('groups', 'sessiontype', 'eq', EDUSIGN_SESSION_COMMON);
+        } else {
+            $mform->addElement('static', 'groups', get_string('groups', 'group'), get_string('nogroups', 'edusign'));
+        }
+    }
+
     
     // Custom validation should be added here.
     function validation($data, $files) {
@@ -94,6 +177,9 @@ class AddSessionForm extends moodleform
             if (empty($data['repeatuntil']) || $data['repeatuntil'] < $data['sessiondate']) {
                 $errors['repeatuntil'] = get_string('errorrepeatuntilbeforestart', 'edusign');
             }
+        }
+        if (($data['sessiontype'] ?? EDUSIGN_SESSION_COMMON) == EDUSIGN_SESSION_GROUP && empty($data['groups'])) {
+            $errors['groups'] = get_string('errorgroupsnotselected', 'edusign');
         }
         return $errors;
     }

@@ -3,7 +3,11 @@
 use mod_edusign\classes\commons\EdusignApi;
 
 require_once(__DIR__ . '/classes/commons/EdusignApi.php');
+require_once($CFG->dirroot . '/group/lib.php');
 require_once("{$CFG->libdir}/completionlib.php"); //require missing?
+
+defined('EDUSIGN_SESSION_COMMON') || define('EDUSIGN_SESSION_COMMON', 0);
+defined('EDUSIGN_SESSION_GROUP') || define('EDUSIGN_SESSION_GROUP', 1);
 
 /**
  * Helper function to add sessiondate_selector to add/update forms.
@@ -115,6 +119,20 @@ function edusign_build_recurring_sessions(stdClass $formdata, string $startDate,
     return $sessions;
 }
 
+function edusign_get_session_groupids(stdClass $formdata): array
+{
+    if (($formdata->sessiontype ?? EDUSIGN_SESSION_COMMON) != EDUSIGN_SESSION_GROUP) {
+        return [0];
+    }
+
+    $groups = array_filter(array_map('intval', (array)($formdata->groups ?? [])));
+    if (empty($groups)) {
+        throw new invalid_parameter_exception(get_string('errorgroupsnotselected', 'mod_edusign'));
+    }
+
+    return array_values($groups);
+}
+
 function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
 {
     try {
@@ -208,11 +226,17 @@ function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEv
     }
 }
 
-function getStudentsFromContext($context)
+function getStudentsFromContext($context, int $groupid = 0)
 {
     global $DB;
     $studentRole = $DB->get_record_sql('SELECT id FROM {role} WHERE shortname = "student"');
     $students = get_role_users($studentRole->id, $context, '*');
+
+    if ($groupid > 0) {
+        $students = array_filter($students, function ($student) use ($groupid) {
+            return groups_is_member($groupid, $student->id);
+        });
+    }
 
     if (empty($students)) {
         return [];
@@ -487,12 +511,12 @@ function syncTeachersToApi(array $teachers, $context, $withVerification = false)
     return $teachers;
 }
 
-function syncStudentsToApiFromContext($context, $withVerification = false)
+function syncStudentsToApiFromContext($context, $withVerification = false, int $groupid = 0)
 {
     // Récupération des étudiants à synchroniser sur edusign
-    $students = getStudentsFromContext($context);
+    $students = getStudentsFromContext($context, $groupid);
     syncStudentsToApi($students, $context, $withVerification);
-    return getStudentsFromContext($context);
+    return getStudentsFromContext($context, $groupid);
 }
 
 function syncTeachersToApiFromContext($context, $withVerification = false)
@@ -611,9 +635,10 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
     global $DB;
     $edusign = reset($DB->get_records('edusign', ['id' => $cm->instance]));
     $course       = $DB->get_record('course', array('id' => $cm->course), '*');
+    $groupid = (int)($data['groupid'] ?? 0);
     
     // Synchronisation et récupération des étudiants liés au module d'activité
-    $students = syncStudentsToApiFromContext($context, $forceSync);
+    $students = syncStudentsToApiFromContext($context, $forceSync, $groupid);
     $teachers = syncTeachersToApiFromContext($context, $forceSync);
     
     // Create course to edusign api with students edusign api ids
@@ -654,6 +679,7 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         'date_start' => $data['startDate'],
         'date_end' => $data['endDate'],
         'title' => $data['title'],
+        'groupid' => $groupid,
     ]);
 
 

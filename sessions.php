@@ -62,6 +62,9 @@ $PAGE->set_cacheable(true);
 $mform = new AddSessionForm($url, [
     'id' => $cmId,
     'editing' => !empty($session),
+    'course' => $course,
+    'cm' => $cm,
+    'modcontext' => $context,
 ]);
 
 if ($session) {
@@ -103,9 +106,13 @@ if ($fromForm = $mform->get_data()) {
     } else {
         try {
             $sessions = edusign_build_recurring_sessions($fromForm, $startDate, $endDate);
+            $groupids = edusign_get_session_groupids($fromForm);
             $created = [];
             foreach ($sessions as $sessiondata) {
-                $created[] = create_session($context, $cm, $sessiondata, $forceSync, $processcompletion);
+                foreach ($groupids as $groupid) {
+                    $sessiondata['groupid'] = $groupid;
+                    $created[] = create_session($context, $cm, $sessiondata, $forceSync, $processcompletion);
+                }
             }
             if (!empty($created)) {
                 \core\notification::success(get_string('sessions_created_success', 'mod_edusign', count($created)));

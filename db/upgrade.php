@@ -97,5 +97,15 @@ function xmldb_edusign_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2024111218, 'edusign');
     }
 
+    if ($oldversion < 2026050700) {
+        $table = new xmldb_table('edusign_sessions');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'archived');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026050700, 'edusign');
+    }
+
     return true;
 }

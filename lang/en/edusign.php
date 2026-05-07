@@ -42,7 +42,7 @@ $string['test_api_success'] = 'API connection test successful';
 $string['testapiconnection'] = 'Test API connection';
 
 $string['attendance'] = 'Attendance';
-$string['add_session'] = 'Add a session';
+$string['add_session'] = 'Add session';
 $string['date'] = 'Date';
 $string['dateStart'] = 'Date start';
 $string['dateEnd'] = 'Date End';
@@ -59,7 +59,7 @@ $string['removeSessionAndSheet'] = 'Also delete the attendance sheet on Edusign 
 $string['archiveSessionQuestion'] = 'You are about to archive a session. Are you sure you want to continue?';
 $string['unarchiveSessionQuestion'] = 'You are about to unarchive a session. Are you sure you want to continue?';
 
-$string['addsession'] = 'Add a session';
+$string['addsession'] = 'Add session';
 $string['editSession'] = 'Edit a session';
 $string['sessiondate'] = 'Session date';
 $string['from'] = 'From:';
@@ -180,3 +180,9 @@ $string['delayMinutesAriaLabel'] = 'Minutes of delay';
 $string['minutes'] = 'minutes';
 $string['studentEarlyDepartureModalTitle'] = 'Student early departure';
 $string['studentAlreadySignedTooltip'] = 'This student has already signed';
+$string['sessiontype'] = 'Type';
+$string['sessiontype_help'] = 'You can add sessions for all students or for a group of students. Ability to add different types depends on activity group mode.<br><br><ul><li>In group mode "No groups" you can add only sessions for all students.</li><li>In group mode "Separate groups" you can add only sessions for a group of students.</li><li>In group mode "Visible groups" you can add both types of sessions.</li></ul>';
+$string['commonsession'] = 'All students';
+$string['groupsession'] = 'Group of students';
+$string['nogroups'] = 'No groups available';
+$string['errorgroupsnotselected'] = 'Select at least one group';

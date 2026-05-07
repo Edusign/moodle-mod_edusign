@@ -9,6 +9,7 @@
         <th scope="col" style="width: 200px;text-align: right;">{{#str}}date, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 200px;">{{#str}}hourStart, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 200px;">{{#str}}hourEnd, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}sessiontype, mod_edusign{{/str}}</th>
         <th scope="col">{{#str}}title, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 110px;">{{#str}}action, mod_edusign{{/str}}</th>
       </tr>
@@ -21,6 +22,7 @@
           </td>
           <td>{{time_start}}</td>
           <td>{{time_end}}</td>
+          <td>{{groupname}}</td>
           <td>{{{title}}}</td>
           <td>
             <div>
@@ -39,7 +41,7 @@
       {{/unarchivedSessions}}
       {{^unarchivedSessions}}
         <tr>
-          <td colspan="5" style="text-align: center;">{{#str}}noUnarchivedSession, mod_edusign{{/str}}</td>
+          <td colspan="6" style="text-align: center;">{{#str}}noUnarchivedSession, mod_edusign{{/str}}</td>
         </tr>
       {{/unarchivedSessions}}
     </tbody>
@@ -52,6 +54,7 @@
         <th scope="col" style="width: 200px;text-align: right;">{{#str}}date, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 200px;">{{#str}}hourStart, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 200px;">{{#str}}hourEnd, mod_edusign{{/str}}</th>
+        <th scope="col" style="width: 200px;">{{#str}}sessiontype, mod_edusign{{/str}}</th>
         <th scope="col">{{#str}}title, mod_edusign{{/str}}</th>
         <th scope="col" style="width: 110px;">{{#str}}action, mod_edusign{{/str}}</th>
       </tr>
@@ -64,6 +67,7 @@
           </td>
           <td>{{time_start}}</td>
           <td>{{time_end}}</td>
+          <td>{{groupname}}</td>
           <td>{{{title}}}</td>
           <td>
             <div>
@@ -82,7 +86,7 @@
       {{/archivedSessions}}
       {{^archivedSessions}}
         <tr>
-          <td colspan="5" style="text-align: center;">{{#str}}noArchivedSession, mod_edusign{{/str}}</td>
+          <td colspan="6" style="text-align: center;">{{#str}}noArchivedSession, mod_edusign{{/str}}</td>
         </tr>
       {{/archivedSessions}}
     </tbody>

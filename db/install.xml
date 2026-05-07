@@ -36,6 +36,7 @@
         <FIELD NAME="date_start" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="start time of attendance sheet/session"/>
         <FIELD NAME="date_end" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="end time of attendance sheet/session"/>
         <FIELD NAME="archived" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Define if the session is archived or not"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Group ID associated with session"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for edusign_sessions"/>

@@ -42,7 +42,7 @@ $string['test_api_success'] = 'Prueba de conexión a la API correcta';
 $string['testapiconnection'] = 'Probar la conexión a la API';
 
 $string['attendance'] = 'Asistencia';
-$string['add_session'] = 'Añadir una sesión';
+$string['add_session'] = 'Añadir sesión';
 $string['date'] = 'Fecha';
 $string['dateStart'] = 'Fecha de inicio';
 $string['dateEnd'] = 'Fecha de fin';
@@ -59,7 +59,7 @@ $string['removeSessionAndSheet'] = 'Eliminar también la hoja de asistencia en E
 $string['archiveSessionQuestion'] = 'Está a punto de archivar una sesión. ¿Está seguro de que desea continuar?';
 $string['unarchiveSessionQuestion'] = 'Está a punto de desarchivar una sesión. ¿Está seguro de que desea continuar?';
 
-$string['addsession'] = 'Añadir una sesión';
+$string['addsession'] = 'Añadir sesión';
 $string['editSession'] = 'Editar una sesión';
 $string['sessiondate'] = 'Fecha de la sesión';
 $string['from'] = 'De:';
@@ -180,3 +180,9 @@ $string['delayMinutesAriaLabel'] = 'Minutos de retraso';
 $string['minutes'] = 'minutos';
 $string['studentEarlyDepartureModalTitle'] = 'Salida anticipada del estudiante';
 $string['studentAlreadySignedTooltip'] = 'Este estudiante ya ha firmado';
+$string['sessiontype'] = 'Tipo';
+$string['sessiontype_help'] = 'Puede añadir sesiones para todos los estudiantes o para un grupo de estudiantes. Los tipos disponibles dependen del modo de grupo de la actividad.<br><br><ul><li>En el modo de grupo "Sin grupos" solo puede añadir sesiones para todos los estudiantes.</li><li>En el modo de grupo "Grupos separados" solo puede añadir sesiones para un grupo de estudiantes.</li><li>En el modo de grupo "Grupos visibles" puede añadir ambos tipos de sesiones.</li></ul>';
+$string['commonsession'] = 'Todos los estudiantes';
+$string['groupsession'] = 'Grupo de estudiantes';
+$string['nogroups'] = 'No hay grupos disponibles';
+$string['errorgroupsnotselected'] = 'Seleccione al menos un grupo';
