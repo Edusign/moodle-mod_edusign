@@ -242,11 +242,12 @@ function edusign_supports($feature)
 function edusign_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $edusignnode)
 {
     $page = $settingsnav->get_page();
-    if (empty($page->cm)) {
+    $cm = $page->cm;
+    if (!$cm) {
         return;
     }
 
-    $context = $page->cm->context;
+    $context = context_module::instance($cm->id);
     if (!has_any_capability([
         'mod/edusign:takeattendances',
         'mod/edusign:changeattendances',
@@ -257,12 +258,12 @@ function edusign_extend_settings_navigation(settings_navigation $settingsnav, na
 
     $reportnode = navigation_node::create(
         get_string('report', 'mod_edusign'),
-        new moodle_url('/mod/edusign/report.php', ['id' => $page->cm->id]),
+        new moodle_url('/mod/edusign/report.php', ['id' => $cm->id]),
         navigation_node::TYPE_SETTING,
         null,
         'edusignreport'
     );
-    $edusignnode->add_node($reportnode, 'filtermanage');
+    $edusignnode->add_node($reportnode, 'modedit');
 }
 
 
