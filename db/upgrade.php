@@ -111,5 +111,16 @@ function xmldb_edusign_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2026050701, 'edusign');
     }
 
+    if ($oldversion < 2026050702) {
+        $table = new xmldb_table('edusign');
+        $field = new xmldb_field('attendancegradeenabled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0',
+            'completeonxattendancesigned');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2026050702, 'edusign');
+    }
+
     return true;
 }

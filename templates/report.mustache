@@ -35,6 +35,11 @@
       <span class="edusign-report-card__meta">{{summary.absent}} {{#str}}absent, mod_edusign{{/str}}</span>
     </div>
     <div class="edusign-report-card">
+      <span class="edusign-report-card__label">{{#str}}moodleGrade, mod_edusign{{/str}}</span>
+      <strong class="edusign-report-card__value">{{summary.attendanceGradeLabel}}</strong>
+      <span class="edusign-report-card__meta">{{#str}}attendancegradepolicy, mod_edusign{{/str}}</span>
+    </div>
+    <div class="edusign-report-card">
       <span class="edusign-report-card__label">{{#str}}waitingSignature, mod_edusign{{/str}}</span>
       <strong class="edusign-report-card__value">{{summary.pending}}</strong>
       <span class="edusign-report-card__meta">{{summary.late}} {{#str}}late, mod_edusign{{/str}} / {{summary.earlydeparture}} {{#str}}earlyDeparture, mod_edusign{{/str}}</span>
@@ -55,6 +60,9 @@
               <th scope="col">{{#str}}attendanceRate, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}present, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}justifiedAbsence, mod_edusign{{/str}}</th>
+              {{#gradesyncenabled}}
+                <th scope="col">{{#str}}moodleGrade, mod_edusign{{/str}}</th>
+              {{/gradesyncenabled}}
               <th scope="col">{{#str}}absent, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}waitingSignature, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}lastPresent, mod_edusign{{/str}}</th>
@@ -67,6 +75,9 @@
                 <td><strong>{{attendanceLabel}}</strong></td>
                 <td>{{present}} / {{expected}}</td>
                 <td>{{justified}}</td>
+                {{#gradesyncenabled}}
+                  <td><strong>{{attendancegradeLabel}}</strong><div class="text-muted text-small">{{attendancegraderaw}}</div></td>
+                {{/gradesyncenabled}}
                 <td>{{absent}}</td>
                 <td>{{pending}}</td>
                 <td>{{lastpresent}}</td>
@@ -92,6 +103,9 @@
               <th scope="col">{{#str}}attendanceRate, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}present, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}justifiedAbsence, mod_edusign{{/str}}</th>
+              {{#gradesyncenabled}}
+                <th scope="col">{{#str}}moodleGrade, mod_edusign{{/str}}</th>
+              {{/gradesyncenabled}}
               <th scope="col">{{#str}}absent, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}waitingSignature, mod_edusign{{/str}}</th>
               <th scope="col">{{#str}}delay, mod_edusign{{/str}}</th>
@@ -105,6 +119,9 @@
                 <td><strong>{{attendanceLabel}}</strong></td>
                 <td>{{present}} / {{expected}}</td>
                 <td>{{justified}}</td>
+                {{#gradesyncenabled}}
+                  <td><strong>{{attendancegradeLabel}}</strong><div class="text-muted text-small">{{attendancegraderaw}}</div></td>
+                {{/gradesyncenabled}}
                 <td>{{absent}}</td>
                 <td>{{pending}}</td>
                 <td>{{late}}</td>

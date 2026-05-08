@@ -38,6 +38,7 @@ require_once($CFG->libdir . '/filelib.php');
 require($CFG->dirroot . '/mod/edusign/classes/commons/EdusignApi.php');
 
 require(__DIR__ . '/locallib.php');
+require_once(__DIR__ . '/lib.php');
 
 /**
  * Class mod_edusign_external
@@ -133,6 +134,13 @@ class mod_edusign_external extends external_api
             default:
                 throw new Exception('Method not found');
         }
+
+        if (in_array($method, ['set_student_absent', 'set_student_delay', 'set_student_early_departure'], true)) {
+            $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
+            $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+            edusign_maybe_update_attendance_grades($edusign);
+        }
+
         return [
             'result' => $cr,
             'error' => '',
@@ -484,6 +492,8 @@ class mod_edusign_external extends external_api
         if ($completion->is_enabled($cm)) {
             $completion->update_state($cm, COMPLETION_UNKNOWN);
         }
+        $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+        edusign_maybe_update_attendance_grades($edusign);
 
         return [
             'result' => true,

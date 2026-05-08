@@ -713,6 +713,10 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         }
     }
 
+    if (function_exists('edusign_maybe_update_attendance_grades')) {
+        edusign_maybe_update_attendance_grades($edusign);
+    }
+
     return $DB->get_record('edusign_sessions', ['id' => $cr]);
 }
 
@@ -749,6 +753,10 @@ function update_session($context, stdClass $cm, $session, array $data, $processC
             }
         }
     }
+    $edusign = $DB->get_record('edusign', ['id' => $cm->instance]);
+    if (function_exists('edusign_maybe_update_attendance_grades')) {
+        edusign_maybe_update_attendance_grades($edusign);
+    }
     return $session;
 }
 
@@ -783,6 +791,90 @@ function add_edusign_sessions_infos($sessions)
     return array_map(function ($session) {
         return add_edusign_session_infos($session);
     }, $sessions);
+}
+
+function edusign_attendance_status(stdClass $student): string
+{
+    if (!empty($student->signature)) {
+        return 'present';
+    }
+    if (!empty($student->comment) && trim($student->comment) !== '') {
+        return 'justified';
+    }
+    if (!empty($student->signatureEmail)) {
+        return 'pending';
+    }
+    return 'absent';
+}
+
+function edusign_attendance_status_counts_towards_grade(string $status): bool
+{
+    return in_array($status, ['present', 'justified'], true);
+}
+
+function edusign_get_attendance_grades(stdClass $cm, stdClass $edusign, int $userid = 0): array
+{
+    global $DB;
+
+    if (empty($edusign->attendancegradeenabled) || (float)$edusign->grade <= 0) {
+        return [];
+    }
+
+    $context = context_module::instance($cm->id);
+    $moodlestudents = getStudentsFromContext($context);
+    $statsbyapiid = [];
+
+    foreach ($moodlestudents as $student) {
+        if ($userid > 0 && (int)$student->id !== $userid) {
+            continue;
+        }
+        if (empty($student->edusign_api_id)) {
+            continue;
+        }
+        $statsbyapiid[$student->edusign_api_id] = [
+            'userid' => (int)$student->id,
+            'expected' => 0,
+            'attended' => 0,
+        ];
+    }
+
+    if (empty($statsbyapiid)) {
+        return [];
+    }
+
+    $sessions = $DB->get_records('edusign_sessions', ['activity_module_id' => $cm->id], 'date_start ASC');
+    foreach ($sessions as $session) {
+        if (empty($session->edusign_api_id)) {
+            continue;
+        }
+
+        $edusigncourse = EdusignApi::getCourseById($session->edusign_api_id);
+        foreach ($edusigncourse->STUDENTS ?? [] as $edusignstudent) {
+            $apiid = $edusignstudent->studentId ?? null;
+            if (empty($apiid) || !isset($statsbyapiid[$apiid])) {
+                continue;
+            }
+
+            $statsbyapiid[$apiid]['expected']++;
+            if (edusign_attendance_status_counts_towards_grade(edusign_attendance_status($edusignstudent))) {
+                $statsbyapiid[$apiid]['attended']++;
+            }
+        }
+    }
+
+    $grades = [];
+    foreach ($statsbyapiid as $stats) {
+        if ($stats['expected'] <= 0) {
+            continue;
+        }
+
+        $grade = new stdClass();
+        $grade->userid = $stats['userid'];
+        $grade->rawgrade = round(($stats['attended'] / $stats['expected']) * (float)$edusign->grade, 5);
+        $grades[$grade->userid] = $grade;
+    }
+
+    return $grades;
 }
 
 function filter_sessions_by_student($sessions, $userId)
