@@ -84,7 +84,7 @@ class AddSessionForm extends moodleform
             return;
         }
 
-        $groupmode = groups_get_activity_groupmode($cm);
+        $groupmode = (int)groups_get_activity_groupmode($cm);
         switch ($groupmode) {
             case NOGROUPS:
                 $mform->addElement(

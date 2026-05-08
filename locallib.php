@@ -80,26 +80,29 @@ function edusign_build_recurring_sessions(stdClass $formdata, string $startDate,
         return $daynumbers[$day];
     }, $selecteddays);
 
+    $timezone = core_date::get_user_timezone_object();
     $interval = max(1, (int)($formdata->repeatevery['repeatinterval'] ?? 1));
-    $repeatuntil = usergetmidnight((int)$formdata->repeatuntil) + DAYSECS - 1;
-    $base = new DateTimeImmutable($startDate);
-    $baseend = new DateTimeImmutable($endDate);
+    $repeatuntil = (new DateTimeImmutable('@' . (int)$formdata->repeatuntil))
+        ->setTimezone($timezone)
+        ->setTime(23, 59, 59);
+    $base = new DateTimeImmutable($startDate, $timezone);
+    $baseend = new DateTimeImmutable($endDate, $timezone);
     $duration = $baseend->getTimestamp() - $base->getTimestamp();
-    $baseweek = usergetmidnight($base->getTimestamp());
+    $baseweek = $base->setTime(0, 0, 0)->modify('monday this week');
     $sessions = [[
         'title' => $formdata->title,
         'startDate' => $startDate,
         'endDate' => $endDate,
     ]];
 
-    for ($current = $base; $current->getTimestamp() <= $repeatuntil; $current = $current->modify('+1 day')) {
+    for ($current = $base; $current <= $repeatuntil; $current = $current->modify('+1 day')) {
         $daynumber = (int)$current->format('N');
         if (!in_array($daynumber, $selecteddaynumbers, true)) {
             continue;
         }
 
-        $currentmidnight = usergetmidnight($current->getTimestamp());
-        $weekdiff = (int)floor(($currentmidnight - $baseweek) / WEEKSECS);
+        $currentweek = $current->setTime(0, 0, 0)->modify('monday this week');
+        $weekdiff = (int)floor($baseweek->diff($currentweek)->days / 7);
         if ($weekdiff < 0 || $weekdiff % $interval !== 0) {
             continue;
         }
@@ -112,7 +115,7 @@ function edusign_build_recurring_sessions(stdClass $formdata, string $startDate,
         $sessions[] = [
             'title' => $formdata->title,
             'startDate' => $sessionstart,
-            'endDate' => date('Y-m-d H:i:s', strtotime($sessionstart) + $duration),
+            'endDate' => $current->setTimestamp($current->getTimestamp() + $duration)->format('Y-m-d H:i:s'),
         ];
     }
 
