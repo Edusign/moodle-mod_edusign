@@ -39,6 +39,8 @@ $PAGE->force_settings_menu(true);
 $PAGE->set_cacheable(false);
 $PAGE->navbar->add(get_string('report', 'mod_edusign'));
 
+$gradesyncenabled = !empty($edusign->attendancegradeenabled) && (float)$edusign->grade > 0;
+
 function edusign_report_percent(int $part, int $total): int
 {
     if ($total <= 0) {
@@ -49,16 +51,7 @@ function edusign_report_percent(int $part, int $total): int
 
 function edusign_report_status(stdClass $student): string
 {
-    if (!empty($student->signature)) {
-        return 'present';
-    }
-    if (!empty($student->comment) && trim($student->comment) !== '') {
-        return 'justified';
-    }
-    if (!empty($student->signatureEmail)) {
-        return 'pending';
-    }
-    return 'absent';
+    return edusign_attendance_status($student);
 }
 
 function edusign_report_empty_student(string $apiid): stdClass
@@ -76,6 +69,9 @@ function edusign_report_empty_student(string $apiid): stdClass
     $student->earlydeparture = 0;
     $student->attendancepercent = 0;
     $student->attendanceLabel = '0%';
+    $student->attendancegradepercent = 0;
+    $student->attendancegradeLabel = '-';
+    $student->attendancegraderaw = '-';
     $student->lastpresent = get_string('never', 'mod_edusign');
     $student->needsattention = false;
     $student->rowclass = '';
@@ -186,6 +182,18 @@ foreach ($sessions as $session) {
 foreach ($studentsbyapiid as $studentreport) {
     $studentreport->attendancepercent = edusign_report_percent($studentreport->present, $studentreport->expected);
     $studentreport->attendanceLabel = $studentreport->attendancepercent . '%';
+    $studentreport->attendancegradepercent = edusign_report_percent(
+        $studentreport->present + $studentreport->justified,
+        $studentreport->expected
+    );
+    if ($gradesyncenabled && $studentreport->expected > 0) {
+        $studentreport->attendancegradeLabel = $studentreport->attendancegradepercent . '%';
+        $studentreport->attendancegraderaw = format_float(
+            (($studentreport->present + $studentreport->justified) / $studentreport->expected)
+                * (float)$edusign->grade,
+            2
+        ) . ' / ' . format_float((float)$edusign->grade, 2);
+    }
     $studentreport->needsattention = $studentreport->expected > 0 && $studentreport->attendancepercent < 75;
     $studentreport->rowclass = $studentreport->needsattention ? 'table-warning' : '';
     $studentrows[] = $studentreport;
@@ -206,6 +214,10 @@ $reportdata = [
     'title' => get_string('attendanceReport', 'mod_edusign'),
     'summary' => [
         'attendanceLabel' => edusign_report_percent($totals['present'], $totals['expected']) . '%',
+        'attendanceGradeLabel' => edusign_report_percent(
+            $totals['present'] + $totals['justified'],
+            $totals['expected']
+        ) . '%',
         'expected' => $totals['expected'],
         'present' => $totals['present'],
         'justified' => $totals['justified'],
@@ -225,6 +237,7 @@ $reportdata = [
     'errors' => $errors,
     'haserrors' => !empty($errors),
     'manageurl' => (new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]))->out(false),
+    'gradesyncenabled' => $gradesyncenabled,
 ];
 
 echo $OUTPUT->header();
