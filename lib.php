@@ -233,6 +233,36 @@ function edusign_supports($feature)
     }
 }
 
+/**
+ * Adds module specific items to the activity navigation.
+ *
+ * @param settings_navigation $settingsnav The settings navigation object.
+ * @param navigation_node $edusignnode The node to add module settings to.
+ */
+function edusign_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $edusignnode)
+{
+    $page = $settingsnav->get_page();
+    if (empty($page->cm)) {
+        return;
+    }
+
+    $context = $page->cm->context;
+    if (!has_any_capability([
+        'mod/edusign:takeattendances',
+        'mod/edusign:changeattendances',
+        'mod/edusign:manageattendances',
+    ], $context)) {
+        return;
+    }
+
+    $reportnode = navigation_node::create(
+        get_string('report', 'mod_edusign'),
+        new moodle_url('/mod/edusign/report.php', ['id' => $page->cm->id]),
+        navigation_node::TYPE_SETTING
+    );
+    $edusignnode->add_node($reportnode);
+}
+
 
 
 /**

@@ -119,6 +119,36 @@ input[type="submit"].is-loading {
     pointer-events: none;
 }
 
+.edusign-report-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 0.75rem;
+}
+
+.edusign-report-card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    background: #fff;
+}
+
+.edusign-report-card--primary {
+    border-color: #0f6cbf;
+}
+
+.edusign-report-card__label,
+.edusign-report-card__meta {
+    display: block;
+    color: #6c757d;
+}
+
+.edusign-report-card__value {
+    display: block;
+    margin: 0.25rem 0;
+    font-size: 1.8rem;
+    line-height: 1.1;
+}
+
 #import-csv-save .spinner-border {
     display: none;
 }
