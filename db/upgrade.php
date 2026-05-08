@@ -122,5 +122,36 @@ function xmldb_edusign_upgrade($oldversion=0) {
         upgrade_mod_savepoint(true, 2026050702, 'edusign');
     }
 
+    if ($oldversion < 2026050703) {
+        $table = new xmldb_table('edusign_session_groups');
+        if (!$dbman->table_exists($table)) {
+            $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+            $table->add_field('sessionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            $table->add_field('groupid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+            $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+            $table->add_key('fk_session', XMLDB_KEY_FOREIGN, ['sessionid'], 'edusign_sessions', ['id']);
+            $table->add_key('fk_group', XMLDB_KEY_FOREIGN, ['groupid'], 'groups', ['id']);
+            $table->add_index('unq_session_group', XMLDB_INDEX_UNIQUE, ['sessionid', 'groupid']);
+
+            $dbman->create_table($table);
+        }
+
+        $sessions = $DB->get_records_select('edusign_sessions', 'groupid > 0', [], '', 'id, groupid');
+        foreach ($sessions as $session) {
+            if (!$DB->record_exists('edusign_session_groups', [
+                'sessionid' => $session->id,
+                'groupid' => $session->groupid,
+            ])) {
+                $DB->insert_record('edusign_session_groups', [
+                    'sessionid' => $session->id,
+                    'groupid' => $session->groupid,
+                ]);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2026050703, 'edusign');
+    }
+
     return true;
 }

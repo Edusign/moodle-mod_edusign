@@ -112,10 +112,8 @@ if ($fromForm = $mform->get_data()) {
             $groupids = edusign_get_session_groupids($fromForm);
             $created = [];
             foreach ($sessions as $sessiondata) {
-                foreach ($groupids as $groupid) {
-                    $sessiondata['groupid'] = $groupid;
-                    $created[] = create_session($context, $cm, $sessiondata, $forceSync, $processcompletion);
-                }
+                $sessiondata['groupids'] = $groupids;
+                $created[] = create_session($context, $cm, $sessiondata, $forceSync, $processcompletion);
             }
             if (!empty($created)) {
                 \core\notification::success(get_string('sessions_created_success', 'mod_edusign', count($created)));

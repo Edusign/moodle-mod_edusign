@@ -7,17 +7,14 @@
 
 require(__DIR__ . '/../../config.php');
 require_once($CFG->dirroot . '/group/lib.php');
+require_once(__DIR__ . '/locallib.php');
 
 function formatSessions($sessions) {
     foreach($sessions as $session) {
         $session->date = strtotime($session->date_start);
         $session->time_start = date('H:i', strtotime($session->date_start));
         $session->time_end = date('H:i', strtotime($session->date_end));
-        if (empty($session->groupid)) {
-            $session->groupname = get_string('commonsession', 'mod_edusign');
-        } else {
-            $session->groupname = groups_get_group_name($session->groupid) ?: get_string('groupsession', 'mod_edusign');
-        }
+        $session->groupname = edusign_get_session_group_label($session);
         
     }
     return array_values($sessions);
