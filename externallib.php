@@ -369,15 +369,27 @@ class mod_edusign_external extends external_api
         global $DB;
 
         try {
-            $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
+            $params = self::validate_parameters(self::get_qr_code_link_from_course_parameters(), [
+                'sessionId' => $sessionId,
+                'professorId' => $professorId,
+            ]);
+            $session = $DB->get_record('edusign_sessions', ['id' => $params['sessionId']], '*', MUST_EXIST);
+            $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
+            $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+            $context = context_module::instance($cm->id);
+
+            require_login($course, true, $cm);
+            self::validate_context($context);
+            require_capability('mod/edusign:takeattendances', $context);
+
             if (empty($session) || empty($session->edusign_api_id)) {
                 throw new moodle_exception('qr_code_course_not_linked', 'mod_edusign');
             }
-            if (empty($professorId)) {
+            if (empty($params['professorId'])) {
                 throw new moodle_exception('qr_code_professor_not_linked', 'mod_edusign');
             }
 
-            $qrCodeLink = EdusignApi::getQRCodeLink($session->edusign_api_id, $professorId);
+            $qrCodeLink = EdusignApi::getQRCodeLink($session->edusign_api_id, $params['professorId']);
 
             return [
                 'result' => $qrCodeLink,

@@ -64,7 +64,7 @@ class AddSessionForm extends moodleform
                 $mform->createElement('select', 'repeatinterval', '', $repeatoptions),
                 $mform->createElement('static', 'repeatintervalunit', '', get_string('weeks', 'edusign')),
             ];
-            $mform->addGroup($repeatgroup, 'repeatevery', get_string('repeatevery', 'edusign'), [' '], false);
+            $mform->addGroup($repeatgroup, 'repeatevery', get_string('repeatevery', 'edusign'), [' '], true);
             $mform->setDefault('repeatevery[repeatinterval]', 1);
             $mform->disabledIf('repeatevery', 'repeatsessions', 'notchecked');
 
