@@ -58,8 +58,17 @@ $PAGE->set_title($course->shortname . ": " . $att->name);
 $PAGE->set_heading($course->fullname);
 $PAGE->force_settings_menu(true);
 $PAGE->set_cacheable(true);
+$PAGE->requires->js_call_amd('mod_edusign/pages/sessions', 'init', [
+    'editing' => !empty($session),
+]);
 
-$mform = new AddSessionForm($url, ['id' => $cmId]);
+$mform = new AddSessionForm($url, [
+    'id' => $cmId,
+    'editing' => !empty($session),
+    'course' => $course,
+    'cm' => $cm,
+    'modcontext' => $context,
+]);
 
 if ($session) {
     $mform->set_data([
@@ -99,13 +108,15 @@ if ($fromForm = $mform->get_data()) {
         }
     } else {
         try {
-            $cr = create_session($context, $cm, [
-                'title' => $fromForm->title,
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-            ], $forceSync, $processcompletion);
-            if ($cr) {
-                \core\notification::success(get_string('session_created_success', 'mod_edusign'));
+            $sessions = edusign_build_recurring_sessions($fromForm, $startDate, $endDate);
+            $groupids = edusign_get_session_groupids($fromForm);
+            $created = [];
+            foreach ($sessions as $sessiondata) {
+                $sessiondata['groupids'] = $groupids;
+                $created[] = create_session($context, $cm, $sessiondata, $forceSync, $processcompletion);
+            }
+            if (!empty($created)) {
+                \core\notification::success(get_string('sessions_created_success', 'mod_edusign', count($created)));
                 redirect(new moodle_url('/mod/edusign/manage.php', ['id' => $cm->id]));
             }
         } catch (Exception $e) {

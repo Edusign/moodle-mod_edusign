@@ -224,6 +224,9 @@ function edusign_delete_instance($id)
 function edusign_supports($feature)
 {
     switch ($feature) {
+        case FEATURE_GROUPS:
+        case FEATURE_GROUPINGS:
+            return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return false;
         case FEATURE_COMPLETION_HAS_RULES:
@@ -231,6 +234,39 @@ function edusign_supports($feature)
         default:
             return null;
     }
+}
+
+/**
+ * Adds module specific items to the activity navigation.
+ *
+ * @param settings_navigation $settingsnav The settings navigation object.
+ * @param navigation_node $edusignnode The node to add module settings to.
+ */
+function edusign_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $edusignnode)
+{
+    $page = $settingsnav->get_page();
+    $cm = $page->cm;
+    if (!$cm) {
+        return;
+    }
+
+    $context = context_module::instance($cm->id);
+    if (!has_any_capability([
+        'mod/edusign:takeattendances',
+        'mod/edusign:changeattendances',
+        'mod/edusign:manageattendances',
+    ], $context)) {
+        return;
+    }
+
+    $reportnode = navigation_node::create(
+        get_string('report', 'mod_edusign'),
+        new moodle_url('/mod/edusign/report.php', ['id' => $cm->id]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'edusignreport'
+    );
+    $edusignnode->add_node($reportnode, 'modedit');
 }
 
 

@@ -1,0 +1,163 @@
+<main class="edusign-report">
+  <div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+      <h2 class="mb-1">{{title}}</h2>
+      <p class="text-muted mb-0">{{#str}}attendanceReportIntro, mod_edusign{{/str}}</p>
+    </div>
+    <a href="{{manageurl}}" class="btn btn-secondary">{{#str}}currentSessions, mod_edusign{{/str}}</a>
+  </div>
+
+  {{#haserrors}}
+    <div class="alert alert-warning" role="alert">
+      <strong>{{#str}}reportPartialData, mod_edusign{{/str}}</strong>
+      <ul class="mb-0 mt-2">
+        {{#errors}}
+          <li>{{session}}: {{message}}</li>
+        {{/errors}}
+      </ul>
+    </div>
+  {{/haserrors}}
+
+  <section class="edusign-report-summary mb-4" aria-label="{{#str}}reportSummary, mod_edusign{{/str}}">
+    <div class="edusign-report-card edusign-report-card--primary">
+      <span class="edusign-report-card__label">{{#str}}attendanceRate, mod_edusign{{/str}}</span>
+      <strong class="edusign-report-card__value">{{summary.attendanceLabel}}</strong>
+      <span class="edusign-report-card__meta">{{summary.present}} / {{summary.expected}} {{#str}}expectedSignatures, mod_edusign{{/str}}</span>
+    </div>
+    <div class="edusign-report-card">
+      <span class="edusign-report-card__label">{{#str}}students, core{{/str}}</span>
+      <strong class="edusign-report-card__value">{{summary.students}}</strong>
+      <span class="edusign-report-card__meta">{{summary.sessions}} {{#str}}sessions, mod_edusign{{/str}}</span>
+    </div>
+    <div class="edusign-report-card">
+      <span class="edusign-report-card__label">{{#str}}justifiedAbsence, mod_edusign{{/str}}</span>
+      <strong class="edusign-report-card__value">{{summary.justified}}</strong>
+      <span class="edusign-report-card__meta">{{summary.absent}} {{#str}}absent, mod_edusign{{/str}}</span>
+    </div>
+    <div class="edusign-report-card">
+      <span class="edusign-report-card__label">{{#str}}waitingSignature, mod_edusign{{/str}}</span>
+      <strong class="edusign-report-card__value">{{summary.pending}}</strong>
+      <span class="edusign-report-card__meta">{{summary.late}} {{#str}}late, mod_edusign{{/str}} / {{summary.earlydeparture}} {{#str}}earlyDeparture, mod_edusign{{/str}}</span>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h3 class="h4 mb-0">{{#str}}needsAttention, mod_edusign{{/str}}</h3>
+      <span class="text-muted">{{#str}}attendanceBelowThreshold, mod_edusign{{/str}}</span>
+    </div>
+    {{#hasattentionrows}}
+      <div class="table-responsive">
+        <table class="table table-sm table-hover">
+          <thead>
+            <tr>
+              <th scope="col">{{#str}}studentName, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}attendanceRate, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}present, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}justifiedAbsence, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}absent, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}waitingSignature, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}lastPresent, mod_edusign{{/str}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#attentionrows}}
+              <tr>
+                <th scope="row">{{name}}<div class="text-muted text-small">{{email}}</div></th>
+                <td><strong>{{attendanceLabel}}</strong></td>
+                <td>{{present}} / {{expected}}</td>
+                <td>{{justified}}</td>
+                <td>{{absent}}</td>
+                <td>{{pending}}</td>
+                <td>{{lastpresent}}</td>
+              </tr>
+            {{/attentionrows}}
+          </tbody>
+        </table>
+      </div>
+    {{/hasattentionrows}}
+    {{^hasattentionrows}}
+      <div class="alert alert-success mb-0">{{#str}}noStudentsNeedAttention, mod_edusign{{/str}}</div>
+    {{/hasattentionrows}}
+  </section>
+
+  <section class="mb-5">
+    <h3 class="h4">{{#str}}studentSummary, mod_edusign{{/str}}</h3>
+    {{#hasstudentrows}}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th scope="col">{{#str}}studentName, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}attendanceRate, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}present, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}justifiedAbsence, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}absent, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}waitingSignature, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}delay, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}earlyDeparture, mod_edusign{{/str}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#studentrows}}
+              <tr class="{{rowclass}}">
+                <th scope="row">{{name}}<div class="text-muted text-small">{{email}}</div></th>
+                <td><strong>{{attendanceLabel}}</strong></td>
+                <td>{{present}} / {{expected}}</td>
+                <td>{{justified}}</td>
+                <td>{{absent}}</td>
+                <td>{{pending}}</td>
+                <td>{{late}}</td>
+                <td>{{earlydeparture}}</td>
+              </tr>
+            {{/studentrows}}
+          </tbody>
+        </table>
+      </div>
+    {{/hasstudentrows}}
+    {{^hasstudentrows}}
+      <div class="alert alert-info">{{#str}}noReportData, mod_edusign{{/str}}</div>
+    {{/hasstudentrows}}
+  </section>
+
+  <section>
+    <h3 class="h4">{{#str}}sessionSummary, mod_edusign{{/str}}</h3>
+    {{#hassessionrows}}
+      <div class="table-responsive">
+        <table class="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th scope="col">{{#str}}session, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}date, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}sessiontype, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}attendanceRate, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}present, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}justifiedAbsence, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}absent, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}waitingSignature, mod_edusign{{/str}}</th>
+              <th scope="col">{{#str}}action, mod_edusign{{/str}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#sessionrows}}
+              <tr class="{{rowclass}}">
+                <th scope="row">{{title}}{{#haserror}}<div class="text-danger text-small">{{error}}</div>{{/haserror}}</th>
+                <td>{{date}}</td>
+                <td>{{groupname}}</td>
+                <td><strong>{{attendanceLabel}}</strong></td>
+                <td>{{present}} / {{expected}}</td>
+                <td>{{justified}}</td>
+                <td>{{absent}}</td>
+                <td>{{pending}}</td>
+                <td><a href="{{takeurl}}" class="btn btn-sm btn-secondary">{{#str}}takeAttendance, mod_edusign{{/str}}</a></td>
+              </tr>
+            {{/sessionrows}}
+          </tbody>
+        </table>
+      </div>
+    {{/hassessionrows}}
+    {{^hassessionrows}}
+      <div class="alert alert-info">{{#str}}noReportData, mod_edusign{{/str}}</div>
+    {{/hassessionrows}}
+  </section>
+</main>

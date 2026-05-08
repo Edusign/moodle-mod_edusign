@@ -178,6 +178,11 @@ class EdusignApi extends ApiCaller{
         }
         return [];
     }
+
+    public static function getQRCodeLink(string $courseId, string $professorId, array $baseEvent = []) : string | null {
+        $cr = self::tryRequestWithEvent('GET', '/v1/course/get-qr-code/'.$courseId.'/'.$professorId, [], [], $baseEvent);
+        return !empty($cr->result->url) ? $cr->result->url : null;
+    }
     
     public static function deleteCourse(string $courseId, array $baseEvent = []) : bool {
         $cr = self::tryRequestWithEvent('DELETE', '/v1/course/'.$courseId, [], [], $baseEvent);

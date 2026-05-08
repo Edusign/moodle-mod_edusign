@@ -6,12 +6,15 @@
  */
 
 require(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/group/lib.php');
+require_once(__DIR__ . '/locallib.php');
 
 function formatSessions($sessions) {
     foreach($sessions as $session) {
         $session->date = strtotime($session->date_start);
         $session->time_start = date('H:i', strtotime($session->date_start));
         $session->time_end = date('H:i', strtotime($session->date_end));
+        $session->groupname = edusign_get_session_group_label($session);
         
     }
     return array_values($sessions);

@@ -3,7 +3,11 @@
 use mod_edusign\classes\commons\EdusignApi;
 
 require_once(__DIR__ . '/classes/commons/EdusignApi.php');
+require_once($CFG->dirroot . '/group/lib.php');
 require_once("{$CFG->libdir}/completionlib.php"); //require missing?
+
+defined('EDUSIGN_SESSION_COMMON') || define('EDUSIGN_SESSION_COMMON', 0);
+defined('EDUSIGN_SESSION_GROUP') || define('EDUSIGN_SESSION_GROUP', 1);
 
 /**
  * Helper function to add sessiondate_selector to add/update forms.
@@ -45,6 +49,166 @@ function edusign_form_sessiondate_selector(MoodleQuickForm $mform)
     $mform->setDefault('sestime[startminute]', 0);
     $mform->setDefault('sestime[endhour]', 17);
     $mform->setDefault('sestime[endminute]', 0);
+}
+
+function edusign_build_recurring_sessions(stdClass $formdata, string $startDate, string $endDate): array
+{
+    if (empty($formdata->repeatsessions)) {
+        return [[
+            'title' => $formdata->title,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ]];
+    }
+
+    $selecteddays = edusign_get_selected_repeat_days($formdata);
+    if (empty($selecteddays)) {
+        throw new invalid_parameter_exception(get_string('errorrepeatdaysrequired', 'mod_edusign'));
+    }
+
+    $daynumbers = [
+        'monday' => 1,
+        'tuesday' => 2,
+        'wednesday' => 3,
+        'thursday' => 4,
+        'friday' => 5,
+        'saturday' => 6,
+        'sunday' => 7,
+    ];
+
+    $selecteddaynumbers = array_map(function ($day) use ($daynumbers) {
+        return $daynumbers[$day];
+    }, $selecteddays);
+
+    $timezone = core_date::get_user_timezone_object();
+    $interval = max(1, (int)($formdata->repeatevery['repeatinterval'] ?? 1));
+    $repeatuntil = (new DateTimeImmutable('@' . (int)$formdata->repeatuntil))
+        ->setTimezone($timezone)
+        ->setTime(23, 59, 59);
+    $base = new DateTimeImmutable($startDate, $timezone);
+    $baseend = new DateTimeImmutable($endDate, $timezone);
+    $duration = $baseend->getTimestamp() - $base->getTimestamp();
+    $baseweek = $base->setTime(0, 0, 0)->modify('monday this week');
+    $sessions = [[
+        'title' => $formdata->title,
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+    ]];
+
+    for ($current = $base; $current <= $repeatuntil; $current = $current->modify('+1 day')) {
+        $daynumber = (int)$current->format('N');
+        if (!in_array($daynumber, $selecteddaynumbers, true)) {
+            continue;
+        }
+
+        $currentweek = $current->setTime(0, 0, 0)->modify('monday this week');
+        $weekdiff = (int)floor($baseweek->diff($currentweek)->days / 7);
+        if ($weekdiff < 0 || $weekdiff % $interval !== 0) {
+            continue;
+        }
+
+        $sessionstart = $current->format('Y-m-d H:i:s');
+        if (strtotime($sessionstart) <= strtotime($startDate)) {
+            continue;
+        }
+
+        $sessions[] = [
+            'title' => $formdata->title,
+            'startDate' => $sessionstart,
+            'endDate' => $current->setTimestamp($current->getTimestamp() + $duration)->format('Y-m-d H:i:s'),
+        ];
+    }
+
+    return $sessions;
+}
+
+function edusign_get_selected_repeat_days($formdata): array
+{
+    $data = (array)$formdata;
+    $repeatdays = (array)($data['repeatdays'] ?? []);
+    $weekdays = [
+        'monday',
+        'tuesday',
+        'wednesday',
+        'thursday',
+        'friday',
+        'saturday',
+        'sunday',
+    ];
+
+    return array_values(array_filter($weekdays, function ($day) use ($data, $repeatdays) {
+        return !empty($repeatdays[$day]) || !empty($data[$day]);
+    }));
+}
+
+function edusign_get_session_groupids(stdClass $formdata): array
+{
+    if (($formdata->sessiontype ?? EDUSIGN_SESSION_COMMON) != EDUSIGN_SESSION_GROUP) {
+        return [0];
+    }
+
+    $groups = array_filter(array_map('intval', (array)($formdata->groups ?? [])));
+    if (empty($groups)) {
+        throw new invalid_parameter_exception(get_string('errorgroupsnotselected', 'mod_edusign'));
+    }
+
+    return array_values($groups);
+}
+
+function edusign_normalize_groupids($groupids): array
+{
+    $groupids = array_filter(array_map('intval', (array)$groupids));
+    $groupids = array_values(array_unique($groupids));
+    sort($groupids);
+
+    return $groupids;
+}
+
+function edusign_get_session_groupids_from_session(stdClass $session): array
+{
+    global $DB;
+
+    if (!empty($session->id) && $DB->get_manager()->table_exists('edusign_session_groups')) {
+        $records = $DB->get_records('edusign_session_groups', ['sessionid' => $session->id], 'groupid ASC');
+        if (!empty($records)) {
+            return array_values(array_map(function ($record) {
+                return (int)$record->groupid;
+            }, $records));
+        }
+    }
+
+    return empty($session->groupid) ? [] : [(int)$session->groupid];
+}
+
+function edusign_set_session_groupids(int $sessionid, array $groupids): void
+{
+    global $DB;
+
+    if (!$DB->get_manager()->table_exists('edusign_session_groups')) {
+        return;
+    }
+
+    $DB->delete_records('edusign_session_groups', ['sessionid' => $sessionid]);
+    foreach (edusign_normalize_groupids($groupids) as $groupid) {
+        $DB->insert_record('edusign_session_groups', [
+            'sessionid' => $sessionid,
+            'groupid' => $groupid,
+        ]);
+    }
+}
+
+function edusign_get_session_group_label(stdClass $session): string
+{
+    $groupids = edusign_get_session_groupids_from_session($session);
+    if (empty($groupids)) {
+        return get_string('commonsession', 'mod_edusign');
+    }
+
+    $groupnames = array_filter(array_map(function ($groupid) {
+        return groups_get_group_name($groupid);
+    }, $groupids));
+
+    return empty($groupnames) ? get_string('groupsession', 'mod_edusign') : implode(', ', $groupnames);
 }
 
 function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
@@ -140,11 +304,23 @@ function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEv
     }
 }
 
-function getStudentsFromContext($context)
+function getStudentsFromContext($context, $groupids = 0)
 {
     global $DB;
     $studentRole = $DB->get_record_sql('SELECT id FROM {role} WHERE shortname = "student"');
     $students = get_role_users($studentRole->id, $context, '*');
+    $groupids = edusign_normalize_groupids($groupids);
+
+    if (!empty($groupids)) {
+        $students = array_filter($students, function ($student) use ($groupids) {
+            foreach ($groupids as $groupid) {
+                if (groups_is_member($groupid, $student->id)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
 
     if (empty($students)) {
         return [];
@@ -419,12 +595,12 @@ function syncTeachersToApi(array $teachers, $context, $withVerification = false)
     return $teachers;
 }
 
-function syncStudentsToApiFromContext($context, $withVerification = false)
+function syncStudentsToApiFromContext($context, $withVerification = false, $groupids = 0)
 {
     // Récupération des étudiants à synchroniser sur edusign
-    $students = getStudentsFromContext($context);
+    $students = getStudentsFromContext($context, $groupids);
     syncStudentsToApi($students, $context, $withVerification);
-    return getStudentsFromContext($context);
+    return getStudentsFromContext($context, $groupids);
 }
 
 function syncTeachersToApiFromContext($context, $withVerification = false)
@@ -543,9 +719,11 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
     global $DB;
     $edusign = reset($DB->get_records('edusign', ['id' => $cm->instance]));
     $course       = $DB->get_record('course', array('id' => $cm->course), '*');
+    $groupids = edusign_normalize_groupids($data['groupids'] ?? ($data['groupid'] ?? 0));
+    $groupid = count($groupids) === 1 ? reset($groupids) : 0;
     
     // Synchronisation et récupération des étudiants liés au module d'activité
-    $students = syncStudentsToApiFromContext($context, $forceSync);
+    $students = syncStudentsToApiFromContext($context, $forceSync, $groupids);
     $teachers = syncTeachersToApiFromContext($context, $forceSync);
     
     // Create course to edusign api with students edusign api ids
@@ -586,7 +764,9 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         'date_start' => $data['startDate'],
         'date_end' => $data['endDate'],
         'title' => $data['title'],
+        'groupid' => $groupid,
     ]);
+    edusign_set_session_groupids($cr, $groupids);
 
 
     // Update completion state

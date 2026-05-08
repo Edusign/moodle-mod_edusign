@@ -358,6 +358,78 @@ class mod_edusign_external extends external_api
     }
 
     /**
+     * Get the iframe link to display the dynamic QR code for a course.
+     *
+     * @param int $sessionId
+     * @param string $professorId
+     * @return array
+     */
+    public static function get_qr_code_link_from_course(int $sessionId, string $professorId)
+    {
+        global $DB;
+
+        try {
+            $params = self::validate_parameters(self::get_qr_code_link_from_course_parameters(), [
+                'sessionId' => $sessionId,
+                'professorId' => $professorId,
+            ]);
+            $session = $DB->get_record('edusign_sessions', ['id' => $params['sessionId']], '*', MUST_EXIST);
+            $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
+            $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+            $context = context_module::instance($cm->id);
+
+            require_login($course, true, $cm);
+            self::validate_context($context);
+            require_capability('mod/edusign:takeattendances', $context);
+
+            if (empty($session) || empty($session->edusign_api_id)) {
+                throw new moodle_exception('qr_code_course_not_linked', 'mod_edusign');
+            }
+            if (empty($params['professorId'])) {
+                throw new moodle_exception('qr_code_professor_not_linked', 'mod_edusign');
+            }
+
+            $qrCodeLink = EdusignApi::getQRCodeLink($session->edusign_api_id, $params['professorId']);
+
+            return [
+                'result' => $qrCodeLink,
+                'error' => '',
+            ];
+        } catch (\Exception $e) {
+            return [
+                'result' => null,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Describes get_qr_code_link_from_course return values.
+     *
+     * @return external_single_structure
+     */
+    public static function get_qr_code_link_from_course_returns()
+    {
+        return new external_single_structure([
+            'result' => new external_value(PARAM_URL, 'Course QR code iframe link', VALUE_OPTIONAL, null, NULL_ALLOWED),
+            'error' => new external_value(PARAM_TEXT, 'Error message if the request failed'),
+        ]);
+    }
+
+    /**
+     * Describes the parameters for get_qr_code_link_from_course.
+     *
+     * @return external_function_parameters
+     */
+    public static function get_qr_code_link_from_course_parameters()
+    {
+        return new external_function_parameters([
+            'sessionId' => new external_value(PARAM_INT, 'Session Id'),
+            'professorId' => new external_value(PARAM_TEXT, 'Edusign Professor ID'),
+        ]);
+    }
+
+    /**
      * Remove session from edusign and moodle
      *
      * @param int $sessionId session id

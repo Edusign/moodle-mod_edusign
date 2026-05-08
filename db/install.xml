@@ -36,11 +36,27 @@
         <FIELD NAME="date_start" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="start time of attendance sheet/session"/>
         <FIELD NAME="date_end" TYPE="datetime" NOTNULL="true" SEQUENCE="false" COMMENT="end time of attendance sheet/session"/>
         <FIELD NAME="archived" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Define if the session is archived or not"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Group ID associated with session"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for edusign_sessions"/>
         <KEY NAME="fk_edusign_sessions_activity_module_id" TYPE="foreign" FIELDS="activity_module_id" REFTABLE="edusign" REFFIELDS="id"/>
       </KEYS>
+    </TABLE>
+    <TABLE NAME="edusign_session_groups" COMMENT="Groups associated with an Edusign session">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of edusign_sessions"/>
+        <FIELD NAME="groupid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="id of Moodle group"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fk_session" TYPE="foreign" FIELDS="sessionid" REFTABLE="edusign_sessions" REFFIELDS="id"/>
+        <KEY NAME="fk_group" TYPE="foreign" FIELDS="groupid" REFTABLE="groups" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="unq_session_group" UNIQUE="true" FIELDS="sessionid,groupid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="course_edusign_api" COMMENT="Edusign session table">
       <FIELDS>
