@@ -258,9 +258,11 @@ function edusign_extend_settings_navigation(settings_navigation $settingsnav, na
     $reportnode = navigation_node::create(
         get_string('report', 'mod_edusign'),
         new moodle_url('/mod/edusign/report.php', ['id' => $page->cm->id]),
-        navigation_node::TYPE_SETTING
+        navigation_node::TYPE_SETTING,
+        null,
+        'edusignreport'
     );
-    $edusignnode->add_node($reportnode);
+    $edusignnode->add_node($reportnode, 'filtermanage');
 }
 
 
