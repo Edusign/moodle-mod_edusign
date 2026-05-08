@@ -239,6 +239,8 @@ function edusign_supports($feature)
 {
     switch ($feature) {
         case FEATURE_GRADE_HAS_GRADE:
+        case FEATURE_GROUPS:
+        case FEATURE_GROUPINGS:
             return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return false;
