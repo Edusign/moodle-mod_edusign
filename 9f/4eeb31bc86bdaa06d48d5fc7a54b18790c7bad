@@ -1,0 +1,23 @@
+externallib.php
+  s_9953ec959d0fb3::t_914b730ae8a209 438-441,447
+report.php
+  s_9953ec959d0fb3::t_b96e94beac0a73 194-195
+templates/report.mustache
+  s_9953ec959d0fb3::t_914b730ae8a209 37-43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "9f4eeb31bc86bdaa06d48d5fc7a54b18790c7bad",
+  "prompts": {},
+  "sessions": {
+    "s_9953ec959d0fb3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e06fe-b5ef-77a3-b1e5-f175fcec4f5d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "DrMachiavel <DrMachiavel@users.noreply.github.com>"
+    }
+  }
+}
