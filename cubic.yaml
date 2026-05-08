@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://cubic.dev/schema/cubic-repository-config.schema.json
+
+version: 1
+reviews:
+  enabled: true
+  sensitivity: medium
+  incremental_commits: true
+  check_drafts: false
+  resolve_threads_when_addressed: true
+  custom_instructions: |
+    Review this repository as a Moodle activity module.
+    Pay particular attention to capability checks, sesskey/CSRF validation,
+    safe use of Moodle DML APIs, user input validation, webhook handling,
+    and keeping generated AMD build files aligned with source changes.
+  ignore:
+    files:
+      - amd/build/**
+      - node_modules/**
+      - vendor/**
+
+pr_descriptions:
+  generate: true
