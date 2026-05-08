@@ -87,6 +87,9 @@ function edusign_add_instance($edusign)
     if (!isset($edusign->grade)) {
         $edusign->grade = 100;
     }
+    if ((float)$edusign->grade <= 0) {
+        $edusign->attendancegradeenabled = 0;
+    }
 
     if ($edusign->complete_mode) {
         $edusign->completeonxattendancesigned = $edusign->completeonxattendancesigned ?: 0;
@@ -129,6 +132,9 @@ function edusign_update_instance($edusign)
     $edusign->timemodified = time();
     $edusign->id = $edusign->instance;
     $edusign->attendancegradeenabled = empty($edusign->attendancegradeenabled) ? 0 : 1;
+    if ((float)$edusign->grade <= 0) {
+        $edusign->attendancegradeenabled = 0;
+    }
     
     if ($edusign->complete_mode) {
         $edusign->completeonxattendancesigned = $edusign->completeonxattendancesigned ?: 0;
@@ -146,8 +152,11 @@ function edusign_update_instance($edusign)
         return false;
     }
 
-    edusign_grade_item_update($edusign);
-    edusign_maybe_update_attendance_grades($edusign);
+    if (!empty($edusign->attendancegradeenabled)) {
+        edusign_maybe_update_attendance_grades($edusign);
+    } else {
+        edusign_grade_item_update($edusign);
+    }
     
     return true;
 }
@@ -256,8 +265,16 @@ function edusign_update_grades($edusign, $userid = 0, $nullifnone = true)
 
     $cm = get_coursemodule_from_instance('edusign', $edusign->id, $edusign->course, false, MUST_EXIST);
     $grades = edusign_get_attendance_grades($cm, $edusign, $userid);
-    if (empty($grades) && !$nullifnone) {
-        return edusign_grade_item_update($edusign);
+    if (empty($grades)) {
+        if ($userid > 0 && $nullifnone) {
+            $grade = new stdClass();
+            $grade->userid = $userid;
+            $grade->rawgrade = null;
+            return edusign_grade_item_update($edusign, $grade);
+        }
+        if (!$nullifnone) {
+            return edusign_grade_item_update($edusign);
+        }
     }
 
     return edusign_grade_item_update($edusign, $grades);

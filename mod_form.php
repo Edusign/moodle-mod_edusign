@@ -226,6 +226,9 @@ class mod_edusign_mod_form extends moodleform_mod
         if ($startDate >= $endDate) {
             $errors['date_end'] = get_string('errorstartdatebeforeenddate', 'edusign');
         }
+        if (!empty($data['attendancegradeenabled']) && (empty($data['grade']) || (float)$data['grade'] <= 0)) {
+            $errors['attendancegradeenabled'] = get_string('attendancegradeenabled_requires_grade', 'edusign');
+        }
         return $errors;
     }
 }

@@ -109,7 +109,7 @@ class mod_edusign_external extends external_api
     public static function take_attendance(int $cmId, int $sessionId, string $method, string $studentsId, string $JSONArgs = '{}')
     {
         global $DB;
-        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
+        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId], '*', MUST_EXIST);
         $args = [];
 
         try {
@@ -136,7 +136,7 @@ class mod_edusign_external extends external_api
         }
 
         if (in_array($method, ['set_student_absent', 'set_student_delay', 'set_student_early_departure'], true)) {
-            $cm = get_coursemodule_from_id('edusign', $cmId, 0, false, MUST_EXIST);
+            $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
             $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
             edusign_maybe_update_attendance_grades($edusign);
         }

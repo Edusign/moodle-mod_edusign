@@ -39,6 +39,7 @@ $string['attendancegradeenabled'] = 'Automatically grade attendance in Moodle';
 $string['attendancegradeenabled_desc'] = 'Use the Edusign attendance rate as this activity grade';
 $string['attendancegradeenabled_help'] = 'When enabled, Edusign updates this activity\'s Moodle grade automatically when attendance changes. Present and justified absences count toward the score. The score uses the maximum grade configured above. To make attendance worth 10% of the course grade, set this activity weight to 10% in the Moodle gradebook.';
 $string['attendancegradeenabled_info'] = 'When enabled, Moodle receives an automatic grade for each student: attended sessions divided by expected sessions, using the maximum grade above. Present and justified absences count as attended; absences and pending signatures do not. The final course weighting is controlled in Moodle\'s gradebook, so set this activity weight to 10% there if attendance should represent 10% of the course grade.';
+$string['attendancegradeenabled_requires_grade'] = 'Attendance grading requires a positive numeric activity grade.';
 
 $string['plugin_advanced'] = 'Advanced settings';
 $string['test_api_error'] = 'An error occurred while connecting to the API : {$a}';

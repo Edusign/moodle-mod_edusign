@@ -38,6 +38,7 @@ $string['attendancegradeenabled'] = 'Noter automatiquement l\'assiduité dans Mo
 $string['attendancegradeenabled_desc'] = 'Utiliser le taux d\'assiduité Edusign comme note de cette activité';
 $string['attendancegradeenabled_help'] = 'Lorsque cette option est activée, Edusign met automatiquement à jour la note Moodle de cette activité lorsque les présences changent. Les présences et les absences justifiées comptent dans le score. Le score utilise la note maximale configurée ci-dessus. Pour que l\'assiduité représente 10 % de la note du cours, définissez le poids de cette activité à 10 % dans le carnet de notes Moodle.';
 $string['attendancegradeenabled_info'] = 'Lorsque cette option est activée, Moodle reçoit automatiquement une note pour chaque étudiant : sessions validées divisées par sessions attendues, avec la note maximale ci-dessus. Les présences et les absences justifiées comptent comme validées ; les absences et les signatures en attente ne comptent pas. La pondération finale du cours se règle dans le carnet de notes Moodle : mettez le poids de cette activité à 10 % si l\'assiduité doit représenter 10 % de la note du cours.';
+$string['attendancegradeenabled_requires_grade'] = 'La notation de l\'assiduité nécessite une note numérique positive pour l\'activité.';
 
 $string['plugin_advanced'] = 'Paramètres avancés';
 $string['test_api_error'] = 'Une erreur s\'est produite lors de la connexion à l\'API : {$a}';

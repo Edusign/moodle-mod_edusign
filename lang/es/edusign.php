@@ -39,6 +39,7 @@ $string['attendancegradeenabled'] = 'Calificar automáticamente la asistencia en
 $string['attendancegradeenabled_desc'] = 'Usar la tasa de asistencia de Edusign como nota de esta actividad';
 $string['attendancegradeenabled_help'] = 'Cuando esta opción está activada, Edusign actualiza automáticamente la nota Moodle de esta actividad cuando cambia la asistencia. Las presencias y las ausencias justificadas cuentan para la puntuación. La puntuación usa la nota máxima configurada arriba. Para que la asistencia valga el 10 % de la nota del curso, configure el peso de esta actividad al 10 % en el libro de calificaciones de Moodle.';
 $string['attendancegradeenabled_info'] = 'Cuando esta opción está activada, Moodle recibe automáticamente una nota para cada estudiante: sesiones asistidas divididas por sesiones esperadas, usando la nota máxima de arriba. Las presencias y las ausencias justificadas cuentan como asistencia; las ausencias y las firmas pendientes no cuentan. La ponderación final del curso se controla en el libro de calificaciones de Moodle, así que configure el peso de esta actividad al 10 % allí si la asistencia debe representar el 10 % de la nota del curso.';
+$string['attendancegradeenabled_requires_grade'] = 'La calificación de asistencia requiere una nota numérica positiva para la actividad.';
 
 $string['plugin_advanced'] = 'Configuración avanzada';
 $string['test_api_error'] = 'Se ha producido un error al conectar con la API: {$a}';
