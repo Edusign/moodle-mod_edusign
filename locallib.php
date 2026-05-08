@@ -155,6 +155,62 @@ function edusign_get_session_groupids(stdClass $formdata): array
     return array_values($groups);
 }
 
+function edusign_normalize_groupids($groupids): array
+{
+    $groupids = array_filter(array_map('intval', (array)$groupids));
+    $groupids = array_values(array_unique($groupids));
+    sort($groupids);
+
+    return $groupids;
+}
+
+function edusign_get_session_groupids_from_session(stdClass $session): array
+{
+    global $DB;
+
+    if (!empty($session->id) && $DB->get_manager()->table_exists('edusign_session_groups')) {
+        $records = $DB->get_records('edusign_session_groups', ['sessionid' => $session->id], 'groupid ASC');
+        if (!empty($records)) {
+            return array_values(array_map(function ($record) {
+                return (int)$record->groupid;
+            }, $records));
+        }
+    }
+
+    return empty($session->groupid) ? [] : [(int)$session->groupid];
+}
+
+function edusign_set_session_groupids(int $sessionid, array $groupids): void
+{
+    global $DB;
+
+    if (!$DB->get_manager()->table_exists('edusign_session_groups')) {
+        return;
+    }
+
+    $DB->delete_records('edusign_session_groups', ['sessionid' => $sessionid]);
+    foreach (edusign_normalize_groupids($groupids) as $groupid) {
+        $DB->insert_record('edusign_session_groups', [
+            'sessionid' => $sessionid,
+            'groupid' => $groupid,
+        ]);
+    }
+}
+
+function edusign_get_session_group_label(stdClass $session): string
+{
+    $groupids = edusign_get_session_groupids_from_session($session);
+    if (empty($groupids)) {
+        return get_string('commonsession', 'mod_edusign');
+    }
+
+    $groupnames = array_filter(array_map(function ($groupid) {
+        return groups_get_group_name($groupid);
+    }, $groupids));
+
+    return empty($groupnames) ? get_string('groupsession', 'mod_edusign') : implode(', ', $groupnames);
+}
+
 function isTrainingExistsOnEdusign($trainingId, $baseEvent = [])
 {
     try {
@@ -248,15 +304,21 @@ function updateTrainingFromCourse($courseId, $startDate, $endDate, array $baseEv
     }
 }
 
-function getStudentsFromContext($context, int $groupid = 0)
+function getStudentsFromContext($context, $groupids = 0)
 {
     global $DB;
     $studentRole = $DB->get_record_sql('SELECT id FROM {role} WHERE shortname = "student"');
     $students = get_role_users($studentRole->id, $context, '*');
+    $groupids = edusign_normalize_groupids($groupids);
 
-    if ($groupid > 0) {
-        $students = array_filter($students, function ($student) use ($groupid) {
-            return groups_is_member($groupid, $student->id);
+    if (!empty($groupids)) {
+        $students = array_filter($students, function ($student) use ($groupids) {
+            foreach ($groupids as $groupid) {
+                if (groups_is_member($groupid, $student->id)) {
+                    return true;
+                }
+            }
+            return false;
         });
     }
 
@@ -533,12 +595,12 @@ function syncTeachersToApi(array $teachers, $context, $withVerification = false)
     return $teachers;
 }
 
-function syncStudentsToApiFromContext($context, $withVerification = false, int $groupid = 0)
+function syncStudentsToApiFromContext($context, $withVerification = false, $groupids = 0)
 {
     // Récupération des étudiants à synchroniser sur edusign
-    $students = getStudentsFromContext($context, $groupid);
+    $students = getStudentsFromContext($context, $groupids);
     syncStudentsToApi($students, $context, $withVerification);
-    return getStudentsFromContext($context, $groupid);
+    return getStudentsFromContext($context, $groupids);
 }
 
 function syncTeachersToApiFromContext($context, $withVerification = false)
@@ -657,10 +719,11 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
     global $DB;
     $edusign = reset($DB->get_records('edusign', ['id' => $cm->instance]));
     $course       = $DB->get_record('course', array('id' => $cm->course), '*');
-    $groupid = (int)($data['groupid'] ?? 0);
+    $groupids = edusign_normalize_groupids($data['groupids'] ?? ($data['groupid'] ?? 0));
+    $groupid = count($groupids) === 1 ? reset($groupids) : 0;
     
     // Synchronisation et récupération des étudiants liés au module d'activité
-    $students = syncStudentsToApiFromContext($context, $forceSync, $groupid);
+    $students = syncStudentsToApiFromContext($context, $forceSync, $groupids);
     $teachers = syncTeachersToApiFromContext($context, $forceSync);
     
     // Create course to edusign api with students edusign api ids
@@ -703,6 +766,7 @@ function create_session($context, stdClass $cm, array $data, $forceSync = false,
         'title' => $data['title'],
         'groupid' => $groupid,
     ]);
+    edusign_set_session_groupids($cr, $groupids);
 
 
     // Update completion state

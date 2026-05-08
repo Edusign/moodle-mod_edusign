@@ -113,9 +113,7 @@ foreach ($sessions as $session) {
     $sessionrow = [
         'title' => $session->title,
         'date' => userdate(strtotime($session->date_start), get_string('strftimedatetimeshort', 'core_langconfig')),
-        'groupname' => empty($session->groupid)
-            ? get_string('commonsession', 'mod_edusign')
-            : (groups_get_group_name($session->groupid) ?: get_string('groupsession', 'mod_edusign')),
+        'groupname' => edusign_get_session_group_label($session),
         'takeurl' => (new moodle_url('/mod/edusign/take.php', ['sessionId' => $session->id]))->out(false),
         'expected' => 0,
         'present' => 0,
