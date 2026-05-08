@@ -1,0 +1,19 @@
+cubic.yaml
+  s_9953ec959d0fb3::t_c349b59b91f89d 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "6d2fd31d394dbcfe5c08004986a9463652883b30",
+  "prompts": {},
+  "sessions": {
+    "s_9953ec959d0fb3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e06fe-b5ef-77a3-b1e5-f175fcec4f5d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "DrMachiavel <DrMachiavel@users.noreply.github.com>"
+    }
+  }
+}
