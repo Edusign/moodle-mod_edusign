@@ -191,7 +191,8 @@ foreach ($studentsbyapiid as $studentreport) {
     if ($gradesyncenabled && $studentreport->expected > 0) {
         $studentreport->attendancegradeLabel = $studentreport->attendancegradepercent . '%';
         $studentreport->attendancegraderaw = format_float(
-            ($studentreport->attendancegradepercent / 100) * (float)$edusign->grade,
+            (($studentreport->present + $studentreport->justified) / $studentreport->expected)
+                * (float)$edusign->grade,
             2
         ) . ' / ' . format_float((float)$edusign->grade, 2);
     }

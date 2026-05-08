@@ -34,11 +34,13 @@
       <strong class="edusign-report-card__value">{{summary.justified}}</strong>
       <span class="edusign-report-card__meta">{{summary.absent}} {{#str}}absent, mod_edusign{{/str}}</span>
     </div>
-    <div class="edusign-report-card">
-      <span class="edusign-report-card__label">{{#str}}moodleGrade, mod_edusign{{/str}}</span>
-      <strong class="edusign-report-card__value">{{summary.attendanceGradeLabel}}</strong>
-      <span class="edusign-report-card__meta">{{#str}}attendancegradepolicy, mod_edusign{{/str}}</span>
-    </div>
+    {{#gradesyncenabled}}
+      <div class="edusign-report-card">
+        <span class="edusign-report-card__label">{{#str}}moodleGrade, mod_edusign{{/str}}</span>
+        <strong class="edusign-report-card__value">{{summary.attendanceGradeLabel}}</strong>
+        <span class="edusign-report-card__meta">{{#str}}attendancegradepolicy, mod_edusign{{/str}}</span>
+      </div>
+    {{/gradesyncenabled}}
     <div class="edusign-report-card">
       <span class="edusign-report-card__label">{{#str}}waitingSignature, mod_edusign{{/str}}</span>
       <strong class="edusign-report-card__value">{{summary.pending}}</strong>
