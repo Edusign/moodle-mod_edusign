@@ -1,0 +1,29 @@
+lang/fr/edusign.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 41
+lang/en/edusign.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 42
+mod_form.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 229-231
+lang/es/edusign.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 42
+externallib.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 112,139
+lib.php
+  s_9953ec959d0fb3::t_d8adb63d96c02b 90-92,135-137,155-159,268-277
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "d6587b79706d099819b583ed2856885204ab9a07",
+  "prompts": {},
+  "sessions": {
+    "s_9953ec959d0fb3": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e06fe-b5ef-77a3-b1e5-f175fcec4f5d",
+        "model": "gpt-5.5"
+      },
+      "human_author": "DrMachiavel <DrMachiavel@users.noreply.github.com>"
+    }
+  }
+}
