@@ -371,10 +371,10 @@ class mod_edusign_external extends external_api
         try {
             $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
             if (empty($session) || empty($session->edusign_api_id)) {
-                throw new \Exception('No Edusign course is linked to this session');
+                throw new moodle_exception('qr_code_course_not_linked', 'mod_edusign');
             }
             if (empty($professorId)) {
-                throw new \Exception('No Edusign professor is linked to this session');
+                throw new moodle_exception('qr_code_professor_not_linked', 'mod_edusign');
             }
 
             $qrCodeLink = EdusignApi::getQRCodeLink($session->edusign_api_id, $professorId);
