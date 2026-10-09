@@ -87,7 +87,7 @@ class student_retroactivity extends \core\task\adhoc_task
                                 EdusignApi::deleteStudentFromCourse($edusignCourseApiId, $userApiId, $baseEvent);
                             }
                         } catch (\Exception $e) {
-                            if (!in_array($e->getMessage(), self::ALREADY_DONE_MESSAGES, true)) {
+                            if ($e->getMessage() !== ($data->operation_type === 'ADD_STUDENT' ? 'Student already in the list' : 'Student not in the list')) {
                                 throw $e;
                             }
                         }
