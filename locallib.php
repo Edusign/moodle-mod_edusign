@@ -615,7 +615,9 @@ function update_session($context, stdClass $cm, $session, array $data, $processC
 
     if ($session->edusign_api_id) {
         $course = EdusignApi::getCourseById($session->edusign_api_id);
-        EdusignApi::updateCourse($session->edusign_api_id, array_merge($edusignCourseData, (array)$course));
+        // The form values go last: array_merge keeps the last value of a key, so with the Edusign
+        // course last, its NAME, START and END silently overwrote the ones just entered.
+        EdusignApi::updateCourse($session->edusign_api_id, array_merge((array)$course, $edusignCourseData));
     }
 
     $session->title = $data['title'];
