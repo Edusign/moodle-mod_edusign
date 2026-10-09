@@ -14,6 +14,9 @@ enum OperationType
 
 class student_retroactivity extends \core\task\adhoc_task
 {
+    /** Errors the Edusign API returns when the student is already on, or already off, the session. */
+    private const ALREADY_DONE_MESSAGES = ['Student already in the list', 'Student not in the list'];
+
     /**
      * Execute the task.
      */
@@ -74,10 +77,19 @@ class student_retroactivity extends \core\task\adhoc_task
                         continue;
                     }
                     if ($userApiId) {
-                        if ($data->operation_type === 'ADD_STUDENT') {
-                            EdusignApi::addStudentToCourse($edusignCourseApiId, $userApiId, $baseEvent);
-                        } else if ($data->operation_type === 'REMOVE_STUDENT') {
-                            EdusignApi::deleteStudentFromCourse($edusignCourseApiId, $userApiId, $baseEvent);
+                        // A student already in the wanted state is not a failure: adding them to the
+                        // training already puts them on its sessions. Failing here made Moodle retry
+                        // the task, and a late retry put back a student unenrolled in the meantime.
+                        try {
+                            if ($data->operation_type === 'ADD_STUDENT') {
+                                EdusignApi::addStudentToCourse($edusignCourseApiId, $userApiId, $baseEvent);
+                            } else if ($data->operation_type === 'REMOVE_STUDENT') {
+                                EdusignApi::deleteStudentFromCourse($edusignCourseApiId, $userApiId, $baseEvent);
+                            }
+                        } catch (\Exception $e) {
+                            if (!in_array($e->getMessage(), self::ALREADY_DONE_MESSAGES, true)) {
+                                throw $e;
+                            }
                         }
                     }
                 }
