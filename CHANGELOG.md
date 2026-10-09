@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1](https://github.com/Edusign/moodle-mod_edusign/compare/v1.7.0...v1.7.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* **moodle-plugin:** CU-1242djkh0nn - Sync session edits and stop re-adding unenrolled students ([#31](https://github.com/Edusign/moodle-mod_edusign/issues/31)) ([e9e5a2c](https://github.com/Edusign/moodle-mod_edusign/commit/e9e5a2cf7c67fb1a336eaa105cdef3cd9b18086e))
+
 ## [1.7.0](https://github.com/Edusign/moodle-mod_edusign/compare/v1.6.3...v1.7.0) (2026-05-04)
 
 
