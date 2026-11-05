@@ -46,6 +46,22 @@ class mod_edusign_mod_form extends moodleform_mod
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
 
+        $mform->addElement(
+            'advcheckbox',
+            'attendancegradeenabled',
+            get_string('attendancegradeenabled', 'edusign'),
+            get_string('attendancegradeenabled_desc', 'edusign')
+        );
+        $mform->addHelpButton('attendancegradeenabled', 'attendancegradeenabled', 'edusign');
+        $mform->setDefault('attendancegradeenabled', 0);
+        $mform->setType('attendancegradeenabled', PARAM_BOOL);
+        $mform->addElement(
+            'static',
+            'attendancegradeenabledinfo',
+            '',
+            html_writer::div(get_string('attendancegradeenabled_info', 'edusign'), 'form-text text-muted')
+        );
+
         $this->standard_coursemodule_elements(true);
 
         $this->add_action_buttons();
@@ -209,6 +225,9 @@ class mod_edusign_mod_form extends moodleform_mod
         }
         if ($startDate >= $endDate) {
             $errors['date_end'] = get_string('errorstartdatebeforeenddate', 'edusign');
+        }
+        if (!empty($data['attendancegradeenabled']) && (empty($data['grade']) || (float)$data['grade'] <= 0)) {
+            $errors['attendancegradeenabled'] = get_string('attendancegradeenabled_requires_grade', 'edusign');
         }
         return $errors;
     }

@@ -38,6 +38,7 @@ require_once($CFG->libdir . '/filelib.php');
 require($CFG->dirroot . '/mod/edusign/classes/commons/EdusignApi.php');
 
 require(__DIR__ . '/locallib.php');
+require_once(__DIR__ . '/lib.php');
 
 /**
  * Class mod_edusign_external
@@ -108,7 +109,7 @@ class mod_edusign_external extends external_api
     public static function take_attendance(int $cmId, int $sessionId, string $method, string $studentsId, string $JSONArgs = '{}')
     {
         global $DB;
-        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId]);
+        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId], '*', MUST_EXIST);
         $args = [];
 
         try {
@@ -133,6 +134,13 @@ class mod_edusign_external extends external_api
             default:
                 throw new Exception('Method not found');
         }
+
+        if (in_array($method, ['set_student_absent', 'set_student_delay', 'set_student_early_departure'], true)) {
+            $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
+            $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+            edusign_maybe_update_attendance_grades($edusign);
+        }
+
         return [
             'result' => $cr,
             'error' => '',
@@ -439,12 +447,16 @@ class mod_edusign_external extends external_api
     public static function remove_session(int $sessionId, bool $withEdusignDelete = true)
     {
         global $DB;
-        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId], 'edusign_api_id');
+        $session = $DB->get_record('edusign_sessions', ['id' => $sessionId], '*', MUST_EXIST);
+        $cm = get_coursemodule_from_id('edusign', $session->activity_module_id, 0, false, MUST_EXIST);
+        $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+
         if ($withEdusignDelete) {
             EdusignApi::deleteCourse($session->edusign_api_id);
         }
 
         $DB->delete_records('edusign_sessions', ['id' => $sessionId]);
+        edusign_maybe_update_attendance_grades($edusign);
 
         return [
             'result' => true,
@@ -496,6 +508,8 @@ class mod_edusign_external extends external_api
         if ($completion->is_enabled($cm)) {
             $completion->update_state($cm, COMPLETION_UNKNOWN);
         }
+        $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+        edusign_maybe_update_attendance_grades($edusign);
 
         return [
             'result' => true,
