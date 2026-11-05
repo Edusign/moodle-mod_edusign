@@ -97,7 +97,7 @@ class mod_edusign_observer
                 self::triggerStudentRetroActivity($event, 'ADD_STUDENT');
             }
         } catch (\Exception $e) {
-            mtrace('Error in role_assigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            error_log('[mod_edusign] Error in role_assigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         // Add student to training
         if (!empty($ressourcesToAdd) && $context->contextlevel === CONTEXT_COURSE) {
@@ -107,8 +107,7 @@ class mod_edusign_observer
                     EdusignApi::addTrainingResources($edusignCourseId->edusign_api_id, $ressourcesToAdd);
                 }
             } catch (\Exception $e) {
-                // Log error
-                error_log($e->getMessage());
+                error_log('[mod_edusign] Error in role_assigned while adding training resources: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             }
         }
 
@@ -120,16 +119,10 @@ class mod_edusign_observer
     {
         global $DB;
 
-        mtrace('observer::role_unassigned - Event: ' . print_r($event, true));
-
         try {
             $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
 
-            mtrace('observer::role_unassigned - Role: ' . print_r($role, true));
-
             $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
-
-            mtrace('observer::role_unassigned - User: ' . print_r($user, true));
 
             if ($user->role === 'teacher') {
                 self::triggerStudentRetroActivity($event, 'REMOVE_PROFESSOR');
@@ -137,7 +130,7 @@ class mod_edusign_observer
                 self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
             }
         } catch (\Exception $e) {
-            mtrace('Error in role_unassigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            error_log('[mod_edusign] Error in role_unassigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         return true;
     }
@@ -157,20 +150,13 @@ class mod_edusign_observer
         try {
             $role = $DB->get_record('role', ['id' => $event->get_data()['objectid']]);
 
-            mtrace('triggerStudentRetroActivity - Operation type: ' . $operationType);
-            mtrace('triggerStudentRetroActivity - Role: ' . print_r($role, true));
-            mtrace('triggerStudentRetroActivity - Event object ID: ' . $event->get_data()['objectid']);
-            mtrace('triggerStudentRetroActivity - Related user ID: ' . $event->get_data()['relateduserid']);
-
             $user = getUserWithEdusignApiId($role->shortname, $event->get_data()['relateduserid']);
-            
-            mtrace('triggerStudentRetroActivity - User: ' . print_r($user, true));
 
             $task = new \mod_edusign\task\student_retroactivity();
             $task = $task->instance($user->id, $context->instanceid, $operationType);
             return \core\task\manager::queue_adhoc_task($task);
         } catch (\Exception $e) {
-            mtrace('Error in triggerStudentRetroActivity: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
+            error_log('[mod_edusign] Error in triggerStudentRetroActivity: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         return false;
     }
