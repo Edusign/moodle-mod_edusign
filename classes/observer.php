@@ -107,8 +107,7 @@ class mod_edusign_observer
                     EdusignApi::addTrainingResources($edusignCourseId->edusign_api_id, $ressourcesToAdd);
                 }
             } catch (\Exception $e) {
-                // Log error
-                error_log($e->getMessage());
+                error_log('[mod_edusign] Error in role_assigned while adding training resources: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             }
         }
 
