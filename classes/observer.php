@@ -97,7 +97,7 @@ class mod_edusign_observer
                 self::triggerStudentRetroActivity($event, 'ADD_STUDENT');
             }
         } catch (\Exception $e) {
-            error_log('[mod_edusign] Error in role_assigned: ' . $e->getMessage());
+            error_log('[mod_edusign] Error in role_assigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         // Add student to training
         if (!empty($ressourcesToAdd) && $context->contextlevel === CONTEXT_COURSE) {
@@ -131,7 +131,7 @@ class mod_edusign_observer
                 self::triggerStudentRetroActivity($event, 'REMOVE_STUDENT');
             }
         } catch (\Exception $e) {
-            error_log('[mod_edusign] Error in role_unassigned: ' . $e->getMessage());
+            error_log('[mod_edusign] Error in role_unassigned: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         return true;
     }
@@ -157,7 +157,7 @@ class mod_edusign_observer
             $task = $task->instance($user->id, $context->instanceid, $operationType);
             return \core\task\manager::queue_adhoc_task($task);
         } catch (\Exception $e) {
-            error_log('[mod_edusign] Error in triggerStudentRetroActivity: ' . $e->getMessage());
+            error_log('[mod_edusign] Error in triggerStudentRetroActivity: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
         }
         return false;
     }
