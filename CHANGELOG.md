@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.7.2](https://github.com/Edusign/moodle-mod_edusign/compare/v1.7.1...v1.7.2) (2026-11-05)
+
+
+### Bug Fixes
+
+* **observer:** align training resource error diagnostics ([5850e46](https://github.com/Edusign/moodle-mod_edusign/commit/5850e4610cd58eda88969e061e4cbc1d95a69f64))
+* **observer:** preserve server-side exception stack traces ([37471c1](https://github.com/Edusign/moodle-mod_edusign/commit/37471c18c7ebcb37d194f2ddb97b395a795d69a7))
+* **observer:** prevent debug output during CSV user imports ([6e2bd79](https://github.com/Edusign/moodle-mod_edusign/commit/6e2bd7972f082fff4992182cf4c50403a0009b9e))
+* remove observer debug output from CSV user imports ([25413a2](https://github.com/Edusign/moodle-mod_edusign/commit/25413a2426e500afaf1f20f5ddb803b852074139))
+
 ## [1.7.1](https://github.com/Edusign/moodle-mod_edusign/compare/v1.7.0...v1.7.1) (2026-10-09)
 
 
