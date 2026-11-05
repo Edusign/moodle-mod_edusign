@@ -1,0 +1,19 @@
+classes/observer.php
+  s_928ab111bfe078::t_6d8e37a98866c3 110
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "5850e4610cd58eda88969e061e4cbc1d95a69f64",
+  "prompts": {},
+  "sessions": {
+    "s_928ab111bfe078": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "01a1ac76-5bec-7d23-8a0a-8a1f22c95766",
+        "model": "gpt-6.1-sol"
+      },
+      "human_author": "DrMachiavel <DrMachiavel@users.noreply.github.com>"
+    }
+  }
+}
