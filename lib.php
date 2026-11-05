@@ -80,11 +80,15 @@ function edusign_add_instance($edusign)
     $context = context_module::instance($edusign->coursemodule);
 
     $edusign->timemodified = time();
+    $edusign->attendancegradeenabled = empty($edusign->attendancegradeenabled) ? 0 : 1;
 
     // Default grade (similar to what db fields defaults if no grade attribute is passed),
     // but we need it in object for grading update.
     if (!isset($edusign->grade)) {
         $edusign->grade = 100;
+    }
+    if ((float)$edusign->grade <= 0) {
+        $edusign->attendancegradeenabled = 0;
     }
 
     if ($edusign->complete_mode) {
@@ -127,6 +131,10 @@ function edusign_update_instance($edusign)
 
     $edusign->timemodified = time();
     $edusign->id = $edusign->instance;
+    $edusign->attendancegradeenabled = empty($edusign->attendancegradeenabled) ? 0 : 1;
+    if ((float)$edusign->grade <= 0) {
+        $edusign->attendancegradeenabled = 0;
+    }
     
     if ($edusign->complete_mode) {
         $edusign->completeonxattendancesigned = $edusign->completeonxattendancesigned ?: 0;
@@ -142,6 +150,12 @@ function edusign_update_instance($edusign)
         
     if (! $DB->update_record('edusign', $edusign)) {
         return false;
+    }
+
+    if (!empty($edusign->attendancegradeenabled)) {
+        edusign_maybe_update_attendance_grades($edusign);
+    } else {
+        edusign_grade_item_update($edusign);
     }
     
     return true;
@@ -224,6 +238,10 @@ function edusign_delete_instance($id)
 function edusign_supports($feature)
 {
     switch ($feature) {
+        case FEATURE_GRADE_HAS_GRADE:
+        case FEATURE_GROUPS:
+        case FEATURE_GROUPINGS:
+            return true;
         case FEATURE_COMPLETION_TRACKS_VIEWS:
             return false;
         case FEATURE_COMPLETION_HAS_RULES:
@@ -231,6 +249,89 @@ function edusign_supports($feature)
         default:
             return null;
     }
+}
+
+/**
+ * Pushes Edusign attendance grades to the Moodle gradebook.
+ *
+ * @param stdClass $edusign Edusign activity record.
+ * @param int $userid Optional user id to update.
+ * @param bool $nullifnone Whether Moodle should clear missing grades.
+ * @return int Grade update result.
+ */
+function edusign_update_grades($edusign, $userid = 0, $nullifnone = true)
+{
+    if (empty($edusign->attendancegradeenabled) || (float)$edusign->grade <= 0) {
+        return edusign_grade_item_update($edusign);
+    }
+
+    $cm = get_coursemodule_from_instance('edusign', $edusign->id, $edusign->course, false, MUST_EXIST);
+    $grades = edusign_get_attendance_grades($cm, $edusign, $userid);
+    if (empty($grades)) {
+        if ($userid > 0 && $nullifnone) {
+            $grade = new stdClass();
+            $grade->userid = $userid;
+            $grade->rawgrade = null;
+            return edusign_grade_item_update($edusign, $grade);
+        }
+        if (!$nullifnone) {
+            return edusign_grade_item_update($edusign);
+        }
+    }
+
+    return edusign_grade_item_update($edusign, $grades);
+}
+
+/**
+ * Best-effort attendance grade update for automatic refresh paths.
+ *
+ * @param stdClass $edusign Edusign activity record.
+ * @param int $userid Optional user id to update.
+ */
+function edusign_maybe_update_attendance_grades(stdClass $edusign, int $userid = 0): void
+{
+    if (empty($edusign->attendancegradeenabled)) {
+        return;
+    }
+
+    try {
+        edusign_update_grades($edusign, $userid);
+    } catch (Throwable $e) {
+        debugging('Unable to update Edusign attendance grades: ' . $e->getMessage(), DEBUG_DEVELOPER);
+    }
+}
+
+/**
+ * Adds module specific items to the activity navigation.
+ *
+ * @param settings_navigation $settingsnav The settings navigation object.
+ * @param navigation_node $edusignnode The node to add module settings to.
+ */
+function edusign_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $edusignnode)
+{
+    $page = $settingsnav->get_page();
+    $cm = $page->cm;
+    if (!$cm) {
+        return;
+    }
+
+    $context = context_module::instance($cm->id);
+    if (!has_any_capability([
+        'mod/edusign:takeattendances',
+        'mod/edusign:changeattendances',
+        'mod/edusign:manageattendances',
+    ], $context)) {
+        return;
+    }
+
+    $reportnode = navigation_node::create(
+        get_string('report', 'mod_edusign'),
+        new moodle_url('/mod/edusign/report.php', ['id' => $cm->id]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'edusignreport'
+    );
+    $edusignnode->add_node($reportnode, 'modedit');
 }
 
 

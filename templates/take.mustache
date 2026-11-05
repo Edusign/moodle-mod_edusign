@@ -3,12 +3,15 @@
     <h2>{{#str}}session, mod_edusign{{/str}}</h2>
     <div class="d-flex">
       <a href="#" id="refresh-button" class="action-icon d-flex align-items-center ml-2" style="text-decoration: none;"
-        data-toggle="tooltip" data-placement="top" title="{{#str}}refresh_help, mod_edusign{{/str}}">
+        data-toggle="tooltip" data-placement="top" data-bs-toggle="tooltip" data-bs-placement="top" title="{{#str}}refresh_help, mod_edusign{{/str}}">
         <i class="icon fa-solid fa-arrows-rotate" role="img" title="{{#str}}refresh, mod_edusign{{/str}}"
           aria-label="{{#str}}refresh, mod_edusign{{/str}}"></i>
       </a>
-      <button disabled id="sign-selected-btn" class="btn btn-primary" type="button" data-toggle="tooltip"
-        data-placement="top" title="{{#str}}signSelected_help, mod_edusign{{/str}}">
+      <button id="display-qr-code-btn" class="btn btn-secondary ml-2" type="button">
+        {{#str}}displayQRCode, mod_edusign{{/str}}
+      </button>
+      <button disabled id="sign-selected-btn" class="btn btn-primary ml-2" type="button" data-toggle="tooltip"
+        data-placement="top" data-bs-toggle="tooltip" data-bs-placement="top" title="{{#str}}signSelected_help, mod_edusign{{/str}}">
         {{#str}}sendSignatureMailSelected, mod_edusign{{/str}}
       </button>
     </div>
@@ -36,6 +39,8 @@
     id="archive-session-btn"
     data-toggle="tooltip"
     data-placement="top"
+    data-bs-toggle="tooltip"
+    data-bs-placement="top"
     title="{{#str}}archiveSession_help, mod_edusign{{/str}}"
   >
     {{#str}}archiveSession, mod_edusign{{/str}}
@@ -49,7 +54,7 @@
     <td class="presential-state"></td>
     <td class="actions" style="text-align: right;">
       <div class="btn-group">
-        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true"
+        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
           aria-expanded="false">
           {{#str}}changePresenceStatus, mod_edusign{{/str}}
         </button>
@@ -61,7 +66,7 @@
           <a class="dropdown-item early-departure-btn" href="#">{{#str}}earlyDeparture, mod_edusign{{/str}}</a>
         </div>
       </div>
-      <button type="button" class="btn btn-primary send-sign-email-btn" data-toggle="tooltip" data-placement="top"
+      <button type="button" class="btn btn-primary send-sign-email-btn" data-toggle="tooltip" data-placement="top" data-bs-toggle="tooltip" data-bs-placement="top"
         title="{{#str}}sendSignatureMail, mod_edusign{{/str}}">
         <i class="fa fa-envelope" aria-hidden="true"></i>
       </button>

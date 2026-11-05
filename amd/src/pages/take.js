@@ -29,7 +29,10 @@ const getStudentIframeLink = function (studentId) {
             userType: 'student',
         }
     }])[0]
-        .then(({ result }) => {
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
             return result?.[0]?.SIGNATURE_LINK;
         });
 };
@@ -43,8 +46,27 @@ const getTeacherIframeLink = function (teacherId) {
             userType: 'teacher',
         }
     }])[0]
-        .then(({ result }) => {
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
             return result?.[0]?.SIGNATURE_LINK;
+        });
+};
+
+const getQRCodeIframeLink = function (teacherId) {
+    return Ajax.call([{
+        methodname: 'mod_edusign_get_qr_code_link_from_course',
+        args: {
+            sessionId,
+            professorId: teacherId,
+        }
+    }])[0]
+        .then(({ result, error }) => {
+            if (error) {
+                throw new Error(error);
+            }
+            return result;
         });
 };
 
@@ -139,6 +161,9 @@ const askUserSignature = async function (userType, user) {
     } else {
         iframeURL = await getTeacherIframeLink(user.edusign_api_id);
     }
+    if (!iframeURL) {
+        throw new Error(await Str.get_string('signature_link_unavailable', 'mod_edusign'));
+    }
     return Modal.create({
         title: await Str.get_string('signatureModalTitle', 'mod_edusign'),
         body: (`
@@ -149,19 +174,75 @@ const askUserSignature = async function (userType, user) {
         removeOnClose: true,
     }).then((modalInstance) => {
         modalInstance.getRoot().addClass('signature-modal');
+        const onSignatureMessage = ({data}) => {
+            if (data === 'accept-signature') {
+                modalInstance.hide();
+            }
+        };
+        window.addEventListener('message', onSignatureMessage);
 
         // A la fermeture de la modale, on rafraichit la vue
         modalInstance.getRoot().on(ModalEvents.hidden, () => {
+            window.removeEventListener('message', onSignatureMessage);
             refreshView();
         });
 
-        window.addEventListener("message", ({data}) => {
-            modalInstance.hide();
-            if (data === 'accept-signature') {
-                refreshView();
-            }
-        });
+    });
+};
 
+const showQRCodeModal = async function () {
+    const teacher = availableTeachers.find((teacher) => {
+        return teacher.edusign_api_id;
+    });
+    if (!teacher) {
+        throw new Error(await Str.get_string('qr_code_link_unavailable', 'mod_edusign'));
+    }
+
+    const iframeURL = await getQRCodeIframeLink(teacher.edusign_api_id);
+    if (!iframeURL) {
+        throw new Error(await Str.get_string('qr_code_link_unavailable', 'mod_edusign'));
+    }
+
+    const title = await Str.get_string('qrCodeModalTitle', 'mod_edusign');
+
+    return Modal.create({
+        title,
+        body: (`
+            <iframe
+                id="qr-code-iframe"
+                src="${iframeURL}"
+                title="${title}"
+                style="width: 100%; height: min(840px, calc(100vh - 110px)); min-height: 700px; border: 0; display: block;"
+            ></iframe>
+        `),
+        footer: '',
+        show: true,
+        removeOnClose: true,
+    }).then((modalInstance) => {
+        modalInstance.getRoot().addClass('qr-code-modal');
+        modalInstance.getRoot().find('.modal-dialog').addClass('modal-xl');
+    });
+};
+
+const showSignatureError = async function (error) {
+    console.error(error);
+    addToast(await Str.get_string(
+        'signature_link_error',
+        'mod_edusign',
+        error?.message || 'An unknowed error has occured'
+    ), {
+        type: 'error'
+    });
+};
+
+const showQRCodeError = async function (error) {
+    console.error(error);
+    addToast(await Str.get_string(
+        'qr_code_link_error',
+        'mod_edusign',
+        error?.message || 'An unknowed error has occured'
+    ), {
+        type: 'error'
     });
 };
 
@@ -295,6 +376,7 @@ const refreshView = () => {
     }])[0].then(({ result }) => {
         initTable(result.students);
         initTeachers(result.teachers);
+        availableTeachers = result.teachers;
         return result;
     }).catch(async (error) => {
         console.error(error);
@@ -351,7 +433,7 @@ const initTable = async function (students) {
 
         if (student.edusign_data?.signature) {
             checkboxTD.setAttribute('disabled', 'disabled');
-            checkboxTD.setAttribute('data-toggle', 'tooltip');
+            checkboxTD.setAttribute('data-bs-toggle', 'tooltip');
             checkboxTD.setAttribute('title', await Str.get_string('studentAlreadySignedTooltip', 'mod_edusign'));
         }
         studentTR.dataset.studentId = student.edusign_api_id;
@@ -368,10 +450,10 @@ const initTable = async function (students) {
             const signSelectedBtn = document.querySelector('#sign-selected-btn');
             if (tbody.querySelectorAll('.user-checkbox:checked').length > 0) {
                 signSelectedBtn.removeAttribute('disabled');
-                signSelectedBtn.removeAttribute('data-toggle');
+                signSelectedBtn.removeAttribute('data-bs-toggle');
             } else {
                 signSelectedBtn.setAttribute('disabled', 'disabled');
-                signSelectedBtn.setAttribute('data-toggle', 'tooltip');
+                signSelectedBtn.setAttribute('data-bs-toggle', 'tooltip');
             }
         });
     });
@@ -386,10 +468,12 @@ const getStudentPresentialStateHTML = async function (student) {
     } else if (student.edusign_data.signature) {
         html = `<span class="badge badge-success">${await Str.get_string('present', 'mod_edusign')}</span>`;
         signatureHTML = `<img src="${student.edusign_data.signature}" style="height: 50px" class="signature" />`;
+    } else if (student.edusign_data.comment?.trim()) {
+        html = `<span class="badge badge-warning">${await Str.get_string('justifiedAbsence', 'mod_edusign')}</span>`;
     } else if (!student.edusign_data.signature && student.edusign_data.signatureEmail) {
         html = `<span class="badge badge-info">${await Str.get_string('waitingSignature', 'mod_edusign')}</span>`;
     } else {
-        html = '<span class="badge badge-danger">Absent</span>';
+        html = `<span class="badge badge-danger">${await Str.get_string('absent', 'mod_edusign')}</span>`;
     }
     if (student.edusign_data?.delay > 0) {
         html += `<span class="text-small text-muted">${student.edusign_data.delay} ${await Str.get_string('minLate', 'mod_edusign')}</span>`;
@@ -405,15 +489,17 @@ const getStudentPresentialStateHTML = async function (student) {
 
 const initActionButtonForTeacher = function (teacher, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function () {
-        askUserSignature('teacher', teacher);
+    context.querySelector('.manual-sign-btn--teacher').addEventListener('click', function (event) {
+        event.preventDefault();
+        askUserSignature('teacher', teacher).catch(showSignatureError);
     });
 };
 
 const initActionButtonForStudent = function (student, context) {
     // Allows a user to manually sign
-    context.querySelector('.manual-sign-btn').addEventListener('click', function () {
-        askUserSignature('student', student);
+    context.querySelector('.manual-sign-btn').addEventListener('click', function (event) {
+        event.preventDefault();
+        askUserSignature('student', student).catch(showSignatureError);
     });
 
     // Send an email to the student to sign the document
@@ -434,7 +520,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the student as absent
-    context.querySelector('.justified-abscence-btn').addEventListener('click', function () {
+    context.querySelector('.justified-abscence-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         openModalAddCommentToStudentAbsence()
             .then((comment) => {
                 return setStudentAbsent(student.edusign_api_id, comment);
@@ -454,7 +541,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the student as delayed
-    context.querySelector('.late-btn').addEventListener('click', function () {
+    context.querySelector('.late-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         // Opens a modal to set in minutes the delay of the student
         openModalSetStudentDelayed()
             .then((delay) => {
@@ -476,7 +564,8 @@ const initActionButtonForStudent = function (student, context) {
     });
 
     // Set the early departure of the student
-    context.querySelector('.early-departure-btn').addEventListener('click', function () {
+    context.querySelector('.early-departure-btn').addEventListener('click', function (event) {
+        event.preventDefault();
         // Opens a modal to set in minutes the early departure of the student
         openModalSetStudentEarlyDeparture()
             .then((earlyDeparture) => {
@@ -510,8 +599,15 @@ const initCheckbox = function () {
 
 const initRefreshButton = function () {
     // Allows to refresh the table
-    document.querySelector('#refresh-button').addEventListener('click', function () {
+    document.querySelector('#refresh-button').addEventListener('click', function (event) {
+        event.preventDefault();
         refreshView();
+    });
+};
+
+const initQRCodeButton = function () {
+    document.querySelector('#display-qr-code-btn').addEventListener('click', function () {
+        showQRCodeModal().catch(showQRCodeError);
     });
 };
 
@@ -584,14 +680,17 @@ const onDocumentSigned = () => {
 // eslint-disable-next-line no-unused-vars
 let course = null;
 let session = null;
+let availableTeachers = [];
 
 export const init = async (students, teachers, _course, _session) => {
     course = _course;
     session = _session;
+    availableTeachers = teachers;
     initTable(students);
     initTeachers(teachers);
     initCheckbox();
     initRefreshButton();
+    initQRCodeButton();
     initSignButton();
     initArchiveButton();
 };

@@ -58,6 +58,8 @@ function webhook_on_student_sign($data) {
     if ($completion->is_enabled($cm)) {
         $completion->update_state($cm, COMPLETION_UNKNOWN, $student->id);
     }
+    $edusign = $DB->get_record('edusign', ['id' => $cm->instance], '*', MUST_EXIST);
+    edusign_maybe_update_attendance_grades($edusign, $student->id);
     return;    
 }
 
